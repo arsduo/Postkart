@@ -1,0 +1,13 @@
+development: &dev
+  key: 284113890607.apps.googleusercontent.com
+  secret: rV4tAU+aCqubNDmYsjc9MdXd
+  callback: http://postkart.alex.ctxopt.com/
+
+test:
+  <<: *dev
+
+# set these environment variables on your prod server
+production:
+  key: 203251285622.apps.googleusercontent.com
+  secret: M3CHO+9dWSVSU439Z9Fw/HXe
+  callback: 
