@@ -3,8 +3,9 @@ class User
   include Mongoid::Timestamps
 
   # devise:
-  # trackable
-  # registerable
+  # Include default devise modules. Others available are:
+  # :token_authenticatable, :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable
+  devise :trackable, :registerable, :token_authenticatable, :omniauthable, :rememberable
 
   # FIELDS
   field :google_id

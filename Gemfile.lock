@@ -57,6 +57,7 @@ GEM
       rack (< 2, >= 1.1.0)
     haml (3.0.25)
     i18n (0.5.0)
+    json (1.5.1)
     machinist (1.0.6)
     mail (2.2.15)
       activesupport (>= 2.3.6)
@@ -89,6 +90,9 @@ GEM
       multi_json (~> 0.0.4)
     orm_adapter (0.0.4)
     polyglot (0.3.1)
+    portablecontacts (0.1.0)
+      json
+      oauth (>= 0.3.6)
     rack (1.2.2)
     rack-mount (0.6.13)
       rack (>= 1.0.0)
@@ -153,6 +157,7 @@ DEPENDENCIES
   mocha
   mongoid (>= 2.0.0.beta.17)
   oa-oauth
+  portablecontacts
   rails (= 3.0.5)
   remarkable (>= 4.0.0.alpha2)
   remarkable_activemodel (>= 4.0.0.alpha2)

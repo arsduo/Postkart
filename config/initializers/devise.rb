@@ -103,6 +103,9 @@ Devise.setup do |config|
   # Defines name of the authentication token params key
   config.token_authentication_key = :oauth_token
 
+  # omniauth
+  config.omniauth :google, GOOGLE_AUTH["key"], GOOGLE_AUTH["secret"]
+
   # ==> Scopes configuration
   # Turn scoped views on. Before rendering "sessions/new", it will first check for
   # "users/sessions/new". It's turned off by default because it's slower if you
