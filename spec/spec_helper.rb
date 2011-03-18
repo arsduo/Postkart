@@ -28,7 +28,7 @@ RSpec.configure do |config|
   # instead of true.
   # config.use_transactional_fixtures = true
   
-  config.include Rack::Test::Methods
+  # config.include Rack::Test::Methods
  
   config.before :all do
     Mongoid.database.collections.each(&:drop)

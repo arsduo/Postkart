@@ -11,16 +11,10 @@ describe User do
     User.included_modules.include?(Mongoid::Timestamps).should be_true
   end
   
-  # fields
-  it { should have_field(:google_id) }
-  it { should have_field(:google_token) }
-  
   # associations
+  it { should embed_many(:remote_accounts) }
   it { should reference_many(:trips) }
   it { should reference_many(:recipients) }
   it { should reference_many(:mailings) }
-  
-  # validations
-  it { should validate_presence_of(:google_id) }
   
 end

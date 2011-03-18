@@ -1,0 +1,10 @@
+Setting things up...
+
+<script>
+  args = {}; 
+  jQuery.each(document.location.hash.slice(1).split("&"), function(i, val) { var keyVal = val.split("="); args[keyVal[0]] = keyVal[1] });
+  $.post("google_login", args, function(result) {
+    console.log(result);
+  });
+
+</script>

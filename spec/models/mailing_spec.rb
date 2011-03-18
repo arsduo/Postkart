@@ -10,14 +10,11 @@ describe Mailing do
     Mailing.included_modules.include?(Mongoid::Timestamps).should be_true
   end
 
-
-  # EMBEDDED
-  it { should be_embedded_in(:trip) }
-  
   # FIELDS
   it { should have_field(:date, :type => DateTime) }
   
   # ASSOCIATIONS
   it { should be_referenced_in(:recipient) }
+  it { should be_referenced_in(:trip) }
   it { should be_referenced_in(:user) }
 end

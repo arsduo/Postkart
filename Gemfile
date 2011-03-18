@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.0.5'
 gem 'haml'
+gem 'typhoeus'
 
 # Google
 gem "devise", ">= 1.2.rc2"
