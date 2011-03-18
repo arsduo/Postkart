@@ -6,8 +6,6 @@ gem 'typhoeus'
 
 # Google
 gem "devise", ">= 1.2.rc2"
-gem "oa-oauth", :require => "omniauth/oauth"
-gem 'portablecontacts'
 
 # mongo
 gem "mongoid", ">= 2.0.0.beta.17"
