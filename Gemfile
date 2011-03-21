@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'rails', '3.0.5'
 gem 'haml'
 gem 'typhoeus'
+gem 'json'
 
 # Google
 gem "devise", ">= 1.2.rc2"
@@ -13,7 +14,7 @@ gem "bson_ext", ">= 1.2.0"
 
 group :test, :development do
   # test content
-  gem "rspec-rails", "~> 2.0.1"
+  gem "rspec-rails"
 end
 
 group :test do

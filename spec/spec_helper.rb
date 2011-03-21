@@ -31,11 +31,11 @@ RSpec.configure do |config|
   # config.include Rack::Test::Methods
  
   config.before :all do
-    Mongoid.database.collections.each(&:drop)
+    Mongoid.database.collections.select { |c| c.name != 'system.indexes' }.each(&:drop)
   end
  
   config.after :all do
-    Mongoid.database.collections.each(&:drop)
+    Mongoid.database.collections.select { |c| c.name != 'system.indexes' }.each(&:drop)
   end
   
 end
