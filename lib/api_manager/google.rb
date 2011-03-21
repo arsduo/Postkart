@@ -1,6 +1,7 @@
-module APIManager
-  class Google
+class APIManager
+  class Google < APIManager
     attr_reader :oauth_token
+    API_ENDPOINT = "https://www.google.com/m8/feeds/contacts/default/full/"
     
     def initialize(token)
       @oauth_token = token
@@ -25,11 +26,7 @@ module APIManager
     private 
     
     def make_request(params = {})
-      JSON.parse(
-        Typhoeus::Request.get("https://www.google.com/m8/feeds/contacts/default/full/", :params => {
-          :alt => :json, :oauth_token => @oauth_token, "max-results" => params[:max_results]}
-        ).body
-      )
+      super(API_ENDPOINT, :alt => :json, :oauth_token => @oauth_token, "max-results" => params[:max_results])
     end
   end
 end
