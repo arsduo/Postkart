@@ -1,5 +1,6 @@
 module APIManager
   class Google
+    attr_reader :oauth_token
     
     def initialize(token)
       @oauth_token = token
@@ -14,6 +15,13 @@ module APIManager
       {:identifier => email, :email => email, :name => name}
     end
          
+    
+    # class methods
+    def self.auth_url
+      "https://accounts.google.com/o/oauth2/auth?client_id=#{GOOGLE_AUTH["key"]}&" + \
+        "redirect_uri=#{GOOGLE_AUTH["callback"]}&scope=https://www.google.com/m8/feeds/&response_type=token"      
+    end     
+    
     private 
     
     def make_request(params = {})

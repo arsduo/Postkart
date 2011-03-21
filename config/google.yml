@@ -1,7 +1,7 @@
 development: &dev
   key: 284113890607.apps.googleusercontent.com
   secret: rV4tAU+aCqubNDmYsjc9MdXd
-  callback: http://postkart.alex.ctxopt.com/
+  callback: http://postkart.alex.ctxopt.com/authentication/google_callback
 
 test:
   <<: *dev
