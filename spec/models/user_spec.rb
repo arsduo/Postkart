@@ -50,21 +50,93 @@ describe User do
       User.expects(:where).with(has_value(@sample_data[:identifier])).returns([])
       User.from_google_token(@token)
     end
+    
+    shared_examples_for "creating a new remote account" do
+      # note: it's expected that the containing context will provide a before block
+      # that defines @u as a user object
+      before :each do
+        @u.remote_accounts.stubs(:where).returns([])
+      end
+
+      it "creates a new remote account of type Google with the identifier and token" do
+        r = RemoteAccount.make
+        RemoteAccount.expects(:new).with(
+          :identifier => @sample_data[:identifier],
+          :token => @token,
+          :account_type => :google
+        ).returns(r)
+        User.from_google_token(@token)
+      end
+
+      it "adds that account to the user" do
+        r = RemoteAccount.make
+        RemoteAccount.stubs(:new).returns(r)
+        @u.remote_accounts.expects(:<<).with(r)
+        User.from_google_token(@token)
+      end      
+    end
 
     context "for a new user" do
+      before :each do
+        User.stubs(:where).returns([])
+        @u = User.make
+        User.stubs(:new).returns(@u)
+      end
       
+      it "creates a user record with the specified name" do
+        User.expects(:new).with(:name => @sample_data[:name]).returns(@u)
+        User.from_google_token(@token)
+      end
+      
+      it "saves the user record" do
+        @u.expects(:save)
+        User.from_google_token(@token)
+      end
+      
+      it "returns the newly-created user record" do
+        User.from_google_token(@token).should == @u
+      end
+      
+      it_should_behave_like "creating a new remote account"
     end
     
     context "for an existing user" do
-      it "returns the existing user" do
-        u = User.new
+      before :each do
+        @u = User.make
         # this should use User.make, then search based on the access token
-        User.stubs(:where).returns([u])
-        User.from_google_token(@token).should == u
+        User.stubs(:where).returns([@u])
+        @u.stubs(:new_record?).returns(false)
       end
       
-      it "updates the user's remote account with the new token"
-    end    
+      it "returns the existing user" do
+        User.from_google_token(@token).should == @u
+      end
+      
+      it "saves the user record" do
+        @u.expects(:save)
+        User.from_google_token(@token)
+      end
+      
+      context "with a remote account" do
+        before :each do
+          @r = RemoteAccount.make
+          @u.remote_accounts.stubs(:where).returns([@r])
+        end
+        
+        it "updates the remote account" do
+          User.from_google_token(@token)
+          @r.token.should == @token
+        end
+      end
+      
+      context "with no remote account" do
+        before :each do
+          @u.remote_accounts.stubs(:where).returns([])
+        end
+        
+        it_should_behave_like "creating a new remote account"
+      end
+    end
   end
   
 end
