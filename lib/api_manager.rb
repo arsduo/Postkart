@@ -3,7 +3,23 @@ class APIManager
     raise StandardError, "APIManager should not be initialized directly!"
   end
   
+  def service_name
+    raise StandardError, "APIManager#service_name should never be called directly! (Called from #{self.class.to_s})"
+  end
+  
   def make_request(url, params = {})
-    JSON.parse(Typhoeus::Request.get(url, :params => params).body)
+    begin
+      Timeout.timeout(5) do
+        JSON.parse(Typhoeus::Request.get(url, :params => params).body)
+      end
+    rescue Timeout::Error
+      unless @retried
+        @retried = true
+        retry
+      else
+        Rails.logger.warn("#{service_name} timed out twice!")
+        raise
+      end
+    end
   end
 end

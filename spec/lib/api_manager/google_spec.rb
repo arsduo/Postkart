@@ -63,6 +63,12 @@ describe APIManager::Google do
     end
   end
   
+  describe 'service_name' do
+    it "should return a string describing the service" do
+      APIManager::Google.new("foo").service_name.should =~ /Google/i
+    end
+  end
+  
   describe ".user_info" do
     before :each do
       # Google's overly-complex result structure
@@ -74,6 +80,27 @@ describe APIManager::Google do
           }]
         }
       }
+    
+      @token = "foobar"
+      @google = APIManager::Google.new(@token)
+      @google.stubs(:make_request).returns(@response)
+    end
+    
+    it "makes a request with max-results 0" do
+      @google.expects(:make_request).with(:max_results => 0).returns(@response)
+      @google.user_info
+    end
+    
+    it "returns a hash with the email address as :identifier" do
+      @google.user_info[:identifier].should == @response["feed"]["author"][0]["email"]["$t"]
+    end
+    
+    it "returns a hash with the email address as :email" do
+      @google.user_info[:email].should == @response["feed"]["author"][0]["email"]["$t"]
+    end
+    
+    it "returns a hash with the name as :name" do
+      @google.user_info[:name].should == @response["feed"]["author"][0]["name"]["$t"]
     end
   end
   
