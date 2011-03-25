@@ -41,11 +41,7 @@ describe APIManager::Google do
     end
     
     it "generatees a URL pointing to the right scope" do
-      APIManager::Google.auth_url.should include("scope=https://www.google.com/m8/feeds/")
-    end
-
-    it "generatees a URL with the right scope" do
-      APIManager::Google.auth_url.should include("scope=https://www.google.com/m8/feeds/")
+      APIManager::Google.auth_url.should include("scope=#{APIManager::Google::API_ENDPOINT}")
     end
     
     it "generates a URL with the right client_id parameter" do
@@ -71,13 +67,38 @@ describe APIManager::Google do
   
   describe ".user_info" do
     before :each do
-      # Google's overly-complex result structure
+      # the results we should get
+      @result = {
+        :first => "Alex",
+        :last => "Lastname",
+        :display => "Alex Lastname",
+        :email => "sample@sample.com",
+        :identifier => "identifier"
+      }
+      
+      # the mock response from PortableContacts
       @response = {
-        "feed" => {
-          "author" => [{
-              "name" => { "$t" => "Alex" },
-              "email" => { "$t" => "sample@example.com" }
-          }]
+        "entry" => {
+          "name" => {
+            "givenName" => @result[:first], 
+            "familyName" => @result[:last], 
+            "formatted" => "fullname"
+          },
+          "displayName" => @result[:display], 
+          "urls" => [{"type" => "profile", "value" => "url"}], 
+          "addresses" => [
+            {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => "addr2"},
+            {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => "addr4"}
+          ], 
+          "id" => @result[:identifier], 
+          "emails" => [
+            {"primary" => true, "value" => @result[:email]},
+            {"value" => "anotherEmail"},
+            {"type" => "other", "value" => "yetAnotherEmail"},
+            {"type" => "other", "value" => "evenMoreEmail"}
+          ], 
+          "isViewer" => true,   
+          "profileUrl" => "profileurl"
         }
       }
     
@@ -86,21 +107,39 @@ describe APIManager::Google do
       @google.stubs(:make_request).returns(@response)
     end
     
-    it "makes a request with max-results 0" do
-      @google.expects(:make_request).with(:max_results => 0).returns(@response)
+    it "makes a request" do
+      @google.expects(:make_request).returns(@response)
       @google.user_info
     end
     
-    it "returns a hash with the email address as :identifier" do
-      @google.user_info[:identifier].should == @response["feed"]["author"][0]["email"]["$t"]
+    it "returns a hash with the id as the identifier" do
+      @google.user_info[:identifier].should == @result[:identifier]
     end
     
-    it "returns a hash with the email address as :email" do
-      @google.user_info[:email].should == @response["feed"]["author"][0]["email"]["$t"]
+    describe "for emails" do
+      it "returns the primary email address if there is one" do
+        @google.user_info[:email].should == @result[:email]
+      end
+      
+      it "returns the first email address if there is no primary"
+      
+      it "returns nil if there are no email addresses"
     end
     
     it "returns a hash with the name as :name" do
-      @google.user_info[:name].should == @response["feed"]["author"][0]["name"]["$t"]
+      @google.user_info[:name].should == @result[:display]
+    end
+    
+    it "returns a hash with the first name as :first_name" do
+      @google.user_info[:first_name].should == @result[:first]
+    end
+    
+    it "returns a hash with the last name as :last_name" do
+      @google.user_info[:last_name].should == @result[:last]
+    end
+    
+    it "returns a hash with the account_type set to :google" do
+      @google.user_info[:account_type].should == :google
     end
   end
   
@@ -108,6 +147,14 @@ describe APIManager::Google do
     it "is private" do
       # make_request is defined generically in APIManager
       APIManager::Google.public_instance_methods.map(&:to_s).should_not include("make_request")
+    end
+    
+    # this tests the internals, but it's important
+    it "always sends along the OAuth token as a header" do
+      token = "bar"
+      g = APIManager::Google.new(token)
+      Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{token}"))).returns(Typhoeus::Response.new(:body => "[]"))
+      g.send(:make_request, "foo")
     end
   end
 end

@@ -1,7 +1,7 @@
 class APIManager
   class Google < APIManager
     attr_reader :oauth_token
-    API_ENDPOINT = "https://www.google.com/m8/feeds/contacts/default/full/"
+    API_ENDPOINT = "https://www-opensocial.googleusercontent.com/api/people/"
     
     def initialize(token)
       @oauth_token = token
@@ -13,24 +13,29 @@ class APIManager
     end
     
     def user_info
-      result = make_request(:max_results => 0)
-      author = result["feed"]["author"][0]
-      name = author["name"]["$t"]
-      email = author["email"]["$t"]
-      {:identifier => email, :email => email, :name => name}
+      response = make_request("@self", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]
+      {
+        :identifier => response["id"],
+        :first_name => response["name"]["givenName"],
+        :last_name => response["name"]["familyName"],
+        :name => response["displayName"],
+        :email => ((response["emails"] || []).find {|e| e["primary"]} || response["emails"].first || {})["value"],
+        :account_type => :google
+      }
     end     
+    #{}"JSON.parse(Typhoeus::Request.get(url, :headers => {:Authorization => "OAuth #{token}"}, :params => {:fields => "@all"}).body)"
     
     # class methods
     def self.auth_url
       "https://accounts.google.com/o/oauth2/auth?client_id=#{GOOGLE_AUTH["key"]}&" + \
-        "redirect_uri=#{GOOGLE_AUTH["callback"]}&scope=https://www.google.com/m8/feeds/&response_type=token"      
+        "redirect_uri=#{GOOGLE_AUTH["callback"]}&scope=https://www-opensocial.googleusercontent.com/api/people/&response_type=token"      
 
     end     
     
     private 
     
-    def make_request(params = {})
-      super(API_ENDPOINT, :alt => :json, :oauth_token => @oauth_token, "max-results" => params[:max_results])
+    def make_request(url_suffix, params = {}, typhoeus_args = {})
+      super("#{API_ENDPOINT}@me/#{url_suffix}", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))
     end
   end
 end

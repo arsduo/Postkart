@@ -36,6 +36,14 @@ describe APIManager do
       @mgr.make_request("foo", params)
     end
     
+    it "merges any additional info into the Typhoeus arguments" do
+      params = {:a => 2}
+      options = {:Authorization => "foo"}
+      Typhoeus::Request.expects(:get).with(anything, {:params => params}.merge(options)).returns(@typhoeus_response)
+      @mgr.make_request("foo", params, options)
+    end
+    
+    
     it "should retry if a Timeout occurs" do
       tries = sequence("typhoeus tries")
       Typhoeus::Request.expects(:get).in_sequence(tries).raises(Timeout::Error)
