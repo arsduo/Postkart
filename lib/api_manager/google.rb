@@ -19,11 +19,10 @@ class APIManager
         :first_name => response["name"]["givenName"],
         :last_name => response["name"]["familyName"],
         :name => response["displayName"],
-        :email => ((response["emails"] || []).find {|e| e["primary"]} || response["emails"].first || {})["value"],
+        :email => (response["emails"] ? (response["emails"].find {|e| e["primary"]} || response["emails"].first) : {})["value"],
         :account_type => :google
       }
-    end     
-    #{}"JSON.parse(Typhoeus::Request.get(url, :headers => {:Authorization => "OAuth #{token}"}, :params => {:fields => "@all"}).body)"
+    end
     
     # class methods
     def self.auth_url

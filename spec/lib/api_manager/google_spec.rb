@@ -92,8 +92,8 @@ describe APIManager::Google do
           ], 
           "id" => @result[:identifier], 
           "emails" => [
-            {"primary" => true, "value" => @result[:email]},
             {"value" => "anotherEmail"},
+            {"primary" => true, "value" => @result[:email]},
             {"type" => "other", "value" => "yetAnotherEmail"},
             {"type" => "other", "value" => "evenMoreEmail"}
           ], 
@@ -107,8 +107,8 @@ describe APIManager::Google do
       @google.stubs(:make_request).returns(@response)
     end
     
-    it "makes a request" do
-      @google.expects(:make_request).returns(@response)
+    it "makes a request for the user" do
+      @google.expects(:make_request).with("@self", anything).returns(@response)
       @google.user_info
     end
     
@@ -116,14 +116,43 @@ describe APIManager::Google do
       @google.user_info[:identifier].should == @result[:identifier]
     end
     
-    describe "for emails" do
-      it "returns the primary email address if there is one" do
+    context "with a primary email" do
+      it "returns the primary email address" do
+        @response["entry"]["email"] = [
+          {"value" => "anotherEmail"},
+          {"primary" => true, "value" => @result[:email]},
+          {"type" => "other", "value" => "yetAnotherEmail"},
+          {"type" => "other", "value" => "evenMoreEmail"}
+        ]
         @google.user_info[:email].should == @result[:email]
       end
+    end
+    
+    context "with emails but no primary email" do
+      it "returns the first email address" do
+        expectant = "anotherEmail"
+        @response["entry"]["email"] = [
+          {"value" => expectant},
+          {"value" => @result[:email]},
+          {"type" => "other", "value" => "yetAnotherEmail"},
+          {"type" => "other", "value" => "evenMoreEmail"}
+        ]
+        @google.user_info[:email].should == expectant
+      end
+
+    end
+    
+    context "with no emails" do    
+      it "returns nil if emails is nil" do
+         @response["entry"]["email"] = nil
+         @google.user_info[:email].should be_nil
+      end
       
-      it "returns the first email address if there is no primary"
+      it "returns nil if it's an array" do
+         @response["entry"]["email"] = []
+         @google.user_info[:email].should be_nil
+      end
       
-      it "returns nil if there are no email addresses"
     end
     
     it "returns a hash with the name as :name" do
