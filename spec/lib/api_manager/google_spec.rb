@@ -118,7 +118,7 @@ describe APIManager::Google do
     
     context "with a primary email" do
       it "returns the primary email address" do
-        @response["entry"]["email"] = [
+        @response["entry"]["emails"] = [
           {"value" => "anotherEmail"},
           {"primary" => true, "value" => @result[:email]},
           {"type" => "other", "value" => "yetAnotherEmail"},
@@ -131,7 +131,7 @@ describe APIManager::Google do
     context "with emails but no primary email" do
       it "returns the first email address" do
         expectant = "anotherEmail"
-        @response["entry"]["email"] = [
+        @response["entry"]["emails"] = [
           {"value" => expectant},
           {"value" => @result[:email]},
           {"type" => "other", "value" => "yetAnotherEmail"},
@@ -144,12 +144,12 @@ describe APIManager::Google do
     
     context "with no emails" do    
       it "returns nil if emails is nil" do
-         @response["entry"]["email"] = nil
+         @response["entry"]["emails"] = nil
          @google.user_info[:email].should be_nil
       end
       
       it "returns nil if it's an array" do
-         @response["entry"]["email"] = []
+         @response["entry"]["emails"] = []
          @google.user_info[:email].should be_nil
       end
       

@@ -19,9 +19,13 @@ class APIManager
         :first_name => response["name"]["givenName"],
         :last_name => response["name"]["familyName"],
         :name => response["displayName"],
-        :email => (response["emails"] ? (response["emails"].find {|e| e["primary"]} || response["emails"].first) : {})["value"],
+        :email => ((response["emails"] ||= []).find {|e| e["primary"]} || response["emails"].first || {})["value"],
         :account_type => :google
       }
+    end
+    
+    def user_contacts
+      
     end
     
     # class methods
