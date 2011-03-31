@@ -1,10 +1,18 @@
 Setting things up...
 
 <script>
-  args = {}; 
-  jQuery.each(document.location.hash.slice(1).split("&"), function(i, val) { var keyVal = val.split("="); args[keyVal[0]] = keyVal[1] });
+  args = document.location.hash.slice(1);
+  console.log("Posting with %s", args);
   $.post("google_login", args, function(result) {
-    console.log(result);
+    if (result.name) {
+      $("body").append("<div>Welcome " + (result.is_new_user ? "" : "back ") + "to Postkart, " + result.name + "!</div>");
+      if (result.is_new_user) {
+        $("body").append("<div>Getting your contacts...</div>");
+        $.post("populate_contacts", function(result) {
+          console.log(result);
+        })
+      }
+    }
   });
 
 </script>

@@ -1,6 +1,8 @@
 User.blueprint {
   name { "Alex#{sn}" }
   remote_accounts { [RemoteAccount.make] }
+  created_at { Time.now }
+  updated_at { Time.now }
 }
 
 RemoteAccount.blueprint {

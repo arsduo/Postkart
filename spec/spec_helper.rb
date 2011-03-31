@@ -30,6 +30,9 @@ RSpec.configure do |config|
   
   # config.include Rack::Test::Methods
  
+  # devise
+  config.include Devise::TestHelpers, :type => :controller
+ 
   config.before :all do
     Mongoid.database.collections.select { |c| c.name != 'system.indexes' }.each(&:drop)
   end
