@@ -1,7 +1,9 @@
 class APIManager
   class Google < APIManager
     attr_reader :oauth_token
+    
     API_ENDPOINT = "https://www-opensocial.googleusercontent.com/api/people/"
+    FIELDS = "addresses,emails,name,displayName,id"
     
     def initialize(token)
       @oauth_token = token
@@ -13,12 +15,12 @@ class APIManager
     end
     
     def user_info
-      user = make_request("@self", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]
+      user = make_request("@self", :fields => FIELDS)["entry"]
       parse_portable_contact(user)
     end
     
     def user_contacts
-      response = make_request("mycontacts", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]      
+      response = make_request("mycontacts", :fields => FIELDS)["entry"]      
     end
     
     # class methods

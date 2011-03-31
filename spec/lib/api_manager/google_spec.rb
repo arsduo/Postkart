@@ -112,6 +112,11 @@ describe APIManager::Google do
       @google.user_info
     end
     
+    it "makes a request for the right fields" do
+      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
+      @google.user_info
+    end
+    
     it "returns a hash with the id as the id" do
       @google.user_info[:id].should == @result[:id]
     end
@@ -169,6 +174,18 @@ describe APIManager::Google do
     
     it "returns a hash with the account_type set to :google" do
       @google.user_info[:account_type].should == :google
+    end
+  end
+  
+  describe ".user_contacts" do
+    it "makes a request for the user's mycontacts group" do
+      @google.expects(:make_request).with("mycontacts", anything).returns(@response)
+      @google.user_info
+    end
+    
+    it "makes a request for the right fields" do
+      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
+      @google.user_info
     end
   end
   
