@@ -5,6 +5,7 @@ gem 'haml'
 gem 'typhoeus'
 gem 'json'
 gem 'system_timer'
+gem 'jquery-rails', '>= 0.2.6'
 
 # Google
 gem "devise", ">= 1.2.rc2"
