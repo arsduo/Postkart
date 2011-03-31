@@ -17,7 +17,7 @@ describe User do
   it { should reference_many(:recipients) }
   it { should reference_many(:mailings) }
   
-  describe "#from_google_token" do
+  describe "#find_or_create_from_google_token" do
     before :each do
       @token = "foo"
       @sample_data = {
@@ -38,17 +38,17 @@ describe User do
     
     it "instantiates a Google API manager" do
       APIManager::Google.expects(:new).with(@token).returns(@mgr)
-      User.from_google_token(@token)
+      User.find_or_create_from_google_token(@token)
     end
     
     it "gets user_info from the API manager" do
       @mgr.expects(:user_info).returns(@sample_data)
-      User.from_google_token(@token)
+      User.find_or_create_from_google_token(@token)
     end
     
     it "looks for the user based on the identifier" do
       User.expects(:where).with(has_value(@sample_data[:identifier])).returns([])
-      User.from_google_token(@token)
+      User.find_or_create_from_google_token(@token)
     end
     
     shared_examples_for "creating a new remote account" do
@@ -65,14 +65,14 @@ describe User do
           :token => @token,
           :account_type => :google
         ).returns(r)
-        User.from_google_token(@token)
+        User.find_or_create_from_google_token(@token)
       end
 
       it "adds that account to the user" do
         r = RemoteAccount.make
         RemoteAccount.stubs(:new).returns(r)
         @u.remote_accounts.expects(:<<).with(r)
-        User.from_google_token(@token)
+        User.find_or_create_from_google_token(@token)
       end      
     end
 
@@ -85,16 +85,16 @@ describe User do
       
       it "creates a user record with the specified name" do
         User.expects(:new).with(:name => @sample_data[:name]).returns(@u)
-        User.from_google_token(@token)
+        User.find_or_create_from_google_token(@token)
       end
       
       it "saves the user record" do
         @u.expects(:save)
-        User.from_google_token(@token)
+        User.find_or_create_from_google_token(@token)
       end
       
       it "returns the newly-created user record" do
-        User.from_google_token(@token).should == @u
+        User.find_or_create_from_google_token(@token).should == @u
       end
       
       it_should_behave_like "creating a new remote account"
@@ -109,12 +109,12 @@ describe User do
       end
       
       it "returns the existing user" do
-        User.from_google_token(@token).should == @u
+        User.find_or_create_from_google_token(@token).should == @u
       end
       
       it "saves the user record" do
         @u.expects(:save)
-        User.from_google_token(@token)
+        User.find_or_create_from_google_token(@token)
       end
       
       context "with a remote account" do
@@ -124,7 +124,7 @@ describe User do
         end
         
         it "updates the remote account" do
-          User.from_google_token(@token)
+          User.find_or_create_from_google_token(@token)
           @r.token.should == @token
         end
       end

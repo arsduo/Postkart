@@ -13,19 +13,12 @@ class APIManager
     end
     
     def user_info
-      response = make_request("@self", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]
-      {
-        :identifier => response["id"],
-        :first_name => response["name"]["givenName"],
-        :last_name => response["name"]["familyName"],
-        :name => response["displayName"],
-        :email => ((response["emails"] ||= []).find {|e| e["primary"]} || response["emails"].first || {})["value"],
-        :account_type => :google
-      }
+      user = make_request("@self", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]
+      parse_portable_contact(user)
     end
     
     def user_contacts
-      
+      response = make_request("mycontacts", :params => {:fields => "addresses,emails,name,displayName,id"})["entry"]      
     end
     
     # class methods
@@ -36,6 +29,17 @@ class APIManager
     end     
     
     private 
+    
+    def parse_portable_contact(contact_info)
+      {
+        :id => contact_info["id"],
+        :first_name => contact_info["name"]["givenName"],
+        :last_name => contact_info["name"]["familyName"],
+        :name => contact_info["displayName"],
+        :email => ((contact_info["emails"] ||= []).find {|e| e["primary"]} || contact_info["emails"].first || {})["value"],
+        :account_type => :google
+      }
+    end
     
     def make_request(url_suffix, params = {}, typhoeus_args = {})
       super("#{API_ENDPOINT}@me/#{url_suffix}", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))

@@ -19,7 +19,7 @@ class User
   # INDICES
   index "remote_account.identifier", :unique => true
   
-  def self.from_google_token(token)
+  def self.find_or_create_from_google_token(token)
     google = APIManager::Google.new(token)
     info = google.user_info
     # if we don't have an existing user, make one

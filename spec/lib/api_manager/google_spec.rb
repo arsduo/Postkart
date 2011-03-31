@@ -73,7 +73,7 @@ describe APIManager::Google do
         :last => "Lastname",
         :display => "Alex Lastname",
         :email => "sample@sample.com",
-        :identifier => "identifier"
+        :id => "id"
       }
       
       # the mock response from PortableContacts
@@ -90,7 +90,7 @@ describe APIManager::Google do
             {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => "addr2"},
             {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => "addr4"}
           ], 
-          "id" => @result[:identifier], 
+          "id" => @result[:id], 
           "emails" => [
             {"value" => "anotherEmail"},
             {"primary" => true, "value" => @result[:email]},
@@ -112,8 +112,8 @@ describe APIManager::Google do
       @google.user_info
     end
     
-    it "returns a hash with the id as the identifier" do
-      @google.user_info[:identifier].should == @result[:identifier]
+    it "returns a hash with the id as the id" do
+      @google.user_info[:id].should == @result[:id]
     end
     
     context "with a primary email" do
