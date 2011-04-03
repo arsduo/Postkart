@@ -67,126 +67,42 @@ describe APIManager::Google do
   
   describe ".user_info" do
     before :each do
-      # the results we should get
-      @result = {
-        :first => "Alex",
-        :last => "Lastname",
-        :display => "Alex Lastname",
-        :email => "sample@sample.com",
-        :id => "id"
-      }
-      
-      # the mock response from PortableContacts
-      @response = {
-        "entry" => {
-          "name" => {
-            "givenName" => @result[:first], 
-            "familyName" => @result[:last], 
-            "formatted" => "fullname"
-          },
-          "displayName" => @result[:display], 
-          "urls" => [{"type" => "profile", "value" => "url"}], 
-          "addresses" => [
-            {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => "addr2"},
-            {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => "addr4"}
-          ], 
-          "id" => @result[:id], 
-          "emails" => [
-            {"value" => "anotherEmail"},
-            {"primary" => true, "value" => @result[:email]},
-            {"type" => "other", "value" => "yetAnotherEmail"},
-            {"type" => "other", "value" => "evenMoreEmail"}
-          ], 
-          "isViewer" => true,   
-          "profileUrl" => "profileurl"
-        }
-      }
-    
       @token = "foobar"
       @google = APIManager::Google.new(@token)
-      @google.stubs(:make_request).returns(@response)
+      @google.stubs(:make_request).returns({"entry" => "bar"})
+
+      # don't do parsing
+      @google.stubs(:parse_portable_contact)
     end
     
     it "makes a request for the user" do
-      @google.expects(:make_request).with("@self", anything).returns(@response)
+      @google.expects(:make_request).with("@self", anything)
       @google.user_info
     end
     
     it "makes a request for the right fields" do
-      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
+      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS)
       @google.user_info
     end
     
-    it "returns a hash with the id as the id" do
-      @google.user_info[:id].should == @result[:id]
-    end
-    
-    context "with a primary email" do
-      it "returns the primary email address" do
-        @response["entry"]["emails"] = [
-          {"value" => "anotherEmail"},
-          {"primary" => true, "value" => @result[:email]},
-          {"type" => "other", "value" => "yetAnotherEmail"},
-          {"type" => "other", "value" => "evenMoreEmail"}
-        ]
-        @google.user_info[:email].should == @result[:email]
-      end
-    end
-    
-    context "with emails but no primary email" do
-      it "returns the first email address" do
-        expectant = "anotherEmail"
-        @response["entry"]["emails"] = [
-          {"value" => expectant},
-          {"value" => @result[:email]},
-          {"type" => "other", "value" => "yetAnotherEmail"},
-          {"type" => "other", "value" => "evenMoreEmail"}
-        ]
-        @google.user_info[:email].should == expectant
-      end
-
-    end
-    
-    context "with no emails" do    
-      it "returns nil if emails is nil" do
-         @response["entry"]["emails"] = nil
-         @google.user_info[:email].should be_nil
-      end
-      
-      it "returns nil if it's an array" do
-         @response["entry"]["emails"] = []
-         @google.user_info[:email].should be_nil
-      end
-      
-    end
-    
-    it "returns a hash with the name as :name" do
-      @google.user_info[:name].should == @result[:display]
-    end
-    
-    it "returns a hash with the first name as :first_name" do
-      @google.user_info[:first_name].should == @result[:first]
-    end
-    
-    it "returns a hash with the last name as :last_name" do
-      @google.user_info[:last_name].should == @result[:last]
-    end
-    
-    it "returns a hash with the account_type set to :google" do
-      @google.user_info[:account_type].should == :google
+    it "uses parse_portable_contact to parse the results" do
+      result = {"entry" => "bar"}
+      @google.stubs(:make_request).returns(result)
+      @google.expects(:parse_portable_contact).with(result["entry"])
+      @google.user_info
     end
   end
   
   describe ".user_contacts" do
-    it "makes a request for the user's mycontacts group" do
-      @google.expects(:make_request).with("mycontacts", anything).returns(@response)
-      @google.user_info
-    end
+    it "makes a request for the user's mycontacts group"
+      #@google.expects(:make_request).with("mycontacts", anything).returns(@response)
+      #@google.user_info
+ #   end
     
-    it "makes a request for the right fields" do
-      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
-      @google.user_info
-    end
+    it "makes a request for the right fields" 
+#      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
+#      @google.user_info
+#    end
   end
   
   describe ".make_request" do
@@ -201,6 +117,122 @@ describe APIManager::Google do
       g = APIManager::Google.new(token)
       Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{token}"))).returns(Typhoeus::Response.new(:body => "[]"))
       g.send(:make_request, "foo")
+    end
+  end
+  
+  describe ".parse_portable_contact" do
+    it "is private" do
+      # make_request is defined generically in APIManager
+      APIManager::Google.public_instance_methods.map(&:to_s).should_not include("parse_portable_contact")
+    end
+    
+    # sure, it's private
+    # but we don't care how it works, just that this method does what it should
+    before :each do
+      # the results we should get
+      @result = {
+        :first => "Alex",
+        :last => "Lastname",
+        :display => "Alex Lastname",
+        :email => "sample@sample.com",
+        :addresses => ["addr2", "addr4"],
+        :id => "id"
+      }
+      
+      # the mock response from PortableContacts
+      @response = {
+        "name" => {
+          "givenName" => @result[:first], 
+          "familyName" => @result[:last], 
+          "formatted" => "fullname"
+        },
+        "displayName" => @result[:display], 
+        "urls" => [{"type" => "profile", "value" => "url"}], 
+        "addresses" => [
+          {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => @result[:addresses].first},
+          {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => @result[:addresses].last}
+        ], 
+        "id" => @result[:id], 
+        "emails" => [
+          {"value" => "anotherEmail"},
+          {"primary" => true, "value" => @result[:email]},
+          {"type" => "other", "value" => "yetAnotherEmail"},
+          {"type" => "other", "value" => "evenMoreEmail"}
+        ], 
+        "isViewer" => true,   
+        "profileUrl" => "profileurl"
+      }
+      
+      @token = "foobar"
+      @google = APIManager::Google.new(@token)
+      @google.stubs(:make_request).returns(@response)
+    end
+    
+    it "raises a MalformedPortableContactError if the result is malformed" do
+      expect { @google.send(:parse_portable_contact, nil) }.to raise_exception(APIManager::Google::MalformedPortableContactError)
+    end
+    
+    it "returns a hash with the id as the id" do
+      @google.send(:parse_portable_contact, @response)[:id].should == @result[:id]
+    end
+
+    context "with a primary email" do
+      it "returns the primary email address" do
+        @response["emails"] = [
+          {"value" => "anotherEmail"},
+          {"primary" => true, "value" => @result[:email]},
+          {"type" => "other", "value" => "yetAnotherEmail"},
+          {"type" => "other", "value" => "evenMoreEmail"}
+        ]
+        @google.send(:parse_portable_contact, @response)[:email].should == @result[:email]
+      end
+    end
+
+    context "with emails but no primary email" do
+      it "returns the first email address" do
+        expectant = "anotherEmail"
+        @response["emails"] = [
+          {"value" => expectant},
+          {"value" => @result[:email]},
+          {"type" => "other", "value" => "yetAnotherEmail"},
+          {"type" => "other", "value" => "evenMoreEmail"}
+        ]
+        @google.send(:parse_portable_contact, @response)[:email].should == expectant
+      end
+
+    end
+
+    context "with no emails" do    
+      it "returns nil if emails is nil" do
+         @response["emails"] = nil
+         @google.send(:parse_portable_contact, @response)[:email].should be_nil
+      end
+
+      it "returns nil if it's an array" do
+         @response["emails"] = []
+         @google.send(:parse_portable_contact, @response)[:email].should be_nil
+      end
+
+    end
+
+    it "returns a hash with the name as :name" do
+      @google.send(:parse_portable_contact, @response)[:name].should == @result[:display]
+    end
+
+    it "returns a hash with the first name as :first_name" do
+      @google.send(:parse_portable_contact, @response)[:first_name].should == @result[:first]
+    end
+
+    it "returns a hash with the last name as :last_name" do
+      @google.send(:parse_portable_contact, @response)[:last_name].should == @result[:last]
+    end
+
+    it "returns a hash with the account_type set to :google" do
+      @google.send(:parse_portable_contact, @response)[:account_type].should == :google
+    end
+    
+    it "collects all the formatted addresses into an array" do
+      @google.send(:parse_portable_contact, @response)[:addresses].should ==  @response["addresses"].map {|a| a["formatted"]}     
     end
   end
 end
