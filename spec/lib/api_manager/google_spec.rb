@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe APIManager::Google do
+  include PortableContactsTestHelper
+  
   it "has an API_ENDPOINT constant" do
     APIManager::Google.const_defined?(:API_ENDPOINT).should be_true
   end
@@ -130,38 +132,7 @@ describe APIManager::Google do
     # but we don't care how it works, just that this method does what it should
     before :each do
       # the results we should get
-      @result = {
-        :first => "Alex",
-        :last => "Lastname",
-        :display => "Alex Lastname",
-        :email => "sample@sample.com",
-        :addresses => ["addr2", "addr4"],
-        :id => "id"
-      }
-      
-      # the mock response from PortableContacts
-      @response = {
-        "name" => {
-          "givenName" => @result[:first], 
-          "familyName" => @result[:last], 
-          "formatted" => "fullname"
-        },
-        "displayName" => @result[:display], 
-        "urls" => [{"type" => "profile", "value" => "url"}], 
-        "addresses" => [
-          {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => @result[:addresses].first},
-          {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => @result[:addresses].last}
-        ], 
-        "id" => @result[:id], 
-        "emails" => [
-          {"value" => "anotherEmail"},
-          {"primary" => true, "value" => @result[:email]},
-          {"type" => "other", "value" => "yetAnotherEmail"},
-          {"type" => "other", "value" => "evenMoreEmail"}
-        ], 
-        "isViewer" => true,   
-        "profileUrl" => "profileurl"
-      }
+      @result, @response = sample_portable_contact
       
       @token = "foobar"
       @google = APIManager::Google.new(@token)
