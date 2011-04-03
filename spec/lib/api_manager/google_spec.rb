@@ -96,15 +96,57 @@ describe APIManager::Google do
   end
   
   describe ".user_contacts" do
-    it "makes a request for the user's mycontacts group"
-      #@google.expects(:make_request).with("mycontacts", anything).returns(@response)
-      #@google.user_info
- #   end
+    before :each do
+      @token = "foobar"
+      @google = APIManager::Google.new(@token)
+      @google.stubs(:make_request).returns({"entry" => "bar"})
+
+      # the results we should get
+      @results = []
+      @responses = {"entry" => []}
+      # set up sample portable contact groups
+      10.times do |i| 
+        result, response = sample_portable_contact
+        @results << result
+        @responses["entry"] << response
+      end
+    end
     
-    it "makes a request for the right fields" 
-#      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@response)
-#      @google.user_info
-#    end
+    it "makes a request for the user's mycontacts group" do
+      @google.expects(:make_request).with("mycontacts", anything).returns(@responses)
+      @google.user_contacts
+    end
+    
+    it "makes a request for the right fields" do
+      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@responses)
+      @google.user_contacts
+    end
+    
+    it "parses all the contacts returned" do
+      parsing_responses = sequence(:parsing_responses)
+      @responses["entry"].each {|e| @google.expects(:parse_portable_contact).with(e).in_sequence(parsing_responses)}
+      @google.stubs(:make_request).returns(@responses)      
+      @google.user_contacts
+    end
+    
+    it "returns the parsed results" do
+      parsing_responses = sequence(:parsing_responses)
+      return_value = []
+      @responses["entry"].each_with_index do |e, i| 
+        @google.stubs(:parse_portable_contact).with(e).returns(i).in_sequence(parsing_responses)
+        return_value << i
+      end
+
+      @google.stubs(:make_request).returns(@responses)      
+      @google.user_contacts.should == return_value
+    end
+    
+    it "returns the proper values for parsing" do
+      # this is a bit unnecessary, since we test parse_contacts below
+      # but it probably doesn't hurt
+      @google.stubs(:make_request).returns(@responses)      
+      @google.user_contacts.should == @results
+    end
   end
   
   describe ".make_request" do
@@ -187,15 +229,15 @@ describe APIManager::Google do
     end
 
     it "returns a hash with the name as :name" do
-      @google.send(:parse_portable_contact, @response)[:name].should == @result[:display]
+      @google.send(:parse_portable_contact, @response)[:name].should == @result[:name]
     end
 
     it "returns a hash with the first name as :first_name" do
-      @google.send(:parse_portable_contact, @response)[:first_name].should == @result[:first]
+      @google.send(:parse_portable_contact, @response)[:first_name].should == @result[:first_name]
     end
 
     it "returns a hash with the last name as :last_name" do
-      @google.send(:parse_portable_contact, @response)[:last_name].should == @result[:last]
+      @google.send(:parse_portable_contact, @response)[:last_name].should == @result[:last_name]
     end
 
     it "returns a hash with the account_type set to :google" do

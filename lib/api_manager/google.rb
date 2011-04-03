@@ -23,13 +23,7 @@ class APIManager
     
     def user_contacts
       contacts = make_request("mycontacts", :fields => FIELDS)["entry"]
-      processed_contacts = {:with_address => [], :no_address => []}
-      contacts.each do |c|
-        parsed = parse_portable_contact(c)
-        processed_contacts[parsed[:addresses].length > 0 ? :with_address : :no_address] << parsed
-      end
-      
-      processed_contacts
+      contacts.map {|c| parse_portable_contact(c)}
     end
     
     # class methods
