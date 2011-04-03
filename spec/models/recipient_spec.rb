@@ -13,11 +13,7 @@ describe Recipient do
   # fields
   it { should have_field(:first_name) }
   it { should have_field(:last_name) }
-  it { should have_field(:addr_encrypted) }
-  it { should have_field(:city) }
-  it { should have_field(:state) }
-  it { should have_field(:postal_code) }
-  it { should have_field(:country) }
+  it { should have_field(:addresses, :type => Array) }
   it { should have_field(:remote_id) }
   
   # associations

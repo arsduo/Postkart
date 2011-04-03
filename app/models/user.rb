@@ -46,4 +46,18 @@ class User
     # now return the user
     user
   end
+  
+  def populate_google_contacts
+    google = APIManager::Google.new(token)
+    
+  end
+  
+  def google_api
+    unless @google_api 
+      if google_account = self.remote_accounts.where(:account_type => :google).first
+        @google_api = APIManager::Google.new(google_account.token)
+      end
+    end
+    @google_api
+  end
 end

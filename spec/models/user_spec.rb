@@ -11,6 +11,9 @@ describe User do
     User.included_modules.include?(Mongoid::Timestamps).should be_true
   end
   
+  # fields
+  it { should have_field(:name) }
+  
   # associations
   it { should embed_many(:remote_accounts) }
   it { should reference_many(:trips) }
@@ -135,6 +138,28 @@ describe User do
         end
         
         it_should_behave_like "creating a new remote account"
+      end
+    end
+  end
+  
+  describe ".google_api" do
+    before :each do
+      @user = User.make
+    end
+    
+    context "if there is a Google remote account" do
+      it "initializes a Google API with the token in the google remote account" do
+        # figure out what the token is
+        token = @user.remote_accounts.where(:account_type => :google).first.token
+        g = APIManager::Google.new("foo")
+        APIManager::Google.expects(:new).with(token).returns(g)
+        @user.google_api
+      end
+
+      it "returns the existing api if it's been initialized" do
+        g = @user.google_api
+        APIManager::Google.expects(:new).never
+        @user.google_api.should == g
       end
     end
   end

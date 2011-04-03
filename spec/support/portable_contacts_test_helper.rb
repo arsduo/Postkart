@@ -6,22 +6,23 @@ module PortableContactsTestHelper
     @@counter += 1
     
     parsed_contact = {
-      :first => "Alex#{@@counter}",
-      :last => "Lastname#{@@counter}",
-      :display => "Alex Lastname#{@@counter}",
+      :first_name => "Alex#{@@counter}",
+      :last_name => "Lastname#{@@counter}",
+      :name => "Alex Lastname#{@@counter}",
       :email => "sample#{@@counter}@sample.com",
       :addresses => ["addr#{@@counter}", "addr#{@@counter}_2"],
-      :id => "id#{@@counter}"
+      :id => "id#{@@counter}",
+      :account_type => :google
     }
     
     # the mock response from PortableContacts
     raw_portable_contact = {
       "name" => {
-        "givenName" => parsed_contact[:first], 
-        "familyName" => parsed_contact[:last], 
+        "givenName" => parsed_contact[:first_name], 
+        "familyName" => parsed_contact[:last_name], 
         "formatted" => "fullname"
       },
-      "displayName" => parsed_contact[:display], 
+      "displayName" => parsed_contact[:name], 
       "urls" => [{"type" => "profile", "value" => "url"}], 
       "addresses" => [
         {"type" => "currentLocation", "streetAddress" => "addr", "formatted" => parsed_contact[:addresses].first},

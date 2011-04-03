@@ -6,11 +6,7 @@ class Recipient
   # FIELDS
   field :first_name
   field :last_name
-  field :addr_encrypted
-  field :city
-  field :state
-  field :postal_code
-  field :country
+  field :addresses, :type => Array
   field :remote_id
   
   # EMBEDS AND RELATIONSHIPS

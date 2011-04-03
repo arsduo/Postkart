@@ -9,5 +9,6 @@ RemoteAccount.blueprint {
   account_type { :google }
   identifier { "identifier#{sn}" }
   email { "email#{sn}" }
+  token { "token#{sn}" }
 }
 
