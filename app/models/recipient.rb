@@ -25,7 +25,16 @@ class Recipient
   # VALIDATION
   validates :remote_id, :presence => true
   
-  def self.from_remote_contact(contact_hash)
+  def update_from_remote_contact(contact_hash)
+    self.first_name = contact_hash[:first_name]
+    self.last_name = contact_hash[:last_name]
+    self.name = contact_hash[:name]
+    self.addresses = contact_hash[:addresses]
+    self.remote_id = generate_remote_id(contact_hash)
+    self.save
+  end
+  
+  def self.new_from_remote_contact(contact_hash)
     # not every Google contact will have a remote ID, but we just have to live with that
     Recipient.new({
       :first_name => contact_hash[:first_name],

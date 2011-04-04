@@ -27,7 +27,7 @@ describe Recipient do
   # validations
   it { should validate_presence_of(:remote_id) }
 
-  describe "#from_remote_contact" do
+  describe "#new_from_remote_contact" do
     before :each do
       @hash = {
         :first_name => Faker::Name.first_name,
@@ -38,31 +38,31 @@ describe Recipient do
     end
     
     it "returns a new Recipient" do # whose first_name is hash[:first_name]" do
-      r = Recipient.from_remote_contact(@hash)
+      r = Recipient.new_from_remote_contact(@hash)
       r.should be_a(Recipient)
       r.new_record?.should be_true
     end
 
     it "returns a new Recipient whose first_name is hash[:first_name]" do
-      Recipient.from_remote_contact(@hash).first_name.should == @hash[:first_name]
+      Recipient.new_from_remote_contact(@hash).first_name.should == @hash[:first_name]
     end
 
     it "returns a new Recipient whose last_name is hash[:last_name]" do
-      Recipient.from_remote_contact(@hash).last_name.should == @hash[:last_name]
+      Recipient.new_from_remote_contact(@hash).last_name.should == @hash[:last_name]
     end
     
     it "returns a new Recipient whose name is hash[:name]" do
-      Recipient.from_remote_contact(@hash).name.should == @hash[:name]
+      Recipient.new_from_remote_contact(@hash).name.should == @hash[:name]
     end
 
     it "returns a new Recipient whose addresses are hash[:addresses]" do
-      Recipient.from_remote_contact(@hash).addresses.should == @hash[:addresses]
+      Recipient.new_from_remote_contact(@hash).addresses.should == @hash[:addresses]
     end
 
     it "returns a new Recipient whose remote_id is the appropriate value" do
       id = "foo"
       Recipient.expects(:generate_remote_id).with(@hash).returns(id)
-      Recipient.from_remote_contact(@hash).remote_id.should == id
+      Recipient.new_from_remote_contact(@hash).remote_id.should == id
     end    
   end
 
@@ -86,6 +86,10 @@ describe Recipient do
     it "returns nil if none of those are available" do
       Recipient.generate_remote_id({}).should be_nil
     end
+  end
+  
+  describe ".update_from_remote_contact" do
+    it "needs tests"
   end
 
 end

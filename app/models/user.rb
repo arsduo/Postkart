@@ -48,9 +48,31 @@ class User
   end
   
   def populate_google_contacts
-    google = google_api
+    contacts = google_api.user_contacts
+
+    # buckets for our addresses
+    # used to show results later
+    regular = []
+    no_address = []
+    # if there's no id, email, or name/address, we can't work with it
+    unimportable = []
     
-    
+    contacts.each do |c|
+      id_for_contact = Recipient.generate_remote_id(c)
+      unless existing_contact = self.recipients.where(:remote_id => id_for_contact).first
+        # create a new recipient
+        r = Recipient.new_from_remote_contact(c)
+        if r.id
+          self.recipients << r
+          (r.addresses.length > 0 ? regular : no_address) << r
+        else
+          unimportable << r
+        end
+      else
+        # update the existing contact
+        existing_contact.update_from_remote_contact(c)
+      end
+    end
   end
   
   def google_api

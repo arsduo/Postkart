@@ -169,4 +169,8 @@ describe User do
     end
   end
   
+  describe ".populate_contacts" do
+    it "needs tests"
+  end
+  
 end
