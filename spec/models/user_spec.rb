@@ -162,6 +162,11 @@ describe User do
         @user.google_api.should == g
       end
     end
+    
+    it "returns nil if there is no remote account" do
+      @user.remote_accounts.destroy_all
+      @user.google_api.should be_nil
+    end
   end
   
 end

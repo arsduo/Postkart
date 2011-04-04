@@ -233,7 +233,7 @@ describe APIManager::Google do
     end
 
     it "returns a hash with the first name as :first_name" do
-      @google.send(:parse_portable_contact, @response)[:first_name].should == @result[:first_name]
+      @google.send(:parse_portable_contact, @response)[:first_name].should == @result[:first_name ]
     end
 
     it "returns a hash with the last name as :last_name" do

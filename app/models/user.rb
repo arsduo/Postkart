@@ -48,7 +48,8 @@ class User
   end
   
   def populate_google_contacts
-    google = APIManager::Google.new(token)
+    google = google_api
+    
     
   end
   
