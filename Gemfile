@@ -4,7 +4,7 @@ gem 'rails', '3.0.5'
 gem 'haml'
 gem 'typhoeus'
 gem 'json'
-gem 'system_timer'
+gem 'SystemTimer', '>= 1.2.3'
 gem 'jquery-rails', '>= 0.2.6'
 
 # Google
@@ -13,6 +13,7 @@ gem "devise", ">= 1.2.rc2"
 # mongo
 gem "mongo", ">= 1.3.0"
 gem "mongoid", ">= 2.0.0"
+gem "mongo_session_store"
 gem "bson_ext", ">= 1.2.0"
 
 group :test, :development do

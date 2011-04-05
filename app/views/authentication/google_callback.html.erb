@@ -6,12 +6,12 @@ Setting things up...
   $.post("google_login", args, function(result) {
     if (result.name) {
       $("body").append("<div>Welcome " + (result.is_new_user ? "" : "back ") + "to Postkart, " + result.name + "!</div>");
-      if (result.is_new_user) {
+      //if (result.is_new_user) {
         $("body").append("<div>Getting your contacts...</div>");
-        $.post("populate_contacts", function(result) {
+        $.post("google_populate_contacts", function(result) {
           console.log(result);
         })
-      }
+      //}
     }
   });
 

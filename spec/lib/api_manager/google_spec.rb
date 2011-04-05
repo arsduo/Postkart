@@ -118,9 +118,15 @@ describe APIManager::Google do
     end
     
     it "makes a request for the right fields" do
-      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS).returns(@responses)
+      @google.expects(:make_request).with(anything, has_entries(:fields => APIManager::Google::FIELDS)).returns(@responses)
       @google.user_contacts
     end
+    
+    it "makes a request for a lot of contacts" do
+      @google.expects(:make_request).with(anything, has_entries(:count => APIManager::Google::CONTACT_COUNT)).returns(@responses)
+      @google.user_contacts
+    end
+    
     
     it "parses all the contacts returned" do
       parsing_responses = sequence(:parsing_responses)
