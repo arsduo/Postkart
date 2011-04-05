@@ -12,10 +12,7 @@ describe RemoteAccount do
 
   # EMBEDDED
   it { should be_embedded_in(:user) }
-  
-  # REFERENCES
-  it { should be_referenced_in(:recipient) }
-  
+    
   # FIELDS
   it { should have_field(:account_type, :type => Symbol) }
   it { should have_field(:identifier) }

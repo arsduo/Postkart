@@ -29,9 +29,9 @@ class User
     end
 
     # now, update the remote account, or create it if it's a new user or the record is missing
-    if !user.new_record? && remote_account = user.remote_accounts.where("remote_accounts.identifier" => info[:identifier]).first
+    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.identifier" => info[:identifier]).first
       # update the token      
-      remote_account.token = token
+      acct.update_attribute(:token, token)
     else
       # set up its remote account
       acct = RemoteAccount.new(
@@ -41,7 +41,7 @@ class User
       )
       user.remote_accounts << acct
     end
-    user.save
+    user.save # also saves the account
     
     # now return the user
     user

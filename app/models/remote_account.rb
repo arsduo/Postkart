@@ -15,9 +15,6 @@ class RemoteAccount
   field :identifier
   field :token
   
-  # ASSOCIATIONS
-  referenced_in :recipient, :inverse_of => :remote_account
-
   # validation
   validates :account_type, :presence => true, :inclusion => { :in => TYPES }
   validates :identifier, :presence => true

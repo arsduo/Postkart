@@ -11,7 +11,8 @@ gem 'jquery-rails', '>= 0.2.6'
 gem "devise", ">= 1.2.rc2"
 
 # mongo
-gem "mongoid", ">= 2.0.0.beta.17"
+gem "mongo", ">= 1.3.0"
+gem "mongoid", ">= 2.0.0"
 gem "bson_ext", ">= 1.2.0"
 
 group :test, :development do

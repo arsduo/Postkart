@@ -92,7 +92,7 @@ describe User do
         User.find_or_create_from_google_token(@token)
       end
       
-      it "saves the user record" do
+      it "saves the new account record" do
         @u.expects(:save)
         User.find_or_create_from_google_token(@token)
       end
@@ -116,20 +116,20 @@ describe User do
         User.find_or_create_from_google_token(@token).should == @u
       end
       
-      it "saves the user record" do
-        @u.expects(:save)
-        User.find_or_create_from_google_token(@token)
-      end
-      
       context "with a remote account" do
         before :each do
-          @r = RemoteAccount.make
+          @r = RemoteAccount.make(:user => @u)
           @u.remote_accounts.stubs(:where).returns([@r])
         end
         
         it "updates the remote account" do
           User.find_or_create_from_google_token(@token)
           @r.token.should == @token
+        end
+        
+        it "persists the token change" do          
+          User.find_or_create_from_google_token(@token)
+          @r.changed?.should be_false
         end
       end
       
