@@ -62,8 +62,9 @@ class User
       unless existing_contact = self.recipients.where(:remote_id => id_for_contact).first
         # create a new recipient
         r = Recipient.new_from_remote_contact(c)
-        if r.id
+        if r.remote_id
           self.recipients << r
+          r.save
           (r.addresses.length > 0 ? regular : no_address) << r
         else
           unimportable << r
@@ -71,8 +72,16 @@ class User
       else
         # update the existing contact
         existing_contact.update_from_remote_contact(c)
+        (existing_contact.addresses.length > 0 ? regular : no_address) << existing_contact
       end
     end
+        
+    # return the new contacts in buckets
+    {
+      :updated_with_address => regular, 
+      :updated_without_address => no_address,
+      :unimportable => unimportable
+    }
   end
   
   def google_api

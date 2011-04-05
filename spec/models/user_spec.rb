@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe User do
+  include PortableContactsTestHelper
   
   # modules
   it "should be a Mongoid document" do
@@ -169,8 +170,128 @@ describe User do
     end
   end
   
-  describe ".populate_contacts" do
-    it "needs tests"
+  describe ".populate_google_contacts" do
+    before :each do
+      @user = User.make
+      
+      @google = stub("Google API")
+      @user.stubs(:google_api).returns(@google)
+      @contacts = 10.times.inject([]) {|array, i| array << sample_portable_contact.first}
+      @google.stubs(:user_contacts).returns(@contacts)
+    end
+    
+    it "gets the user's contacts" do
+      @user.expects(:google_api).returns(@google)
+      @google.expects(:user_contacts).returns([])
+      @user.populate_google_contacts
+    end
+    
+    it "looks up each contact by remote_id to see if it exists" do
+      contact_lookup = sequence(:contact_lookup)
+      @contacts.each do |c| 
+        temp_recipient = Recipient.new_from_remote_contact(c)
+        # Recipient#generate_remote_id is the PortableContact => unique ID generator
+        @user.recipients.expects(:where).with(:remote_id => Recipient.generate_remote_id(c)).returns([temp_recipient]).in_sequence(contact_lookup)
+      end
+      @user.populate_google_contacts
+    end
+    
+    it "returns a hash with three arrays" do
+      result = @user.populate_google_contacts
+      result[:updated_with_address].should be_an(Array)
+      result[:updated_without_address].should be_an(Array)
+      result[:unimportable].should be_an(Array)
+    end
+    
+    context "for contacts that exist" do
+      before :each do
+        @contact = @contacts.first
+        @recipient = Recipient.new_from_remote_contact(@contact)
+        @user.recipients.stubs(:where).returns([])
+        @user.recipients.stubs(:where).with(:remote_id => @recipient.remote_id).returns([@recipient])        
+      end
+      
+      it "updates contacts that already exist" do
+        # other contacts will be treated as new ones
+        @recipient.expects(:update_from_remote_contact).with(@contact)
+        @user.populate_google_contacts 
+      end
+
+      it "adds that contact to the :updated_with_address bucket if it has an address" do
+        # we don't want to process the update, which changes the addresses
+        @recipient.stubs(:update_from_remote_contact) 
+
+        @recipient.addresses = ["abc"]
+        @user.populate_google_contacts[:updated_with_address].should include(@recipient)
+      end
+      
+      it "adds that contact to the :updated_without_address bucket if it has an address" do
+        # we don't want to process the update, which changes the addresses
+        @recipient.stubs(:update_from_remote_contact) 
+
+        @recipient.addresses = []
+        @user.populate_google_contacts[:updated_without_address].should include(@recipient)
+      end
+    end
+    
+    context "for new contacts" do
+      before :each do
+        @contact = @contacts.first
+        @recipient = Recipient.new
+        Recipient.stubs(:new_from_remote_contact).returns(@recipient)
+
+        # set up one contact from the group to be a new contact
+        @user.recipients.stubs(:where).returns([Recipient.new])
+        @user.recipients.stubs(:where).with(:remote_id => @contact[:id]).returns([])        
+      end
+      
+      it "creates a new contact from the remote contact" do
+        Recipient.expects(:new_from_remote_contact).with(@contact).returns(@recipient)
+        @user.populate_google_contacts 
+      end
+      
+      context "if there's a remote_id" do
+        before :each do
+          @recipient.stubs(:remote_id).returns("fooBar")
+        end
+
+        it "adds the contact to the user if there's a remote_id" do
+          @user.populate_google_contacts
+          @user.recipients.include?(@recipient).should be_true
+        end
+
+        it "saves the contact there's a remote_id" do
+          @user.populate_google_contacts
+          @recipient.new_record?.should be_false
+        end
+
+        it "adds the contact to the :updated_with_address bucket if it has an address" do
+          @recipient.stubs(:addresses).returns(["a"])
+          @user.populate_google_contacts[:updated_with_address].should include(@recipient)
+        end
+
+        it "adds that contact to the :updated_without_address bucket if it has no addresses" do
+          @recipient.stubs(:addresses).returns([])
+          @user.populate_google_contacts[:updated_without_address].should include(@recipient)
+        end
+      end
+      
+      context "if there is no remote_id" do
+        before :each do
+          @recipient.stubs(:remote_id)
+        end
+        
+        it "adds that contact to the :updated_without_address bucket if it has an address" do
+          @user.populate_google_contacts[:unimportable].should include(@recipient)
+        end
+        
+        it "does not save the record" do
+          @user.populate_google_contacts
+          @recipient.new_record?.should be_true
+        end
+      end
+    end
+    
   end
   
 end

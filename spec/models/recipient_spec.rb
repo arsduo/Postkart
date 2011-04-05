@@ -13,7 +13,8 @@ describe Recipient do
   # fields
   it { should have_field(:first_name) }
   it { should have_field(:last_name) }
-  it { should have_field(:addresses, :type => Array) }
+  it { should have_field(:name) }
+  it { should have_field(:addresses, :type => Array, :default => []) }
   it { should have_field(:remote_id) }
 
   it { should have_field(:city) }
@@ -89,7 +90,42 @@ describe Recipient do
   end
   
   describe ".update_from_remote_contact" do
-    it "needs tests"
+    before :each do
+      @r = Recipient.make
+      
+      @new_info = {
+        :first_name => Faker::Name.first_name,
+        :last_name => Faker::Name.last_name,
+        :name => Faker::Name.name,
+        :addresses => [Faker::Address.street_address],
+        :remote_id => Faker::Lorem.words(1).join("")
+      }
+    end
+    
+    it "updates the first name" do
+      @r.update_from_remote_contact(@new_info)
+      @r.first_name.should == @new_info[:first_name]
+    end
+
+    it "updates the last name" do
+      @r.update_from_remote_contact(@new_info)
+      @r.last_name.should == @new_info[:last_name]
+    end
+
+    it "updates the name field" do
+      @r.update_from_remote_contact(@new_info)
+      @r.name.should == @new_info[:name]
+    end
+
+    it "updates the addresses" do
+      @r.update_from_remote_contact(@new_info)
+      @r.addresses.should == @new_info[:addresses]
+    end
+    
+    it "saves the record" do
+      @r.expects(:save)
+      @r.update_from_remote_contact(@new_info)      
+    end
   end
 
 end

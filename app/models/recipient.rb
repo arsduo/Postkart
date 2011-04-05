@@ -6,7 +6,8 @@ class Recipient
   # FIELDS
   field :first_name
   field :last_name
-  field :addresses, :type => Array
+  field :name
+  field :addresses, :type => Array, :default => []
   field :remote_id
 
   # not being used for now, but for future reference
@@ -30,7 +31,7 @@ class Recipient
     self.last_name = contact_hash[:last_name]
     self.name = contact_hash[:name]
     self.addresses = contact_hash[:addresses]
-    self.remote_id = generate_remote_id(contact_hash)
+    self.remote_id = Recipient.generate_remote_id(contact_hash)
     self.save
   end
   
