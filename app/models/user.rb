@@ -23,20 +23,22 @@ class User
     google = APIManager::Google.new(token)
     info = google.user_info
     # if we don't have an existing user, make one
-    unless user = User.limit(1).where("remote_accounts.identifier" => info[:identifier]).first
+    unless user = User.limit(1).where("remote_accounts.remote_id" => info[:id]).first
       # new user
       user = User.new(:name => info[:name])
     end
 
-    # now, update the remote account, or create it if it's a new user or the record is missing
-    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.identifier" => info[:identifier]).first
+    # now, update the remote account, or create it if it's a new user
+    # (the record will never be missing for existing users because we look up on it earlier)
+    # more accurately, if the record is missing we'll create a second user account =\
+    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.remote_id" => info[:id]).first
       # update the token      
       acct.update_attribute(:token, token)
     else
       # set up its remote account
       acct = RemoteAccount.new(
         :account_type => :google,
-        :identifier => info[:identifier],
+        :remote_id => info[:id],
         :token => token
       )
       user.remote_accounts << acct

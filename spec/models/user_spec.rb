@@ -24,11 +24,7 @@ describe User do
   describe "#find_or_create_from_google_token" do
     before :each do
       @token = "foo"
-      @sample_data = {
-        :identifier => "sample@sample.com", 
-        :email => "sample@sample.com", 
-        :name => "Alex"
-      }
+      @sample_data = sample_portable_contact.first
 
       # stub out the APIManager
       @mgr = APIManager::Google.new(@token)
@@ -50,8 +46,8 @@ describe User do
       User.find_or_create_from_google_token(@token)
     end
     
-    it "looks for the user based on the identifier" do
-      User.expects(:where).with(has_value(@sample_data[:identifier])).returns([])
+    it "looks for the user based on the id" do
+      User.expects(:where).with(has_value(@sample_data[:id])).returns([])
       User.find_or_create_from_google_token(@token)
     end
     
@@ -62,10 +58,10 @@ describe User do
         @u.remote_accounts.stubs(:where).returns([])
       end
 
-      it "creates a new remote account of type Google with the identifier and token" do
+      it "creates a new remote account of type Google with the id and token" do
         r = RemoteAccount.make
         RemoteAccount.expects(:new).with(
-          :identifier => @sample_data[:identifier],
+          :remote_id => @sample_data[:id],
           :token => @token,
           :account_type => :google
         ).returns(r)
