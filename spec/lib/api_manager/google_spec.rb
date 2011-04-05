@@ -187,8 +187,12 @@ describe APIManager::Google do
       @google.stubs(:make_request).returns(@response)
     end
     
-    it "raises a MalformedPortableContactError if the result is malformed" do
+    it "raises a MalformedPortableContactError if the result is not a hash" do
       expect { @google.send(:parse_portable_contact, nil) }.to raise_exception(APIManager::Google::MalformedPortableContactError)
+    end
+    
+    it "raises a MalformedPortableContactError if the result is a hash without the right sub-hashes" do
+      expect { @google.send(:parse_portable_contact, {}) }.to raise_exception(APIManager::Google::MalformedPortableContactError)
     end
     
     it "returns a hash with the id as the id" do

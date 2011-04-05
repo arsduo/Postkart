@@ -199,6 +199,21 @@ describe User do
       result[:unimportable].should be_an(Array)
     end
     
+    context "for contacts that couldn't be processed" do
+      before :each do
+        @google.stubs(:user_contacts).returns([nil])
+      end
+      
+      it "puts the bad contact into the unimportable array" do
+        @user.populate_google_contacts[:unimportable].should include(nil)
+      end
+      
+      it "doesn't do any other processing" do
+        Recipient.expects(:generate_remote_id).never
+        @user.populate_google_contacts
+      end
+    end
+    
     context "for contacts that exist" do
       before :each do
         @contact = @contacts.first

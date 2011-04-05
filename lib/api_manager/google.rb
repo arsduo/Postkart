@@ -25,7 +25,7 @@ class APIManager
     def user_contacts
       # get as many contacts as we can
       contacts = make_request("mycontacts", :fields => FIELDS, :count => CONTACT_COUNT)["entry"]
-      contacts.map {|c| parse_portable_contact(c)}
+      contacts.map {|c| parse_portable_contact(c) rescue nil}
     end
     
     # class methods
@@ -37,19 +37,24 @@ class APIManager
     private 
     
     def parse_portable_contact(user)
-      if user.is_a?(Hash)
-        {
-          :id => user["id"],
-          :first_name => user["name"]["givenName"],
-          :last_name => user["name"]["familyName"],
-          :name => user["displayName"],
-          :addresses => (user["addresses"] || []).map {|a| a["formatted"]},
-          :email => ((user["emails"] ||= []).find {|e| e["primary"]} || user["emails"].first || {})["value"],
-          :account_type => :google
-        }
-      else
-        # we don't have a properly formatted result
-        raise MalformedPortableContactError, "Expected a hash but got #{user.inspect}"
+      begin
+        if user.is_a?(Hash)
+          {
+            :id => user["id"],
+            :first_name => user["name"]["givenName"],
+            :last_name => user["name"]["familyName"],
+            :name => user["displayName"],
+            :addresses => (user["addresses"] || []).map {|a| a["formatted"]},
+            :email => ((user["emails"] ||= []).find {|e| e["primary"]} || user["emails"].first || {})["value"],
+            :account_type => :google
+          }
+        else
+          # we don't have a properly formatted result
+          raise MalformedPortableContactError, "Expected a hash but got #{user.inspect}"
+        end
+      rescue NoMethodError => err
+        # if the hash structure doesn't match what we expected, raise an error
+        raise MalformedPortableContactError, "Bad content for contact #{user.inspect}" if err.message =~ /You have a nil object/
       end
     end
     

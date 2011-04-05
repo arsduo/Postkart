@@ -8,8 +8,6 @@ class AuthenticationController < ApplicationController
     if (token = params[:access_token])
       user = User.find_or_create_from_google_token(token)
       sign_in(:user, user)
-      logger.debug("Current user: #{current_user.inspect}")
-      logger.debug("Session:\n#{session.inspect}")
       render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30}
     else
       render :json => {:no_token => true}
@@ -17,7 +15,6 @@ class AuthenticationController < ApplicationController
   end
   
   def google_populate_contacts
-    logger.debug("Session:\n#{session.inspect}")
     if user_signed_in?
       contact_groups = current_user.populate_google_contacts
       render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
