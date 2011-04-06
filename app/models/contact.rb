@@ -1,4 +1,4 @@
-class Recipient
+class Contact
   include Mongoid::Document
   include Mongoid::Timestamps
   
@@ -16,7 +16,7 @@ class Recipient
   field :country
   
   # EMBEDS AND RELATIONSHIPS
-  referenced_in :user, :inverse_of => :recipients
+  referenced_in :user, :inverse_of => :contacts
   references_many :mailings, :index => true
 
   # INDICES
@@ -31,13 +31,13 @@ class Recipient
     self.last_name = contact_hash[:last_name]
     self.name = contact_hash[:name]
     self.addresses = contact_hash[:addresses]
-    self.remote_id = Recipient.generate_remote_id(contact_hash)
+    self.remote_id = Contact.generate_remote_id(contact_hash)
     self.save
   end
   
   def self.new_from_remote_contact(contact_hash)
     # not every Google contact will have a remote ID, but we just have to live with that
-    Recipient.new({
+    Contact.new({
       :first_name => contact_hash[:first_name],
       :last_name => contact_hash[:last_name],
       :name => contact_hash[:name],

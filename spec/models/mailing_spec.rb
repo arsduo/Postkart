@@ -14,7 +14,7 @@ describe Mailing do
   it { should have_field(:date, :type => DateTime) }
   
   # ASSOCIATIONS
-  it { should be_referenced_in(:recipient) }
+  it { should be_referenced_in(:contact) }
   it { should be_referenced_in(:trip) }
   it { should be_referenced_in(:user) }
 end

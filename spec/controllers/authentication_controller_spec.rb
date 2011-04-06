@@ -28,7 +28,6 @@ describe AuthenticationController do
 
       it "signs that user in" do
         u = User.make
-        puts u.created_at.inspect
         User.stubs(:find_or_create_from_google_token).returns(u)
         controller.expects(:sign_in).with(:user, u)
         get 'google_login', @args

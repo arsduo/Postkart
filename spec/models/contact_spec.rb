@@ -1,13 +1,13 @@
 require 'spec_helper'
 
-describe Recipient do
+describe Contact do
   # modules
   it "should be a Mongoid document" do
-    Recipient.included_modules.include?(Mongoid::Document).should be_true
+    Contact.included_modules.include?(Mongoid::Document).should be_true
   end
   
   it "should include timestamps" do
-    Recipient.included_modules.include?(Mongoid::Timestamps).should be_true
+    Contact.included_modules.include?(Mongoid::Timestamps).should be_true
   end
   
   # fields
@@ -38,60 +38,60 @@ describe Recipient do
       }
     end
     
-    it "returns a new Recipient" do # whose first_name is hash[:first_name]" do
-      r = Recipient.new_from_remote_contact(@hash)
-      r.should be_a(Recipient)
+    it "returns a new Contact" do # whose first_name is hash[:first_name]" do
+      r = Contact.new_from_remote_contact(@hash)
+      r.should be_a(Contact)
       r.new_record?.should be_true
     end
 
-    it "returns a new Recipient whose first_name is hash[:first_name]" do
-      Recipient.new_from_remote_contact(@hash).first_name.should == @hash[:first_name]
+    it "returns a new Contact whose first_name is hash[:first_name]" do
+      Contact.new_from_remote_contact(@hash).first_name.should == @hash[:first_name]
     end
 
-    it "returns a new Recipient whose last_name is hash[:last_name]" do
-      Recipient.new_from_remote_contact(@hash).last_name.should == @hash[:last_name]
+    it "returns a new Contact whose last_name is hash[:last_name]" do
+      Contact.new_from_remote_contact(@hash).last_name.should == @hash[:last_name]
     end
     
-    it "returns a new Recipient whose name is hash[:name]" do
-      Recipient.new_from_remote_contact(@hash).name.should == @hash[:name]
+    it "returns a new Contact whose name is hash[:name]" do
+      Contact.new_from_remote_contact(@hash).name.should == @hash[:name]
     end
 
-    it "returns a new Recipient whose addresses are hash[:addresses]" do
-      Recipient.new_from_remote_contact(@hash).addresses.should == @hash[:addresses]
+    it "returns a new Contact whose addresses are hash[:addresses]" do
+      Contact.new_from_remote_contact(@hash).addresses.should == @hash[:addresses]
     end
 
-    it "returns a new Recipient whose remote_id is the appropriate value" do
+    it "returns a new Contact whose remote_id is the appropriate value" do
       id = "foo"
-      Recipient.expects(:generate_remote_id).with(@hash).returns(id)
-      Recipient.new_from_remote_contact(@hash).remote_id.should == id
+      Contact.expects(:generate_remote_id).with(@hash).returns(id)
+      Contact.new_from_remote_contact(@hash).remote_id.should == id
     end    
   end
 
   describe "#generate_remote_id" do
     it "returns the id if provided" do
       remote_id = "bar"
-      Recipient.generate_remote_id({:id => remote_id}).should == remote_id
+      Contact.generate_remote_id({:id => remote_id}).should == remote_id
     end
     
     it "returns a hash of the email address if there's no ID" do
       email = "foo@bar.com"
-      Recipient.generate_remote_id({:email => email}).should == Digest::MD5.hexdigest(email)
+      Contact.generate_remote_id({:email => email}).should == Digest::MD5.hexdigest(email)
     end
 
     it "returns a hash of the name + street address if there's no ID or email" do
       name = Faker::Name.name
       address = "#{Faker::Address.street_address}, Main City, #{Faker::Address.zip_code}"
-      Recipient.generate_remote_id({:name => name, :addresses => [address]}).should == Digest::MD5.hexdigest(name + address)
+      Contact.generate_remote_id({:name => name, :addresses => [address]}).should == Digest::MD5.hexdigest(name + address)
     end
     
     it "returns nil if none of those are available" do
-      Recipient.generate_remote_id({}).should be_nil
+      Contact.generate_remote_id({}).should be_nil
     end
   end
   
   describe ".update_from_remote_contact" do
     before :each do
-      @r = Recipient.make
+      @r = Contact.make
       
       @new_info = {
         :first_name => Faker::Name.first_name,

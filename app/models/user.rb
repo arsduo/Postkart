@@ -12,7 +12,7 @@ class User
   
   # EMBEDS AND RELATIONSHIPS
   embeds_many :remote_accounts
-  references_many :recipients, :index => true
+  references_many :contacts, :index => true
   references_many :trips, :index => true
   references_many :mailings, :index => true
   
@@ -61,12 +61,12 @@ class User
     
     contacts.each do |c|
       if c
-        id_for_contact = Recipient.generate_remote_id(c)
-        unless existing_contact = self.recipients.where(:remote_id => id_for_contact).first
-          # create a new recipient
-          r = Recipient.new_from_remote_contact(c)
+        id_for_contact = Contact.generate_remote_id(c)
+        unless existing_contact = self.contacts.where(:remote_id => id_for_contact).first
+          # create a new contact
+          r = Contact.new_from_remote_contact(c)
           if r.remote_id
-            self.recipients << r
+            self.contacts << r
             r.save
             (r.addresses.length > 0 ? regular : no_address) << r
           else

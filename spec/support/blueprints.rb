@@ -12,7 +12,7 @@ RemoteAccount.blueprint {
   token { "token#{sn}" }
 }
 
-Recipient.blueprint {
+Contact.blueprint {
   first_name { "Alex" }
   last_name { "Koppel" }
   addresses { ["123#{sn} Main St., City, State, USA", "ABCstr #{sn}, Munich, Germany"]}
