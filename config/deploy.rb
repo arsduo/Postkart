@@ -4,6 +4,7 @@ set :domain, "postkart.alexkoppel.com"
 set :deploy_to, "$HOME/rails_apps/#{application}/"
 
 set :scm, :git
+ssh_options[:forward_agent] = true
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
 role :web, "postkart.alexkoppel.com"                          # Your HTTP server, Apache/etc
