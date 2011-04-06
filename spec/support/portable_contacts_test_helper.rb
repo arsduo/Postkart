@@ -12,6 +12,7 @@ module PortableContactsTestHelper
       :email => "sample#{@@counter}@sample.com",
       :addresses => ["addr#{@@counter}", "addr#{@@counter}_2"],
       :id => "id#{@@counter}",
+      :pic => "http://pic/#{@@counter}",
       :account_type => :google
     }
     
@@ -29,6 +30,7 @@ module PortableContactsTestHelper
         {"type" => "currentLocation", "streetAddress" => "addr3", "formatted" => parsed_contact[:addresses].last}
       ], 
       "id" => parsed_contact[:id], 
+      "thumbnailUrl" => parsed_contact[:pic],
       "emails" => [
         {"value" => "anotherEmail"},
         {"primary" => true, "value" => parsed_contact[:email]},

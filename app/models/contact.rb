@@ -8,6 +8,7 @@ class Contact
   field :last_name
   field :name
   field :addresses, :type => Array, :default => []
+  field :pic
   field :remote_id
 
   # not being used for now, but for future reference
@@ -30,6 +31,7 @@ class Contact
     self.first_name = contact_hash[:first_name]
     self.last_name = contact_hash[:last_name]
     self.name = contact_hash[:name]
+    self.pic = contact_hash[:pic]
     self.addresses = contact_hash[:addresses]
     self.remote_id = Contact.generate_remote_id(contact_hash)
     self.save
@@ -41,6 +43,7 @@ class Contact
       :first_name => contact_hash[:first_name],
       :last_name => contact_hash[:last_name],
       :name => contact_hash[:name],
+      :pic => contact_hash[:pic],
       :addresses => contact_hash[:addresses],
       :remote_id => generate_remote_id(contact_hash)
     })

@@ -1,4 +1,11 @@
-<p>hi</p>
+<% if current_user %>
+  <h1>
+    <% if current_user.pic %><%= image_tag current_user.pic %><% end %>
+    Hi, <%= current_user.name %>!
+  </h1>
+<% else %>
+  <h1>Welcome to Postkart!</h1>
+<% end %>
 
 <%= link_to "Google auth!", google_auth_url %>
 

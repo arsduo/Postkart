@@ -14,6 +14,7 @@ describe User do
   
   # fields
   it { should have_field(:name) }
+  it { should have_field(:pic) }
   
   # associations
   it { should embed_many(:remote_accounts) }
@@ -60,10 +61,11 @@ describe User do
 
       it "creates a new remote account of type Google with the id and token" do
         r = RemoteAccount.make
-        RemoteAccount.expects(:new).with(
-          :remote_id => @sample_data[:id],
-          :token => @token,
-          :account_type => :google
+        RemoteAccount.expects(:new).with(has_entries(
+            :identifier => @sample_data[:id],
+            :token => @token,
+            :account_type => :google
+          )
         ).returns(r)
         User.find_or_create_from_google_token(@token)
       end
@@ -71,8 +73,8 @@ describe User do
       it "adds that account to the user" do
         r = RemoteAccount.make
         RemoteAccount.stubs(:new).returns(r)
-        @u.remote_accounts.expects(:<<).with(r)
         User.find_or_create_from_google_token(@token)
+        r.user.should == @u
       end      
     end
 
@@ -88,8 +90,8 @@ describe User do
         User.find_or_create_from_google_token(@token)
       end
       
-      it "saves the new account record" do
-        @u.expects(:save)
+      it "saves! the new account record" do
+        @u.expects(:save!)
         User.find_or_create_from_google_token(@token)
       end
       
@@ -112,6 +114,24 @@ describe User do
         User.find_or_create_from_google_token(@token).should == @u
       end
       
+      it "updates the user's name" do
+        @sample_data[:name] += @u.name
+        @sample_data[:pic] += @u.pic
+        User.find_or_create_from_google_token(@token)
+        @u.name.should == @sample_data[:name]
+      end
+      
+      it "updates the user's pic" do
+        @sample_data[:pic] += @u.pic
+        User.find_or_create_from_google_token(@token)
+        @u.pic.should == @sample_data[:pic]
+      end
+            
+      it "saves! the new account record" do
+        @u.expects(:save!)
+        User.find_or_create_from_google_token(@token)
+      end
+            
       context "with a remote account" do
         before :each do
           @r = RemoteAccount.make(:user => @u)
@@ -136,6 +156,13 @@ describe User do
         
         it_should_behave_like "creating a new remote account"
       end
+    end
+
+    it "can be run twice for the same user without creating multiple contacts" do
+      count = User.count
+      User.find_or_create_from_google_token(@token)
+      User.find_or_create_from_google_token(@token)
+      User.count.should == count + 1 # only one new user
     end
   end
   

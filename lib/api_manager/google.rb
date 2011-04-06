@@ -3,7 +3,7 @@ class APIManager
     attr_reader :oauth_token
     
     API_ENDPOINT = "https://www-opensocial.googleusercontent.com/api/people/"
-    FIELDS = "addresses,emails,name,displayName,id"
+    FIELDS = "addresses,emails,name,displayName,id,thumbnailUrl"
     CONTACT_COUNT = 1000
     
     class MalformedPortableContactError < StandardError; end
@@ -46,6 +46,7 @@ class APIManager
             :name => user["displayName"],
             :addresses => (user["addresses"] || []).map {|a| a["formatted"]},
             :email => ((user["emails"] ||= []).find {|e| e["primary"]} || user["emails"].first || {})["value"],
+            :pic => user["thumbnailUrl"],
             :account_type => :google
           }
         else

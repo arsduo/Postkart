@@ -9,6 +9,7 @@ class User
 
   # FIELDS
   field :name
+  field :pic
   
   # EMBEDS AND RELATIONSHIPS
   embeds_many :remote_accounts
@@ -23,27 +24,31 @@ class User
     google = APIManager::Google.new(token)
     info = google.user_info
     # if we don't have an existing user, make one
-    unless user = User.limit(1).where("remote_accounts.remote_id" => info[:id]).first
+    if user = User.limit(1).where("remote_accounts.identifier" => info[:id]).first
+      # since we have all the data, might as well update
+      user.name = info[:name]
+      user.pic = info[:pic]
+    else
       # new user
-      user = User.new(:name => info[:name])
+      user = User.new(:name => info[:name], :pic => info[:pic])
     end
 
     # now, update the remote account, or create it if it's a new user
     # (the record will never be missing for existing users because we look up on it earlier)
     # more accurately, if the record is missing we'll create a second user account =\
-    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.remote_id" => info[:id]).first
+    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.identifier" => info[:id]).first
       # update the token      
-      acct.update_attribute(:token, token)
+      acct.token = token
     else
       # set up its remote account
       acct = RemoteAccount.new(
         :account_type => :google,
-        :remote_id => info[:id],
+        :identifier => info[:id],
         :token => token
       )
-      user.remote_accounts << acct
+      acct.user = user
     end
-    user.save # also saves the account
+    user.safely.save!
     
     # now return the user
     user

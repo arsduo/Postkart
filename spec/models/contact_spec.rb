@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Contact do
+  include PortableContactsTestHelper
+  
   # modules
   it "should be a Mongoid document" do
     Contact.included_modules.include?(Mongoid::Document).should be_true
@@ -14,6 +16,7 @@ describe Contact do
   it { should have_field(:first_name) }
   it { should have_field(:last_name) }
   it { should have_field(:name) }
+  it { should have_field(:pic) }
   it { should have_field(:addresses, :type => Array, :default => []) }
   it { should have_field(:remote_id) }
 
@@ -30,12 +33,7 @@ describe Contact do
 
   describe "#new_from_remote_contact" do
     before :each do
-      @hash = {
-        :first_name => Faker::Name.first_name,
-        :last_name => Faker::Name.last_name,
-        :name => Faker::Name.name,
-        :addresses => ["addr1", "addr2"]
-      }
+      @hash = sample_portable_contact.first
     end
     
     it "returns a new Contact" do # whose first_name is hash[:first_name]" do
@@ -54,6 +52,10 @@ describe Contact do
     
     it "returns a new Contact whose name is hash[:name]" do
       Contact.new_from_remote_contact(@hash).name.should == @hash[:name]
+    end
+    
+    it "returns a new Contact whose pic is hash[:pic]" do
+      Contact.new_from_remote_contact(@hash).pic.should == @hash[:pic]
     end
 
     it "returns a new Contact whose addresses are hash[:addresses]" do
@@ -93,13 +95,7 @@ describe Contact do
     before :each do
       @r = Contact.make
       
-      @new_info = {
-        :first_name => Faker::Name.first_name,
-        :last_name => Faker::Name.last_name,
-        :name => Faker::Name.name,
-        :addresses => [Faker::Address.street_address],
-        :remote_id => Faker::Lorem.words(1).join("")
-      }
+      @new_info = sample_portable_contact.first
     end
     
     it "updates the first name" do
@@ -120,6 +116,11 @@ describe Contact do
     it "updates the addresses" do
       @r.update_from_remote_contact(@new_info)
       @r.addresses.should == @new_info[:addresses]
+    end
+    
+    it "updates the pic" do
+      @r.update_from_remote_contact(@new_info)
+      @r.pic.should == @new_info[:pic]
     end
     
     it "saves the record" do
