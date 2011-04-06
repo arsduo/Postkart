@@ -1,10 +1,8 @@
 # make Dreamhost play nicely with gems
 # see http://blog.joeygeiger.com/2010/05/17/i-beat-dreamhost-how-to-really-get-rails-3-bundler-and-dreamhost-working/
-if ENV["RAILS_ENV"] == "production"
-  # needed for Passenger on Dreamhost
-  # but fails for rails console, hence the rescue
-  Gem.clear_paths rescue nil
-end
+# needed for Passenger on Dreamhost
+# but fails for rails console, hence the rescue
+Gem.clear_paths rescue nil
 
 require 'rubygems'
 
