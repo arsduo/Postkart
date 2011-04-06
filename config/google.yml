@@ -10,4 +10,4 @@ test:
 production:
   key: 203251285622.apps.googleusercontent.com
   secret: M3CHO+9dWSVSU439Z9Fw/HXe
-  callback: http://postkart.twoalex.com/authentication/google_callback
+  callback: http://postkart.alexkoppel.com/authentication/google_callback
