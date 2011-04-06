@@ -15,16 +15,11 @@ class AuthenticationController < ApplicationController
   end
   
   def google_populate_contacts
-    begin
-      if user_signed_in?
-        contact_groups = current_user.populate_google_contacts
-        render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
-      else
-        render :json => {:loginRequired => true}
-      end
-    rescue Exception => err
-      logger.error err.msg
-      logger.error err.backtrace.join("\n")
+    if user_signed_in?
+      contact_groups = current_user.populate_google_contacts
+      render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
+    else
+      render :json => {:loginRequired => true}
     end
   end
 
