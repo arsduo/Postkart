@@ -38,9 +38,7 @@ group :test do
   gem 'remarkable_mongoid'
   gem 'remarkable_activemodel', '>=4.0.0.alpha2'  
 
-  if ENV["LOGNAME"] == "ahkoppel2"
-    # these gems are OS X only
-    gem "autotest-fsevent"
-    gem "autotest-growl"
-  end
+  # these gems are OS X only
+  gem "autotest-fsevent"
+  gem "autotest-growl"
 end
