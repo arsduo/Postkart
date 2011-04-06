@@ -31,11 +31,15 @@ group :test do
   gem "mocha"
   gem "autotest"
   gem "autotest-rails"
-  gem "autotest-fsevent"
-  gem "autotest-growl"
   gem "ZenTest"
   gem "faker"
   gem "remarkable", '>=4.0.0.alpha2' 
   gem 'remarkable_mongoid'
   gem 'remarkable_activemodel', '>=4.0.0.alpha2'  
+
+  if ENV["LOGNAME"] == "ahkoppel2"
+    # these gems are OS X only
+    gem "autotest-fsevent"
+    gem "autotest-growl"
+  end
 end
