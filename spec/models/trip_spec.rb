@@ -19,7 +19,7 @@ describe Trip do
   
   # associations
   it { should be_referenced_in(:user) }
-  it { should embed_many(:mailings) }
+  it { should reference_many(:mailings) }
   
   # validations
   it { should validate_presence_of(:location_name) }

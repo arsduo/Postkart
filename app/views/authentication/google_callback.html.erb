@@ -10,6 +10,7 @@ Setting things up...
         $("body").append("<div>Getting your contacts...</div>");
         $.post("google_populate_contacts", function(result) {
           console.log(result);
+          document.location.href = "/";
         })
       //}
     }

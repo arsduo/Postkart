@@ -18,8 +18,8 @@ class Trip
   field :status, :type => Symbol
 
   # associations
-  referenced_in :user, :inverse_of => :trips
-  embeds_many :mailings
+  referenced_in   :user, :inverse_of => :trips
+  references_many :mailings
   
   # INDEX
   index [:user, :status]

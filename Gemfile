@@ -4,8 +4,11 @@ gem 'rails', '3.0.5'
 gem 'haml'
 gem 'typhoeus'
 gem 'json'
-gem 'SystemTimer', '>= 1.2.3'
 gem 'jquery-rails', '>= 0.2.6'
+
+unless RUBY_VERSION =~ /^1\.9/
+  gem 'SystemTimer', '>= 1.2.3'
+end
 
 # Google
 gem "devise", ">= 1.2.rc2"

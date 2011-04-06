@@ -1,3 +1,17 @@
 <p>hi</p>
 
 <%= link_to "Google auth!", google_auth_url %>
+
+<% if current_user %>
+  <%# display trips %>
+  <h3>Trips</h3>
+
+  <% current_user.trips.each do |trip| %>
+    <%= link_to trip.location_name, url_for(:controller => :trips, :action => :view, :id => trip.id) %>
+  <% end %>
+  
+  <% form_for Trip.new, :as => :trip, :url => url_for(:controller => :trips, :action => :create) do |f| %>
+    <%= f.text_field :location_name %>
+    <%= f.submit %>
+  <% end %>
+<% end %>

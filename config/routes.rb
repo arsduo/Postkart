@@ -1,4 +1,10 @@
 Postkart::Application.routes.draw do
+  # trips
+  post "trips/create"
+  get "trips/view"
+  post "trips/send_card"
+
+  # Authentication
   get "authentication/google_callback"
   post "authentication/google_login"
   post "authentication/google_populate_contacts"
