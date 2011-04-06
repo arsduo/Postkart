@@ -14,6 +14,10 @@ role :app, "postkart.alexkoppel.com"                          # This may be the 
 set :user, "arsduo"
 set :use_sudo, false
 
+# bundler
+require 'bundler/capistrano'
+default_environment['PATH']='/usr/lib/ruby/gems/1.8/bin:/home/arsduo/.gems/bin:/usr/local/bin:/usr/bin:/bin'
+default_environment['GEM_PATH']='/home/arsduo/.gems:/usr/lib/ruby/gems/1.8'
 
 # passenger-specific deploy tasks
 namespace :deploy do
