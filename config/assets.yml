@@ -1,11 +1,20 @@
 embed_assets: on
 
 javascripts:
+  common: 
+    - public/javascripts/jquery/jquery-1.5.1.js
+    - public/javascripts/jquery/jquery-ui-1.8.11.js
+    
   google_auth:
-    - public/javascripts/jquery/jquery.js
+    - public/javascripts/jquery/jquery-1.5.1.js
     - public/javascripts/jquery/jquery.ui.widget.js
     - public/javascripts/trafficlight/jquery.trafficlight.js
 
 stylesheets:
-  common:
+  common: 
+    - public/stylesheets/core.css
+    - public/stylesheets/jquery-ui-1.8.11.css
     
+  google_auth:
+    - public/stylesheets/core.css
+    - public/stylesheets/google_auth.css

@@ -1,0 +1,9 @@
+/* 
+core.css
+universal styles (body font, background, etc.)
+*/
+
+body {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 12px;
+}
