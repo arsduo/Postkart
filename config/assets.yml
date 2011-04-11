@@ -1,0 +1,11 @@
+embed_assets: on
+
+javascripts:
+  google_auth:
+    - public/javascripts/jquery/jquery.js
+    - public/javascripts/jquery/jquery.ui.widget.js
+    - public/javascripts/trafficlight/jquery.trafficlight.js
+
+stylesheets:
+  common:
+    

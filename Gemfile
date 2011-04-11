@@ -6,6 +6,7 @@ gem 'haml'
 gem 'typhoeus'
 gem 'json'
 gem 'jquery-rails', '>= 0.2.6'
+gem 'jammit'
 
 unless RUBY_VERSION =~ /^1\.9/
   gem 'SystemTimer', '>= 1.2.3'
@@ -37,8 +38,4 @@ group :test do
   gem "remarkable", '>=4.0.0.alpha2' 
   gem 'remarkable_mongoid'
   gem 'remarkable_activemodel', '>=4.0.0.alpha2'  
-
-  # these gems are OS X only
-  gem "autotest-fsevent"
-  gem "autotest-growl"
 end

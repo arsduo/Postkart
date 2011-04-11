@@ -1,0 +1,3 @@
+[submodule "public/javascripts/trafficlight"]
+	path = public/javascripts/trafficlight
+	url = git://github.com/arsduo/trafficlight.git
