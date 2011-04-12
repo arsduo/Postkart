@@ -1,0 +1,23 @@
+= include_stylesheets :google_auth
+= include_javascripts :google_auth
+
+%ul#signinFlow
+  %li#identifyUser.trafficlight-todo
+    Getting your info
+  %li#acceptTerms.demoContent
+    %input.termsCheck{:type => "checkbox"} 
+    %label{:for => "termsCheck"}
+      I accept the terms of use.
+    %input.termsSubmit{:type=> :submit, :value=> "Continue"}
+  %li#getContacts.trafficlight-todo
+    Importing your contacts
+  %li#signIn.trafficlight-todo
+    Signing you in...
+  %li#timeoutWarning.error
+    Google isn't responding!  Let's try again...
+  %li#timeoutError.error
+    Google seems to be down :( please try again later.
+  %li#generalError.error
+
+:javascript
+  PK.GoogleAuth.saveToken();

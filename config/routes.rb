@@ -8,7 +8,7 @@ Postkart::Application.routes.draw do
   get "authentication/google_callback"
   post "authentication/google_login"
   post "authentication/google_populate_contacts"
-
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

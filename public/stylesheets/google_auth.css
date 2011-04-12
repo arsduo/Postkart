@@ -1,6 +1,8 @@
 #signinFlow {
   padding-left: 0;
   margin-left: 40px;
+  margin-top: 40px; 
+  font-size: 20px;
 }
 
 #signinFlow li {
@@ -10,19 +12,30 @@
 }
 
 .trafficlight-todo {
-  background: url('assets/lights.png') no-repeat 0 0;
+  background: url('/images/lights.png') no-repeat 0 0;
   color: gray;
 }
 
 .trafficlight-doing {
-  background: url('assets/lights.png') no-repeat 0 -52px;
+  background: url('/images/lights.png') no-repeat 0 -52px;
   font-weight: bold;
 }
 
 .trafficlight-done {
-  background: url('assets/lights.png') no-repeat 0 -26px;
+  background: url('/images/lights.png') no-repeat 0 -26px;
 }
 
 .trafficlight-failed {
-  background: url('assets/lights.png') no-repeat 0 -78px;
+  background: url('/images/lights.png') no-repeat 0 -78px;
+}
+
+.warning {
+  font-size: 14px;
+}
+
+/* timeout and errors */
+
+.error {
+  font-color: #A33;
+  display: none;
 }

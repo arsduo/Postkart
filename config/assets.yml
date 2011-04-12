@@ -1,4 +1,6 @@
 embed_assets: on
+javascript_compressor:  closure
+
 
 javascripts:
   common: 
@@ -9,6 +11,7 @@ javascripts:
     - public/javascripts/jquery/jquery-1.5.1.js
     - public/javascripts/jquery/jquery.ui.widget.js
     - public/javascripts/trafficlight/jquery.trafficlight.js
+    - public/javascripts/google_auth.js
 
 stylesheets:
   common: 
