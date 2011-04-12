@@ -1,0 +1,19 @@
+require 'rake'
+require 'rake/testtask'
+
+desc 'Default: run unit tests'
+task :default => :test
+
+desc 'Test the javascript_named_routes plugin'
+Rake::TestTask.new :test do |t|
+  t.libs << 'lib'
+  t.pattern = 'test/**/*_test.rb'
+  t.verbose = true
+end
+
+desc 'Dump the JS for a routes.rb file'
+Rake::TestTask.new :dump do |t|
+  t.libs << 'lib'
+  t.pattern = 'test/**/*_dump.rb'
+  t.verbose = true
+end
