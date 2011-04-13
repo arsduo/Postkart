@@ -1,4 +1,6 @@
 class AuthenticationController < ApplicationController
+  layout "minimal"
+  
   def google_callback
   end
   
@@ -7,8 +9,12 @@ class AuthenticationController < ApplicationController
     logger.debug("Making Google request!")
     if (token = params[:access_token])
       user = User.find_or_create_from_google_token(token)
-      sign_in(:user, user)
-      render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30}
+
+      # handle T&C check/update
+      user.update_attribute(:accepted_terms, true) if params[:acceptedTerms]      
+      sign_in(:user, user) if user.accepted_terms
+      
+      render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
     else
       render :json => {:no_token => true}
     end

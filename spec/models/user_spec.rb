@@ -15,6 +15,7 @@ describe User do
   # fields
   it { should have_field(:name) }
   it { should have_field(:pic) }
+  it { should have_field(:accepted_terms, :type => Boolean) }
   
   # associations
   it { should embed_many(:remote_accounts) }
@@ -86,7 +87,12 @@ describe User do
       end
       
       it "creates a user record with the specified name" do
-        User.expects(:new).with(:name => @sample_data[:name]).returns(@u)
+        User.expects(:new).with(has_entries(:name => @sample_data[:name])).returns(@u)
+        User.find_or_create_from_google_token(@token)
+      end
+      
+      it "creates a user record with the specified pic" do
+        User.expects(:new).with(has_entries(:pic => @sample_data[:pic])).returns(@u)
         User.find_or_create_from_google_token(@token)
       end
       

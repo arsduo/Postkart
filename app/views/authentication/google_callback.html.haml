@@ -4,7 +4,7 @@
 %ul#signinFlow
   %li#identifyUser.trafficlight-todo
     Getting your info
-  %li#acceptTerms.demoContent
+  %li#acceptTerms
     %input.termsCheck{:type => "checkbox"} 
     %label{:for => "termsCheck"}
       I accept the terms of use.
@@ -20,4 +20,4 @@
   %li#generalError.error
 
 :javascript
-  PK.GoogleAuth.saveToken();
+  PK.GoogleAuth.init();

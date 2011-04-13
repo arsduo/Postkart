@@ -10,6 +10,7 @@ class User
   # FIELDS
   field :name
   field :pic
+  field :accepted_terms, :type => Boolean
   
   # EMBEDS AND RELATIONSHIPS
   embeds_many :remote_accounts

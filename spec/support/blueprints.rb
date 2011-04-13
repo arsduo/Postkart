@@ -2,6 +2,7 @@ User.blueprint {
   name { "Alex#{sn}" }
   pic { "http://#{sn}" }
   remote_accounts { [RemoteAccount.make] }
+  accepted_terms { true }
   created_at { Time.now }
   updated_at { Time.now }
 }

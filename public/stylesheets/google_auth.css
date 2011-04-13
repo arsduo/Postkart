@@ -33,6 +33,11 @@
   font-size: 14px;
 }
 
+/* terms */
+#acceptTerms {
+  display: none;
+}
+
 /* timeout and errors */
 
 .error {
