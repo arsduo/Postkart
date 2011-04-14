@@ -5,10 +5,15 @@
   %li#identifyUser.trafficlight-todo
     Getting your info
   %li#acceptTerms
-    %input.termsCheck{:type => "checkbox"} 
-    %label{:for => "termsCheck"}
-      I accept the terms of use.
-    %input.termsSubmit{:type=> :submit, :value=> "Continue"}
+    #acceptTermsBox
+      %div
+        Welcome to Postkart!  In a moment, we'll import your contacts from Google (just names and addresses, no emails),
+        so you can start tracking your postcards.
+      %div
+        %input#termsCheck{:type => "checkbox"} 
+        %label{:for => "termsCheck"}
+          Sounds good to me, I accept.
+      %input#termsSubmit{:type => :submit, :value => "Continue"}
   %li#getContacts.trafficlight-todo
     Importing your contacts
   %li#signIn.trafficlight-todo
@@ -20,4 +25,4 @@
   %li#generalError.error
 
 :javascript
-  PK.GoogleAuth.init();
+  $(document).ready(PK.GoogleAuth.init);

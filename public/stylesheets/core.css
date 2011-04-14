@@ -7,3 +7,15 @@ body {
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 12px;
 }
+
+/* Auth iframe */
+
+#authIframe {
+  height: 368px;
+  width: 483px;
+  border: 0px;
+}
+
+#authIframeHolder {
+  display: none;
+}

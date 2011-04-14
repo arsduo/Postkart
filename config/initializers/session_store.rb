@@ -8,5 +8,5 @@ Postkart::Application.config.session_store :cookie_store, :key => '_postkart_ses
 # Postkart::Application.config.session_store :active_record_store
 
 # mongoid
-#require "mongo_session_store/mongoid"
-#Postkart::Application.config.session_store = :mongoid_store
+require "mongo_session_store/mongoid"
+Postkart::Application.config.session_store :mongoid_store

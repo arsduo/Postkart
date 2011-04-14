@@ -1,7 +1,6 @@
 #signinFlow {
   padding-left: 0;
-  margin-left: 40px;
-  margin-top: 40px; 
+  margin: 17% 10% 0;
   font-size: 20px;
 }
 
@@ -36,7 +35,18 @@
 /* terms */
 #acceptTerms {
   display: none;
+  font-size: 12px;
+  padding: 2px;
+  width: 340px;
 }
+
+#acceptTermsBox {
+  border: 1px solid black;
+  border-radius: 8px 8px 8px 8px;
+  background: #F2E1D8;
+  padding: 3px;
+}
+
 
 /* timeout and errors */
 

@@ -12,19 +12,24 @@ class AuthenticationController < ApplicationController
 
       # handle T&C check/update
       user.update_attribute(:accepted_terms, true) if params[:acceptedTerms]      
-      sign_in(:user, user) if user.accepted_terms
-      
-      render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
+      sign_in(:user, user) 
+      if user.accepted_terms
+        sign_in(:user, user) 
+        sign_in(:user, user, :bypass => true)
+      end
+      render :json => {:name => user.name, :si => user_signed_in?, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
     else
       render :json => {:no_token => true}
     end
   end
   
   def google_populate_contacts
+    render :json => {} and return
     if user_signed_in?
       contact_groups = current_user.populate_google_contacts
       render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
     else
+      logger.debug("Not signed in!")
       render :json => {:loginRequired => true}
     end
   end

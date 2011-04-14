@@ -7,7 +7,7 @@
   <h1>Welcome to Postkart!</h1>
 <% end %>
 
-<%= link_to "Google auth!", google_auth_url %>
+<%= link_to "Google auth!", "#", :id => "authLink" %>
 
 <% if current_user %>
   <%# display trips %>
@@ -22,3 +22,20 @@
     <%= f.submit %>
   <% end %>
 <% end %>
+
+<div id="authIframeHolder">
+  <iframe id="authIframe" frameborder="0"></iframe>  
+</div>
+
+<script>
+  $("#authLink").click(function() {
+    // open up a dialog box for the authentication flow
+    $("#authIframe").attr("src", "<%= google_auth_url %>");
+    $("#authIframeHolder").dialog({
+      dialogClass: "authDialog",
+      width: 510,
+      height: 420
+    })
+  })
+
+</script>

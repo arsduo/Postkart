@@ -2,7 +2,7 @@ var PK = PK || {};
 
 PK.GoogleAuth = (function($, undefined) {
   // DOM elements we use
-  var trafficlight, timeoutWarningNode, 
+  var trafficlightNode, timeoutWarningNode, 
       timeoutErrorNode, errorNode, successNode;
       
   var termsError = "terms", errorCount;
@@ -11,8 +11,8 @@ PK.GoogleAuth = (function($, undefined) {
     if (data.response.needs_terms) {
       // pause the app
       // kick us back a step as well, so we rerun whatever caused it
-      trafficlight("error", termsError);
-
+      console.log("Getting terms!");
+      trafficlightNode.trafficlight("error", termsError);
       // show the terms
       $("#acceptTerms").slideDown();
       $("#termsSubmit").click(function() {
@@ -20,7 +20,7 @@ PK.GoogleAuth = (function($, undefined) {
           // mark that terms have been accepted
           data.step.args.acceptedTerms = true;
           // resume operation
-          trafficlight("start");
+          trafficlightNode.trafficlight("start");
           $("#acceptTerms").slideUp();
         }
         else {
@@ -33,7 +33,7 @@ PK.GoogleAuth = (function($, undefined) {
   }
 
   var error = function(jQevent, errorData) {
-    var stepElement = $(data.step.selector);
+    var stepElement = $(errorData.step.selector);
     
     if (errorData.text === "timeout") {
       if (!errorCount) {
@@ -42,7 +42,7 @@ PK.GoogleAuth = (function($, undefined) {
         // give people a chance to read the error msg before starting again
         setTimeout(function() {
           timeoutWarningNode.slideUp();
-          trafficlight("start");
+          trafficlightNode.trafficlight("start");
         }, 3000)
       }
       else {
@@ -51,9 +51,13 @@ PK.GoogleAuth = (function($, undefined) {
         // two timeouts means it's over
       }
     }
-    else {
+    else if (errorData.text !== "terms") {
       errorNode.insertAfter(stepElement).html("We encountered an error (" + errorData.text + ")!  Please try again later.").slideDown();
     }
+  }
+  
+  var checkForLogin = function(jQevent, errorData) {
+    throw "need to implement"
   }
     
   // on load, assign some DOM nodes
@@ -62,11 +66,12 @@ PK.GoogleAuth = (function($, undefined) {
     timeoutWarningNode = $("#timeoutWarning");
     errorNode = $("#generalError");
     successNode = $("#signIn");
+    trafficlightNode = $("#signinFlow");
   });
   
   return {
     init: function() {
-      $("#signinFlow").trafficlight({
+      trafficlightNode.trafficlight({
         steps: [
           { selector: "#identifyUser", 
             url: function(lastResults, step) {
@@ -87,15 +92,16 @@ PK.GoogleAuth = (function($, undefined) {
         ],
       
         error: error,
+        success: checkForLogin,
+        
         complete: function() {
           successNode.removeClass("trafficlight-todo").addClass("trafficlight-doing");
           setTimeout(function() {
             successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
+            window.parent.location.reload();
           }, 1000);
         }
       })
-      
-      trafficlight = $("#signinFlow").trafficlight;
     }
   }
 }(jQuery))

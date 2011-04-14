@@ -3,21 +3,24 @@ javascript_compressor:  closure
 
 
 javascripts:
-  common: 
+  core: # every page should have these
     - public/javascripts/jquery/jquery-1.5.1.js
+    - public/javascripts/rails.js
+  
+  common: 
     - public/javascripts/jquery/jquery-ui-1.8.11.js
     
   google_auth:
-    - public/javascripts/jquery/jquery-1.5.1.js
     - public/javascripts/jquery/jquery.ui.widget.js
     - public/javascripts/trafficlight/jquery.trafficlight.js
     - public/javascripts/google_auth.js
 
 stylesheets:
-  common: 
+  core: # every page should have these
     - public/stylesheets/core.css
+
+  common: 
     - public/stylesheets/jquery-ui-1.8.11.css
     
   google_auth:
-    - public/stylesheets/core.css
     - public/stylesheets/google_auth.css

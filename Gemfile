@@ -13,12 +13,12 @@ unless RUBY_VERSION =~ /^1\.9/
 end
 
 # Google
-gem "devise", ">= 1.2.rc2"
+gem "devise", "~> 1.2"
 
 # mongo
 gem "mongo", ">= 1.3.0"
 gem "mongoid", ">= 2.0.0"
-gem "mongo_session_store"
+gem "mongo_session_store", :git => "git://github.com/brianhempel/mongo_session_store.git"
 gem "bson_ext", ">= 1.2.0"
 
 group :test, :development do

@@ -4,6 +4,8 @@
     %title
       Postkart
     = csrf_meta_tag 
-
+    = include_stylesheets :core
+    = include_javascripts :core
+    
   %body
     = yield 
