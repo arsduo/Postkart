@@ -33,3 +33,13 @@ namespace :deploy do
     run "touch #{File.join(current_path,'tmp','restart.txt')}"
   end
 end
+
+# jammit
+namespace :deploy do
+  task :generate_assets, :roles => :web do
+    send(:run, "cd #{release_path} && ~/.gems/bin/jammit config/assets.yml")
+  end  
+end
+
+after "deploy:restart", "deploy:generate_assets"
+
