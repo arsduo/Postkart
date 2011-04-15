@@ -8,17 +8,16 @@ PK.GoogleAuth = (function($, undefined) {
   var termsError = "terms", errorCount;
   
   var checkForTerms = function(data) {
-    if (data.response.needs_terms) {
+    if (data.response.needsTerms) {
       // pause the app
       // kick us back a step as well, so we rerun whatever caused it
-      console.log("Getting terms!");
       trafficlightNode.trafficlight("error", termsError);
       // show the terms
       $("#acceptTerms").slideDown();
       $("#termsSubmit").click(function() {
         if ($("#termsCheck").attr("checked")) {
           // mark that terms have been accepted
-          data.step.args.acceptedTerms = true;
+          data.step.args.accepted_terms = true;
           // resume operation
           trafficlightNode.trafficlight("start");
           $("#acceptTerms").slideUp();
@@ -67,9 +66,15 @@ PK.GoogleAuth = (function($, undefined) {
     }
   }
   
-  var checkForLogin = function(jQevent, data) {
-    if (data.response.login_required) {
-      trafficlightNode.trafficlight("error", "loginRequired");
+  var checkResponse = function(jQevent, data) {
+    var errorData = data.response.error;
+    if (errorData) {
+      if (errorData.loginRequired) {
+        trafficlightNode.trafficlight("error", "loginRequired", errorData);
+      }
+      else {
+        trafficlightNode.trafficlight("error", "other", errorData);
+      }
     }
   }
     
@@ -103,7 +108,7 @@ PK.GoogleAuth = (function($, undefined) {
         ],
       
         error: error,
-        success: checkForLogin,
+        success: checkResponse,
         
         complete: function() {
           successNode.removeClass("trafficlight-todo").addClass("trafficlight-doing");

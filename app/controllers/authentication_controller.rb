@@ -17,15 +17,15 @@ class AuthenticationController < ApplicationController
       user = User.find_or_create_from_google_token(token)
 
       # handle T&C check/update
-      user.update_attribute(:accepted_terms, true) if params[:acceptedTerms]      
+      user.update_attribute(:accepted_terms, true) if params[:accepted_terms]      
       if user.valid?
         sign_in(:user, user) if user.accepted_terms
-        render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
+        render :json => {:name => user.name, :isNewUser => (Time.now - user.created_at) < 30, :needsTerms => !user.accepted_terms}
       else
-        render :json => {:error => {:validations => user.errors}}
+        render :json => {:error => {:validation => user.errors}}
       end
     else
-      render :json => {:error => {:no_token => true}}
+      render :json => {:error => {:noToken => true}}
       logger.warn("Error! ")
     end
   end
@@ -40,7 +40,7 @@ class AuthenticationController < ApplicationController
   def ensure_signed_in
     unless user_signed_in?
       logger.debug("Not signed in!")
-      render :json => {:login_required => true}
+      render :json => {:loginRequired => true}
     end    
   end
 
