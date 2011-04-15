@@ -55,7 +55,7 @@ class User
     
     # warn about errors
     unless user.valid?
-      Rails.logger.warn("User invalid: #{user.errors.inspect}")
+      Rails.logger.warn("User w/ #{user.remote_accounts.count} invalid: #{user.errors.inspect}")
       user.remote_accounts.each do |r| 
         Rails.logger.warn("Remote account invalid: #{r.errors.inspect}") unless r.valid?
       end

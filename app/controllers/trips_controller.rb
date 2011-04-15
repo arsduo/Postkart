@@ -17,10 +17,7 @@ class TripsController < ApplicationController
   def view
     if current_user && @trip = Trip.where(:_id => params[:id]).first
       @mailing_recipients = @trip.mailings.collect {|m| m.contact}
-      # broken!
-      logger.debug("There? #{@contacts.include? @mailing_recipients.first}")
-      @contacts = current_user.contacts.asc(:last_name).delete_if {|c| @mailing_recipients.include?(c)}
-      logger.debug("There? #{@contacts.include? @mailing_recipients.first}")
+      @contacts = current_user.contacts.asc(:last_name).to_a.delete_if {|c| @mailing_recipients.include?(c)}
     else
       redirect_to root_url
     end    
