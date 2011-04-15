@@ -1,6 +1,11 @@
 class AuthenticationController < ApplicationController
   layout "minimal"
   
+  before_filter :ensure_signed_in, :only => :google_populate_contacts
+  
+  def google_start
+  end
+  
   def google_callback
   end
   
@@ -12,26 +17,26 @@ class AuthenticationController < ApplicationController
 
       # handle T&C check/update
       user.update_attribute(:accepted_terms, true) if params[:acceptedTerms]      
-      sign_in(:user, user) 
-      if user.accepted_terms
-        sign_in(:user, user) 
-        sign_in(:user, user, :bypass => true)
-      end
-      render :json => {:name => user.name, :si => user_signed_in?, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
+      sign_in(:user, user) if user.accepted_terms
+      
+      render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
     else
       render :json => {:no_token => true}
     end
   end
   
   def google_populate_contacts
-    render :json => {} and return
-    if user_signed_in?
-      contact_groups = current_user.populate_google_contacts
-      render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
-    else
+    contact_groups = current_user.populate_google_contacts
+    render :json => contact_groups.inject({}) {|result, data| result[data.first] = data.last.length; result}
+  end
+  
+  private 
+    
+  def ensure_signed_in
+    unless user_signed_in?
       logger.debug("Not signed in!")
-      render :json => {:loginRequired => true}
-    end
+      render :json => {:login_required => true}
+    end    
   end
 
 end

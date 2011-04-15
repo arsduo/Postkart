@@ -34,36 +34,47 @@ PK.GoogleAuth = (function($, undefined) {
 
   var error = function(jQevent, errorData) {
     var stepElement = $(errorData.step.selector);
+    var showError = function(text) {
+      errorNode.insertAfter(stepElement).html(text).slideDown();
+    }
+    var hideError = function() { errorNode.slideUp(); }
     
     if (errorData.text === "timeout") {
       if (!errorCount) {
         errorCount = 1;
-        timeoutWarningNode.insertAfter(stepElement).slideDown();
+        showError("Google isn't responding!  Let's try again...");
         // give people a chance to read the error msg before starting again
         setTimeout(function() {
-          timeoutWarningNode.slideUp();
+          hideError();
           trafficlightNode.trafficlight("start");
         }, 3000)
       }
       else {
-        timeoutErrorNode.insertAfter(stepElement).slideDown();
+        showError("Google seems to be down :( please try again later.")
         // note that here, we don't resume the process
         // two timeouts means it's over
       }
     }
+    else if (errorData.text === "loginRequired") {
+      showError("Oops! You need to be logged in for this.  Starting over...");
+      setTimeout(function() {
+        window.location = "google_start";
+      }, 2000);
+    }
     else if (errorData.text !== "terms") {
-      errorNode.insertAfter(stepElement).html("We encountered an error (" + errorData.text + ")!  Please try again later.").slideDown();
+      showError("We encountered an error!  Please try again later.");
+      try { console.log("Error: %o", errorData) } catch (e) {}
     }
   }
   
-  var checkForLogin = function(jQevent, errorData) {
-    throw "need to implement"
+  var checkForLogin = function(jQevent, data) {
+    if (data.response.login_required) {
+      trafficlightNode.trafficlight("error", "loginRequired");
+    }
   }
     
   // on load, assign some DOM nodes
   $(document).ready(function() {
-    timeoutErrorNode = $("#timeoutError");
-    timeoutWarningNode = $("#timeoutWarning");
     errorNode = $("#generalError");
     successNode = $("#signIn");
     trafficlightNode = $("#signinFlow");

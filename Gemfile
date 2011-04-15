@@ -21,13 +21,10 @@ gem "mongoid", ">= 2.0.0"
 gem "mongo_session_store", :git => "git://github.com/brianhempel/mongo_session_store.git"
 gem "bson_ext", ">= 1.2.0"
 
-group :test, :development do
-  # test content
-  gem "rspec-rails"
-end
-
 group :test do
+  # test content
   gem "rspec"
+  gem "rspec-rails"
   gem 'machinist', '>= 2.0.0.beta2'
   gem 'machinist_mongo', :git => 'https://github.com/nmerouze/machinist_mongo.git', :require => 'machinist/mongoid', :branch => 'machinist2'
   gem "mocha"
@@ -38,4 +35,7 @@ group :test do
   gem "remarkable", '>=4.0.0.alpha2' 
   gem 'remarkable_mongoid'
   gem 'remarkable_activemodel', '>=4.0.0.alpha2'  
+  
+  # javascript
+  gem "jasmine"
 end
