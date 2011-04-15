@@ -41,5 +41,5 @@ namespace :deploy do
   end  
 end
 
-after "deploy:restart", "deploy:generate_assets"
+# after "deploy:restart", "deploy:generate_assets"
 

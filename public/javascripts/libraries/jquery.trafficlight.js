@@ -199,7 +199,7 @@
       var options = this.options, step = options.steps[options.currentStep];
       var stepErrorResult, globalErrorResult;
       errorData.step = step;
-      errorData.nexetStep = options.steps[options.currentStep];
+      errorData.nextStep = options.steps[options.currentStep];
       
       this.errored = true;
       

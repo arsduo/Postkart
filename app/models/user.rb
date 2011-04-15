@@ -49,7 +49,17 @@ class User
       )
       acct.user = user
     end
-    user.safely.save!
+    
+    # try to safely save the user since we need this to be saved
+    user.safely.save
+    
+    # warn about errors
+    unless user.valid?
+      Rails.logger.warn("User invalid: #{user.errors.inspect}")
+      user.remote_accounts.each do |r| 
+        Rails.logger.warn("Remote account invalid: #{r.errors.inspect}") unless r.valid?
+      end
+    end
     
     # now return the user
     user
