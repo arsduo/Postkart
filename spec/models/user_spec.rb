@@ -164,11 +164,20 @@ describe User do
       end
     end
 
-    it "can be run twice for the same user without creating multiple contacts" do
+    it "can be run twice for the same user without creating multiple users" do
       count = User.count
       User.find_or_create_from_google_token(@token)
       User.find_or_create_from_google_token(@token)
       User.count.should == count + 1 # only one new user
+    end
+    
+    it "can be run twice for the same user without creating multiple remote accounts" do
+      u = User.make
+      u.remote_accounts.destroy_all
+      User.stubs(:where).returns([u])
+      User.find_or_create_from_google_token(@token)
+      User.find_or_create_from_google_token(@token)
+      u.remote_accounts.count == 1 # only one new remote account
     end
   end
   

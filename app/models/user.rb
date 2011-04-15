@@ -37,7 +37,7 @@ class User
     # now, update the remote account, or create it if it's a new user
     # (the record will never be missing for existing users because we look up on it earlier)
     # more accurately, if the record is missing we'll create a second user account =\
-    if !user.new_record? && acct = user.remote_accounts.where("remote_accounts.identifier" => info[:id]).first
+    if !user.new_record? && acct = user.remote_accounts.where("identifier" => info[:id]).first
       # update the token      
       acct.token = token
     else
