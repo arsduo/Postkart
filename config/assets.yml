@@ -12,7 +12,7 @@ javascripts:
     
   google_auth:
     - public/javascripts/jquery/jquery.ui.widget.js
-    - public/javascripts/trafficlight/jquery.trafficlight.js
+    - public/javascripts/libraries/jquery.trafficlight.js
     - public/javascripts/google_auth.js
 
 stylesheets:
