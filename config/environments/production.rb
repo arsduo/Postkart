@@ -54,7 +54,7 @@ Postkart::Application.configure do
     
   config.middleware.use ExceptionNotifier,
     :email_prefix => "[Postkart Error] ",
-    :sender_address => %{"Alex" <alex+postkart@alexkoppel.com},
-    :exception_recipients => %w{"Alex" <alex+postkart@alexkoppel.com}
+    :sender_address => %{"Alex" <alex+postkart@alexkoppel.com>},
+    :exception_recipients => %w{"Alex" <alex+postkart@alexkoppel.com>}
   
 end
