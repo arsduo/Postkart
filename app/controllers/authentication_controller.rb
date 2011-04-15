@@ -4,6 +4,7 @@ class AuthenticationController < ApplicationController
   before_filter :ensure_signed_in, :only => :google_populate_contacts
   
   def google_start
+    raise Exception, "let's see if this works"
   end
   
   def google_callback
@@ -17,11 +18,15 @@ class AuthenticationController < ApplicationController
 
       # handle T&C check/update
       user.update_attribute(:accepted_terms, true) if params[:acceptedTerms]      
-      sign_in(:user, user) if user.accepted_terms
-      
-      render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
+      if user.valid?
+        sign_in(:user, user) if user.accepted_terms
+        render :json => {:name => user.name, :is_new_user => (Time.now - user.created_at) < 30, :needs_terms => !user.accepted_terms}
+      else
+        render :json => {:error => {:validations => user.errors}}
+      end
     else
-      render :json => {:no_token => true}
+      render :json => {:error => {:no_token => true}}
+      logger.warn("Error! ")
     end
   end
   

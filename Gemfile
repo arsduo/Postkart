@@ -21,6 +21,9 @@ gem "mongoid", ">= 2.0.0"
 gem "mongo_session_store", :git => "git://github.com/brianhempel/mongo_session_store.git"
 gem "bson_ext", ">= 1.2.0"
 
+# error notification
+gem 'exception_notification', :require => 'exception_notifier'
+
 group :test do
   # test content
   gem "rspec"

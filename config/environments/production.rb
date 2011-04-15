@@ -46,4 +46,15 @@ Postkart::Application.configure do
 
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
+  
+  # exception notification
+  email_conf = YAML::load(File.open("#{RAILS_ROOT}/config/email.yml"))["production"]
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = email_conf
+    
+  config.middleware.use ExceptionNotifier,
+    :email_prefix => "[Postkart Error] ",
+    :sender_address => %{"Alex" <alex+postkart@alexkoppel.com},
+    :exception_recipients => %w{"Alex" <alex+postkart@alexkoppel.com}
+  
 end

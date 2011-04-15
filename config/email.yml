@@ -1,0 +1,17 @@
+# server options
+development:
+  server: smtp.gmail.com
+  user_name: imatester@mealstrom.com
+  password: c0mprEs5
+  enable_starttls_auto: true
+  port: 587
+  authentication: plain
+	
+production:
+  address: smtp.gmail.com
+  user_name: tasty@mealstrom.com
+  password: el0ngatE
+  ssl: true
+  port: 587
+  authentication: plain
+  enable_starttls_auto: true
