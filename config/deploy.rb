@@ -37,19 +37,7 @@ end
 # jammit
 namespace :deploy do
   task :generate_assets, :roles => :web do
-    retries = 0
-    begin
-      send(:run, "cd #{release_path} && ~/.gems/bin/jammit config/assets.yml")
-    rescue Exception => e
-      if retries < 5
-        puts "Retrying after error! #{e.message}"
-        retries += 1
-        retry
-      else
-        puts "Aborting!  Can't package."
-        raise
-      end
-    end
+    send(:run, "cd #{release_path} && bundle exec rake jammit:package_dreamhost_assets")
   end
 end
 
