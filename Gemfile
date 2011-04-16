@@ -26,6 +26,7 @@ gem 'exception_notification', :require => 'exception_notifier'
 
 # performance!
 gem 'rack-perftools_profiler', :require => 'rack/perftools_profiler'
+gem 'ruby-prof'
 
 group :test do
   # test content
