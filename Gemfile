@@ -24,6 +24,9 @@ gem "bson_ext", ">= 1.2.0"
 # error notification
 gem 'exception_notification', :require => 'exception_notifier'
 
+# performance!
+gem 'rack-perftools_profiler', :require => 'rack/perftools_profiler'
+
 group :test do
   # test content
   gem "rspec"

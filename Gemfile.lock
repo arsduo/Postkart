@@ -105,10 +105,15 @@ GEM
       will_paginate (~> 3.0.pre)
     open4 (1.0.1)
     orm_adapter (0.0.4)
+    perftools.rb (0.5.6)
     polyglot (0.3.1)
     rack (1.2.1)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
+    rack-perftools_profiler (0.4.0)
+      open4 (~> 1.0)
+      perftools.rb (~> 0.5)
+      rack (~> 1.0)
     rack-test (0.5.7)
       rack (>= 1.0)
     rails (3.0.5)
@@ -188,6 +193,7 @@ DEPENDENCIES
   mongo_session_store!
   mongoid (>= 2.0.0)
   rack (= 1.2.1)
+  rack-perftools_profiler
   rails (~> 3.0)
   remarkable (>= 4.0.0.alpha2)
   remarkable_activemodel (>= 4.0.0.alpha2)
