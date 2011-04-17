@@ -2,8 +2,7 @@ var PK = PK || {};
 
 PK.GoogleAuth = (function($, undefined) {
   // DOM elements we use
-  var trafficlightNode, timeoutWarningNode, 
-      timeoutErrorNode, errorNode, successNode;
+  var trafficlightNode, errorNode, successNode;
       
   var termsError = "terms", errorCount;
   
@@ -78,15 +77,12 @@ PK.GoogleAuth = (function($, undefined) {
     }
   }
     
-  // on load, assign some DOM nodes
-  $(document).ready(function() {
-    errorNode = $("#generalError");
-    successNode = $("#signIn");
-    trafficlightNode = $("#signinFlow");
-  });
-  
   return {
     init: function() {
+      errorNode = $("#generalError");
+      successNode = $("#signIn");
+      trafficlightNode = $("#signinFlow");
+
       trafficlightNode.trafficlight({
         steps: [
           { selector: "#identifyUser", 
