@@ -11,14 +11,14 @@ class AuthenticationController < ApplicationController
   end
   
   def google_login
-    # annoyingly, we have to query Google to find out who the user is before we can do anything
+    # we have to query Google to find out who the user is before we can do anything
     logger.debug("Making Google request!")
     if (token = params[:access_token])
       user = User.find_or_create_from_google_token(token)
 
-      # handle T&C check/update
-      user.update_attribute(:accepted_terms, true) if params[:accepted_terms]      
       if user.valid?
+        # handle T&C check/update
+        user.update_attribute(:accepted_terms, true) if params[:accepted_terms]      
         sign_in(:user, user) if user.accepted_terms
         render :json => {:name => user.name, :isNewUser => (Time.now - user.created_at) < 30, :needsTerms => !user.accepted_terms}
       else
@@ -26,7 +26,7 @@ class AuthenticationController < ApplicationController
       end
     else
       render :json => {:error => {:noToken => true}}
-      logger.warn("Error! ")
+      logger.warn("Error! No token received!")
     end
   end
   

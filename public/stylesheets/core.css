@@ -11,11 +11,13 @@ body {
 /* Auth iframe */
 
 #authIframe {
-  height: 368px;
+  height: 370px;
   width: 483px;
   border: 0px;
+  background: transparent;
 }
 
-#authIframeHolder {
+.authDialog .ui-dialog-titlebar, #authIframeHolder {
+  /* hide the title bar and, until used, the iframe */
   display: none;
 }
