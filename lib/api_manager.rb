@@ -1,4 +1,6 @@
 class APIManager
+  class APIError < StandardError; end
+  
   def initialize(*args)
     raise StandardError, "APIManager should not be initialized directly!"
   end
@@ -10,7 +12,8 @@ class APIManager
   def make_request(url, params = {}, typhoeus_args = {})
     begin
       Timeout.timeout(5) do
-        JSON.parse(Typhoeus::Request.get(url, {:params => params}.merge(typhoeus_args)).body)
+        response = Typhoeus::Request.get(url, {:params => params}.merge(typhoeus_args))
+        response.code == 200 ? JSON.parse(response.body) : raise(APIError, response.body)
       end
     rescue Timeout::Error
       unless @retried

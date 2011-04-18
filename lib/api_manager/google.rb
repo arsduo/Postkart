@@ -6,7 +6,8 @@ class APIManager
     FIELDS = "addresses,emails,name,displayName,id,thumbnailUrl"
     CONTACT_COUNT = 1000
     
-    class MalformedPortableContactError < StandardError; end
+    class MalformedPortableContactError < APIError; end
+    class InvalidTokenError < APIError; end
     
     def initialize(token)
       @oauth_token = token
@@ -60,7 +61,12 @@ class APIManager
     end
     
     def make_request(url_suffix, params = {}, typhoeus_args = {})
-      super("#{API_ENDPOINT}@me/#{url_suffix}", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))
+      begin
+        super("#{API_ENDPOINT}@me/#{url_suffix}", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))
+      rescue APIError => e
+        raise InvalidTokenError if e.message =~ /Invalid AuthSub token/
+        raise
+      end
     end
   end
 end

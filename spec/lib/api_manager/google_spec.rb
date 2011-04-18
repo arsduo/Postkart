@@ -165,8 +165,17 @@ describe APIManager::Google do
     it "always sends along the OAuth token as a header" do
       token = "bar"
       g = APIManager::Google.new(token)
-      Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{token}"))).returns(Typhoeus::Response.new(:body => "[]"))
+      Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{token}"))).returns(Typhoeus::Response.new(:body => "[]", :code => 200))
       g.send(:make_request, "foo")
+    end
+    
+    it "raises an InvalidTokenError if it gets an APIError whose message =~ /Invalid AuthSub token/" do
+      g = APIManager::Google.new("foo")
+      Typhoeus::Request.expects(:get).returns(Typhoeus::Response.new(
+        :body => "<HTML>\n  <HEAD>\n  <TITLE>Failed to verify 3 legged OAuth request. Request was invalid.Invalid AuthSub token.</TITLE>\n  </HEAD>\n  <BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n  <H1>Failed to verify 3 legged OAuth request. Request was invalid.Invalid AuthSub token.</H1>\n  <H2>Error 401</H2>\n  </BODY>\n  </HTML>",
+        :code => 401
+      ))
+      expect { g.send(:make_request, "foo") }.to raise_exception(APIManager::Google::InvalidTokenError)
     end
   end
   

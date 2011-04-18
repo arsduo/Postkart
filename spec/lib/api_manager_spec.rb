@@ -57,12 +57,19 @@ describe APIManager do
       expect {@mgr.make_request("foo")}.to raise_exception(Timeout::Error)
     end
     
-    it "JSON.parses the body of the response" do
+    it "JSON.parses the body of the response if the result is successful" do
       body = "[]"
-      response = Typhoeus::Response.new(:body => body)
+      response = Typhoeus::Response.new(:body => body, :code => 200)
       Typhoeus::Request.expects(:get).with(anything, anything).returns(response)
       JSON.expects(:parse).with(body)
       @mgr.make_request("foo")
     end
+    
+    it "raises an APIError if the response code != 200" do
+      body = "[]"
+      response = Typhoeus::Response.new(:body => body, :code => 401)
+      expect { @mgr.make_request("foo") }.to raise_exception(APIManager::APIError)
+    end
+    
   end
 end
