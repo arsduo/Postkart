@@ -64,7 +64,7 @@ describe AuthenticationController do
       
       context "for users who just accepted the terms" do
         before :each do
-          @args.merge!(:acceptedTerms => true)
+          @args.merge!(:accepted_terms => true)
           @u = User.make(:accepted_terms => false, :created_at => Time.now - 600)
           User.stubs(:find_or_create_from_google_token).returns(@u)
         end
