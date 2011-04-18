@@ -1,4 +1,4 @@
-module PortableContactsTestHelper
+module ContactsTestHelper
   
   @@counter = 0
   
@@ -44,4 +44,23 @@ module PortableContactsTestHelper
     [parsed_contact, raw_portable_contact]    
   end
   
+  def hashes_and_contacts(count = 10, user = nil)
+    # creates contacts using Machinist
+    # and hashes to match
+    count.times.inject([]) do |hashes, i|
+      contact = Contact.make(:user => user)
+      hash_for_contact = {
+        :first_name => contact.first_name,
+        :last_name => contact.last_name,
+        :name => contact.name,
+        # don't have to worry about email, since c has a remote_id
+        :email => "sample#{@@counter}@sample.com",
+        :addresses => contact.addresses,
+        :id => contact.remote_id,
+        :pic => contact.pic,
+        :account_type => :google
+      }
+      hashes << [hash_for_contact, contact]
+    end
+  end
 end

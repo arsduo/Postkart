@@ -64,8 +64,63 @@ class User
     # now return the user
     user
   end
-  
+    
   def populate_google_contacts
+    contact_info = google_api.user_contacts
+
+    # fetch all contacts at once, so we can work off local copies
+    # convert the user's existing contacts to a hash
+    contact_records = self.contacts.to_a.inject({}) {|hash, c| hash[c.remote_id.to_s] = c; hash}
+
+    # buckets for our addresses
+    # used to show results later
+    new_with_address = []
+    new_without_address = []
+    updated = []
+    # if there's no id, email, or name/address, we can't work with it
+    unimportable = []
+    
+    contact_info.delete_if {|c| c.blank?}.each do |c|
+      id_for_contact = Contact.generate_remote_id(c)
+      if existing_contact = contact_records[id_for_contact.to_s]
+        # update the existing contact
+        had_address = existing_contact.addresses.blank?
+        existing_contact.update_from_remote_contact(c)
+        (had_address ? updated : new_with_address) << existing_contact
+      else
+        # create a new contact if it's importable
+        if id_for_contact
+          contact = Contact.new_from_remote_contact(c)
+          self.contacts << contact
+          contact.save
+          (contact.addresses.length > 0 ? new_with_address : new_without_address) << contact
+        else
+          unimportable << c
+        end
+      end
+    end
+        
+    # return the new contacts in buckets
+    {
+      :new_with_address => new_with_address, 
+      :new_without_address => new_without_address,
+      :updated => updated,
+      :unimportable => unimportable
+    }
+  end
+  
+  def google_api
+    unless @google_api
+      if google_account = self.remote_accounts.where(:account_type => :google).first
+        @google_api = APIManager::Google.new(google_account.token)
+      end
+    end
+    @google_api
+  end
+
+  private 
+  
+  def populate_google_contact_old
     contacts = google_api.user_contacts
 
     # buckets for our addresses
@@ -106,56 +161,7 @@ class User
       :unimportable => unimportable
     }
   end
-  
-  def populate_google_contacts2
-    contact_info = google_api.user_contacts
 
-    # fetch all contacts at once, so we can work off local copies
-    # convert the user's existing contacts to a hash
-    contact_records = self.contacts.to_a.inject({}) {|hash, c| hash[c.id] = c}
-    
-    # buckets for our addresses
-    # used to show results later
-    new_with_address = []
-    new_without_address = []
-    updated = []
-    # if there's no id, email, or name/address, we can't work with it
-    unimportable = []
-    
-    contact_info.delete_if {|c| c.blank?}.each do |c|
-      id_for_contact = Contact.generate_remote_id(c)
-      unless existing_contact = contact_records[id_for_contact]
-        # create a new contact
-        r = Contact.new_from_remote_contact(c)
-        if r.remote_id
-          self.contacts << r
-          r.save
-          (r.addresses.length > 0 ? new_with_address : new_without_address) << r
-        else
-          unimportable << r
-        end
-      else
-        # update the existing contact
-        existing_contact.update_from_remote_contact(c)
-        updated << existing_contact
-      end
-    end
-        
-    # return the new contacts in buckets
-    {
-      :new_with_address => new_with_address, 
-      :new_without_address => new_without_address,
-      :updated => updated,
-      :unimportable => unimportable
-    }
-  end
-  
-  def google_api
-    unless @google_api 
-      if google_account = self.remote_accounts.where(:account_type => :google).first
-        @google_api = APIManager::Google.new(google_account.token)
-      end
-    end
-    @google_api
-  end
 end
+
+

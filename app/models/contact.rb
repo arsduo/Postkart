@@ -59,7 +59,7 @@ class Contact
       id
     elsif email = contact_hash[:email]
       Digest::MD5.hexdigest(email)
-    elsif (name = contact_hash[:name]) && address = contact_hash[:addresses].first
+    elsif (name = contact_hash[:name]) && address = (contact_hash[:addresses] || []).first
       Digest::MD5.hexdigest(name + address)
     end
   end

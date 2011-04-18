@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Contact do
-  include PortableContactsTestHelper
+  include ContactsTestHelper
   
   # modules
   it "should be a Mongoid document" do
@@ -89,6 +89,11 @@ describe Contact do
     it "returns nil if none of those are available" do
       Contact.generate_remote_id({}).should be_nil
     end
+    
+    it "returns nil if name is present but address is nil" do
+      Contact.generate_remote_id({:name => "foo"}).should be_nil
+    end
+    
   end
   
   describe ".update_from_remote_contact" do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe APIManager::Google do
-  include PortableContactsTestHelper
+  include ContactsTestHelper
   
   it "has an API_ENDPOINT constant" do
     APIManager::Google.const_defined?(:API_ENDPOINT).should be_true

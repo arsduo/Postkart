@@ -1,6 +1,5 @@
-embed_assets: on
+#embed_assets: on
 javascript_compressor:  closure
-
 
 javascripts:
   core: # every page should have these

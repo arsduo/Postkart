@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe User do
-  include PortableContactsTestHelper
+  include ContactsTestHelper
   
   # modules
   it "should be a Mongoid document" do
@@ -97,7 +97,7 @@ describe User do
       end
       
       it "saves! the new account record" do
-        @u.expects(:save!)
+        @u.expects(:save)
         User.find_or_create_from_google_token(@token)
       end
       
@@ -133,8 +133,8 @@ describe User do
         @u.pic.should == @sample_data[:pic]
       end
             
-      it "saves! the new account record" do
-        @u.expects(:save!)
+      it "saves the account record" do
+        @u.expects(:save)
         User.find_or_create_from_google_token(@token)
       end
             
@@ -206,6 +206,8 @@ describe User do
       @user.remote_accounts.destroy_all
       @user.google_api.should be_nil
     end
+    
+    it "refreshes the Google account if the remote token has been updated"
   end
   
   describe ".populate_google_contacts" do
@@ -214,137 +216,136 @@ describe User do
       
       @google = stub("Google API")
       @user.stubs(:google_api).returns(@google)
-      @contact_hashes = 10.times.inject([]) {|array, i| array << sample_portable_contact.first}
+            
+      # set up some contacts
+      contact_info = hashes_and_contacts(10, @user)      
+      @contact_hashes = []
+      @contacts = []
+      contact_info.each {|hash, contact| @contact_hashes << hash; @contacts << contact}
+    
+      @user.stubs(:contacts).returns(@contacts)
       @google.stubs(:user_contacts).returns(@contact_hashes)
     end
     
-    it "gets the user's contacts" do
-      @user.expects(:google_api).returns(@google)
-      @google.expects(:user_contacts).returns([])
-      @user.populate_google_contacts
-    end
-    
-    it "looks up each contact by remote_id to see if it exists" do
-      contact_lookup = sequence(:contact_lookup)
-      @contact_hashes.each do |c| 
-        temp_contact = Contact.new_from_remote_contact(c)
-        # Contact#generate_remote_id is the PortableContact => unique ID generator
-        @user.contacts.expects(:where).with(:remote_id => Contact.generate_remote_id(c)).returns([temp_contact]).in_sequence(contact_lookup)
-      end
-      @user.populate_google_contacts
-    end
-    
-    it "returns a hash with three arrays" do
+    it "returns a hash with four arrays" do
       result = @user.populate_google_contacts
-      result[:updated_with_address].should be_an(Array)
-      result[:updated_without_address].should be_an(Array)
+      result[:new_with_address].should be_an(Array)
+      result[:new_without_address].should be_an(Array)
+      result[:updated].should be_an(Array)
       result[:unimportable].should be_an(Array)
+    end
+    
+    it "can run more than once without creating duplicate contacts" do
+      # add a few new contacts along and make some changes 
+      @contacts.first.addresses = []
+      @contact_hashes.concat hashes_and_contacts(2).collect {|hac| hac.first}
+      
+      @user.populate_google_contacts
+      count = @user.contacts.count
+      @user.populate_google_contacts
+      count.should == @user.contacts.count     
     end
     
     context "for contacts that couldn't be processed" do
       before :each do
-        @google.stubs(:user_contacts).returns([nil])
+        @unusable_contact = {:name => "Alex Koppel", :first_name => "Alex", :last_name => "Koppel"}
+        @bad_contacts = [nil, {}, @unusable_contact]
+        @google.stubs(:user_contacts).returns(@bad_contacts)
       end
       
-      it "puts the bad contact into the unimportable array" do
-        @user.populate_google_contacts[:unimportable].should include(nil)
+      it "puts any contacts w/o sufficient info into the unimportable array" do
+        result = @user.populate_google_contacts[:unimportable]
+        @bad_contacts.should == [@unusable_contact]
       end
       
       it "doesn't do any other processing" do
-        Contact.expects(:generate_remote_id).never
+        Contact.expects(:generate_remote_id).with(@unusable_contact)
         @user.populate_google_contacts
       end
     end
     
     context "for contacts that exist" do
       before :each do
-        @contact_info = @contact_hashes.first
-        @contact = Contact.new_from_remote_contact(@contact_info)
-        @user.contacts.stubs(:where).returns([])
-        @user.contacts.stubs(:where).with(:remote_id => @contact.remote_id).returns([@contact])        
+        # vary up the contacts as may be useful
+        @contacts.each_with_index {|c, i| c.addresses = [] if i % 2 }
       end
       
       it "updates contacts that already exist" do
-        # other contacts will be treated as new ones
-        @contact.expects(:update_from_remote_contact).with(@contact_info)
+        @contacts.each_with_index do |c, i|
+          c.expects(:update_from_remote_contact).with(@contact_hashes[i])
+        end
         @user.populate_google_contacts 
       end
 
-      it "adds that contact to the :updated_with_address bucket if it has an address" do
-        # we don't want to process the update, which changes the addresses
-        @contact.stubs(:update_from_remote_contact) 
-
-        @contact.addresses = ["abc"]
-        @user.populate_google_contacts[:updated_with_address].should include(@contact)
-      end
-      
-      it "adds that contact to the :updated_without_address bucket if it has an address" do
-        # we don't want to process the update, which changes the addresses
-        @contact.stubs(:update_from_remote_contact) 
-
-        @contact.addresses = []
-        @user.populate_google_contacts[:updated_without_address].should include(@contact)
+      it "adds that contact to the appropriate bucket depending on previous address (or not)" do
+        result = @user.populate_google_contacts
+        @contacts.each do |c|
+          result[(c.addresses.blank? ? :new_with_address : :updated)].should include(c)
+        end
       end
     end
     
     context "for new contacts" do
-      before :each do
-        @contact_info = @contact_hashes.first
-        @contact = Contact.new
-        Contact.stubs(:new_from_remote_contact).returns(@contact)
-
-        # set up one contact from the group to be a new contact
-        @user.contacts.stubs(:where).returns([Contact.new])
-        @user.contacts.stubs(:where).with(:remote_id => @contact_info[:id]).returns([])        
-      end
-      
-      it "creates a new contact from the remote contact" do
-        Contact.expects(:new_from_remote_contact).with(@contact_info).returns(@contact)
-        @user.populate_google_contacts 
-      end
-      
       context "if there's a remote_id" do
         before :each do
-          @contact.stubs(:remote_id).returns("fooBar")
+          # empty out some of the contacts
+          @user.stubs(:contacts).returns([])
+          
+          @contact_hashes.each_with_index do |ch, i|
+            # clear some addresses
+            @contacts[i].addresses = [] if i % 2 == 0 
+            Contact.stubs(:new_from_remote_contact).with(ch).returns(@contacts[i]) 
+          end
+        end
+
+        it "creates a new contact from the remote contact" do
+          @contact_hashes.each_with_index do |ch, i|
+            Contact.expects(:new_from_remote_contact).with(ch).returns(Contact.make) 
+          end
+          @user.populate_google_contacts 
         end
 
         it "adds the contact to the user if there's a remote_id" do
           @user.populate_google_contacts
-          @user.contacts.include?(@contact).should be_true
+          @contacts.each {|c| @user.contacts.should include(c)}
         end
 
         it "saves the contact there's a remote_id" do
+          Contact.stubs(:new_from_remote_contact).returns(Contact.make) 
           @user.populate_google_contacts
-          @contact.new_record?.should be_false
+          @user.contacts.each {|c| c.new_record?.should be_false}
         end
 
-        it "adds the contact to the :updated_with_address bucket if it has an address" do
-          @contact.stubs(:addresses).returns(["a"])
-          @user.populate_google_contacts[:updated_with_address].should include(@contact)
+        it "adds the contact to the :new_with_address bucket if it has an address" do
+          results = @user.populate_google_contacts[:new_with_address]
+          @contacts.each_with_index {|c, i| results.send(i % 2 == 0 ? :should_not : :should, include(c)) }
         end
 
         it "adds that contact to the :updated_without_address bucket if it has no addresses" do
-          @contact.stubs(:addresses).returns([])
-          @user.populate_google_contacts[:updated_without_address].should include(@contact)
+          results = @user.populate_google_contacts[:new_without_address]
+          @contacts.each_with_index {|c, i| results.send(i % 2 == 0 ? :should : :should_not, include(c)) }
         end
       end
-      
+
       context "if there is no remote_id" do
         before :each do
-          @contact.stubs(:remote_id)
+          # make them all look new and unimportable
+          Contact.stubs(:generate_remote_id)
         end
         
-        it "adds that contact to the :updated_without_address bucket if it has an address" do
-          @user.populate_google_contacts[:unimportable].should include(@contact)
+        it "adds that contact to the :unimportable bucket" do
+          @contact_hashes.each do |c|
+            @user.populate_google_contacts[:unimportable].should include(c)
+          end
         end
         
-        it "does not save the record" do
+        it "does not create a record" do
+          Contact.expects(:new).never
+          Contact.expects(:create).never
           @user.populate_google_contacts
-          @contact.new_record?.should be_true
         end
       end
     end
-    
   end
   
 end
