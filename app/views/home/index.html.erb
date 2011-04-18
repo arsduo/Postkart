@@ -30,11 +30,11 @@
 <script>
   $("#authLink").click(function() {
     // open up a dialog box for the authentication flow
-    $("#authIframe").attr("src", "<%= google_auth_url %>");
+    $("#authIframe").attr("src", "/authentication/google_start");
     $("#authIframeHolder").dialog({
       dialogClass: "authDialog",
-      width: 510,
-      height: 420
+      width: 516,
+      height: 385
     })
   })
 

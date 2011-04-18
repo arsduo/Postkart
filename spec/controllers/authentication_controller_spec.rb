@@ -3,6 +3,20 @@ require 'spec_helper'
 describe AuthenticationController do
   render_views
   
+  include ApplicationHelper
+  
+  describe "GET 'google_start'" do
+    it "is successful" do
+      get 'google_start'
+      response.should be_success
+    end
+    
+    it "includes the Google Auth URL" do
+      get 'google_start'
+      response.body.should include(google_auth_url)
+    end
+  end
+  
   describe "GET 'google_callback'" do
     it "is successful" do
       get 'google_callback'

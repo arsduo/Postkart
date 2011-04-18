@@ -1,0 +1,13 @@
+!!!
+%html
+  %head
+    %title
+      Postkart
+    = csrf_meta_tag 
+    = include_stylesheets :core, :auth_iframe
+    = include_javascripts :core
+    
+  %body
+    #header Postkart
+  
+    = yield 

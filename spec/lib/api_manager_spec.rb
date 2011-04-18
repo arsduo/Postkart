@@ -21,7 +21,7 @@ describe APIManager do
   describe ".make_request" do
     before :each do
       @mgr = TestAPIManager.new
-      @typhoeus_response = Typhoeus::Response.new(:body => "[]")
+      @typhoeus_response = Typhoeus::Response.new(:body => "[]", :code => 200)
     end
     
     it "makes a Typhoeus get request to the provided url" do

@@ -1,0 +1,70 @@
+#header {
+  font-size: 1.6em;
+}
+
+/* loading */
+#loadingMessage {
+  text-align: center; 
+  font-weight: bold;
+  font-size: 1.3em;
+  margin-top: 28%;
+}
+
+/* sign-in with trafficlight */
+
+#signinFlow {
+  padding-left: 0;
+  margin: 17% 10% 0;
+  font-size: 20px;
+}
+
+#signinFlow li {
+  padding-left: 23px;
+  margin-bottom: 3px;
+  list-style: none;
+}
+
+.trafficlight-todo {
+  background: url('/images/lights.png') no-repeat 0 0;
+  color: gray;
+}
+
+.trafficlight-doing {
+  background: url('/images/lights.png') no-repeat 0 -52px;
+  font-weight: bold;
+}
+
+.trafficlight-done {
+  background: url('/images/lights.png') no-repeat 0 -26px;
+}
+
+.trafficlight-failed {
+  background: url('/images/lights.png') no-repeat 0 -78px;
+}
+
+.warning {
+  font-size: 14px;
+}
+
+/* terms */
+#acceptTerms {
+  display: none;
+  font-size: 12px;
+  padding: 2px;
+  width: 340px;
+}
+
+#acceptTermsBox {
+  border: 1px solid black;
+  border-radius: 8px 8px 8px 8px;
+  background: #F2E1D8;
+  padding: 3px;
+}
+
+
+/* timeout and errors */
+
+.error {
+  font-color: #A33;
+  display: none;
+}

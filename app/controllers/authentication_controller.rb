@@ -1,10 +1,10 @@
 class AuthenticationController < ApplicationController
-  layout "minimal"
+  layout "auth_iframe"
   
   before_filter :ensure_signed_in, :only => :google_populate_contacts
   
   def google_start
-    raise Exception, "let's see if this works"
+    # kick off the process so there's some content while Google is loading
   end
   
   def google_callback
