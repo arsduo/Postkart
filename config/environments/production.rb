@@ -51,12 +51,13 @@ Postkart::Application.configure do
   email_conf = YAML::load(File.open("#{RAILS_ROOT}/config/email.yml"))["production"]
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = email_conf
-    
-  config.middleware.use ExceptionNotifier,
+  
+  ::ExceptionNotifierOptions = {
     :email_prefix => "[Postkart Error] ",
     :sender_address => "alex+postkart@alexkoppel.com",
     :exception_recipients => "alex+postkart@alexkoppel.com"
+  }  
+  config.middleware.use ExceptionNotifier, ExceptionNotifierOptions    
     
   config.middleware.use ::Rack::PerftoolsProfiler
-  
 end

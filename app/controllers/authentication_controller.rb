@@ -5,6 +5,14 @@ class AuthenticationController < ApplicationController
   
   def google_start
     # kick off the process so there's some content while Google is loading
+    begin
+        raise Exception, "l2et's see if this works"
+    rescue Exception => err
+      # deliver exception notification but allow us to update the user normally
+      send_exception_notification(err)
+    end
+    render :text => "yo!"
+
   end
   
   def google_callback
@@ -31,13 +39,7 @@ class AuthenticationController < ApplicationController
 
       # error handling
       rescue APIManager::Google::InvalidTokenError
-        @error = {:invalidToken => true}
-        # if it's an invalid token, retry the whole process once
-        # but don't send them on an infinite loop
-        unless session[:retried_invalid_token]
-          session[:retried_invalid_token] = true
-          @error.merge!(:redirect => url_for(:action => :google_start))
-        end
+        handle_invalid_token_error
       rescue StandardError => err
         @error = {:otherError => true}
       end
@@ -50,8 +52,15 @@ class AuthenticationController < ApplicationController
   end
   
   def google_populate_contacts
-    contact_groups = current_user.populate_google_contacts 
-    render :json => contact_groups.inject({}) {|result, data| result[data.first.to_s.titleize] = data.last.length; result}
+    begin
+      contact_groups = current_user.populate_google_contacts 
+      @result = contact_groups.inject({}) {|result, data| result[data.first.to_s.titleize] = data.last.length; result}
+    rescue APIManager::Google::InvalidTokenError
+      handle_invalid_token_error
+    rescue StandardError => err
+      @error = {:otherError => true}
+    end
+    render :json => (@result || {}).merge(:error => @error)
   end
   
   private 
@@ -61,6 +70,16 @@ class AuthenticationController < ApplicationController
       logger.debug("Not signed in!")
       render :json => {:loginRequired => true}
     end    
+  end
+  
+  def handle_invalid_token_error
+    @error = {:invalidToken => true}
+    # if it's an invalid token, retry the whole process once
+    # but don't send them on an infinite loop
+    unless session[:retried_invalid_token]
+      session[:retried_invalid_token] = true
+      @error.merge!(:redirect => url_for(:action => :google_start))
+    end
   end
 
 end
