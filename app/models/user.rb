@@ -117,51 +117,6 @@ class User
     end
     @google_api
   end
-
-  private 
-  
-  def populate_google_contact_old
-    contacts = google_api.user_contacts
-
-    # buckets for our addresses
-    # used to show results later
-    regular = []
-    no_address = []
-    # if there's no id, email, or name/address, we can't work with it
-    unimportable = []
-    
-    contacts.each do |c|
-      if c
-        id_for_contact = Contact.generate_remote_id(c)
-        unless existing_contact = self.contacts.where(:remote_id => id_for_contact).first
-          # create a new contact
-          r = Contact.new_from_remote_contact(c)
-          if r.remote_id
-            self.contacts << r
-            r.save
-            (r.addresses.length > 0 ? regular : no_address) << r
-          else
-            unimportable << r
-          end
-        else
-          # update the existing contact
-          existing_contact.update_from_remote_contact(c)
-          (existing_contact.addresses.length > 0 ? regular : no_address) << existing_contact
-        end
-      else 
-        # we have an unprocessable contact
-        unimportable << c
-      end
-    end
-        
-    # return the new contacts in buckets
-    {
-      :updated_with_address => regular, 
-      :updated_without_address => no_address,
-      :unimportable => unimportable
-    }
-  end
-
 end
 
 
