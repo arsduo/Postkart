@@ -5,14 +5,6 @@ class AuthenticationController < ApplicationController
   
   def google_start
     # kick off the process so there's some content while Google is loading
-    begin
-        raise Exception, "l2et's see if this works"
-    rescue Exception => err
-      # deliver exception notification but allow us to update the user normally
-      send_exception_notification(err)
-    end
-    render :text => "yo!"
-
   end
   
   def google_callback
