@@ -33,6 +33,7 @@ class AuthenticationController < ApplicationController
       rescue APIManager::Google::InvalidTokenError
         handle_invalid_token_error
       rescue StandardError => err
+        send_exception_notification(err)
         @error = {:otherError => true}
       end
     else
@@ -50,6 +51,7 @@ class AuthenticationController < ApplicationController
     rescue APIManager::Google::InvalidTokenError
       handle_invalid_token_error
     rescue StandardError => err
+      send_exception_notification(err)
       @error = {:otherError => true}
     end
     render :json => (@result || {}).merge(:error => @error)
@@ -57,13 +59,14 @@ class AuthenticationController < ApplicationController
   
   private 
     
-  def ensure_signed_in
-    unless user_signed_in?
-      logger.debug("Not signed in!")
-      render :json => {:loginRequired => true}
-    end    
+  def ensure_signed_in    
+    render :json => {:error => {:loginRequired => true}} unless user_signed_in?
   end
   
+  # invalid tokens
+  
+  @@invalid_tokens = 0
+  @@invalid_token_error_sent = false  
   def handle_invalid_token_error
     @error = {:invalidToken => true}
     # if it's an invalid token, retry the whole process once
@@ -71,6 +74,18 @@ class AuthenticationController < ApplicationController
     unless session[:retried_invalid_token]
       session[:retried_invalid_token] = true
       @error.merge!(:redirect => url_for(:action => :google_start))
+    else
+      # we've tried twice and it's still not working
+      # something might be fundamentally wrong
+      @@invalid_tokens += 1
+      if @@invalid_tokens >= 5 && !@@invalid_token_error_sent
+        begin 
+          raise APIManager::Google::InvalidTokenError, "More than 5 invalid tokens in one sitting!"
+        rescue APIManager::Google::InvalidTokenError => err
+          @@invalid_token_error_sent = true
+          send_exception_notification(err)
+        end
+      end
     end
   end
 

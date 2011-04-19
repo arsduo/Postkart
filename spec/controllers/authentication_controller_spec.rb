@@ -32,6 +32,7 @@ describe AuthenticationController do
     
     context "with a token" do
       before :each do
+        @url = "google_login"
         @args = {:access_token => "foo", :expires_in => 3600}
       end
       
@@ -124,39 +125,66 @@ describe AuthenticationController do
           end
         end  
       end
-
-      context "when Google says the token is invalid" do
+      
+      context do
         before :each do
           User.stubs(:find_or_create_from_google_token).raises APIManager::Google::InvalidTokenError          
         end
         
-        it "returns :invalid_token => true" do
-          get 'google_login', @args
-          JSON.parse(response.body)["error"]["invalidToken"].should be_true
+        it_behaves_like "Ajax controller handling invalid Google tokens"
+      end
+      
+      context do
+        before :each do
+          @err = StandardError.new
+          User.stubs(:find_or_create_from_google_token).raises(@err)
         end
         
-        context "the first time" do
-          it "sets the session[:retried_invalid_token] to avoid an infinite loop" do
-            get 'google_login', @args
-            session[:retried_invalid_token].should be_true
-          end
-
-          it "returns a redirect to google_start" do
-            get 'google_login', @args
-            JSON.parse(response.body)["error"]["redirect"].should match("google_start")
-          end
-        end
-        
-        it "does not return a redirect on subsequent errors" do
-          session[:retried_invalid_token] = true
-          get 'google_login', @args
-          JSON.parse(response.body)["error"]["redirect"].should be_nil
-        end
+        it_behaves_like "Ajax controllers handling errors"
       end
     end
   end
 
   describe "POST 'google_populate_contacts'" do
-    it "needs tests"
+    before :each do
+      @url = "google_populate_contacts"
+      @args = {}
+    
+      @u = User.make
+      controller.stubs(:current_user).returns(@u)
+    end      
+  
+    it_behaves_like "Ajax controller requiring a logged in user"
+  
+    it "populates the user's contacts" do
+      @u.expects(:populate_google_contacts).returns({})
+      get "google_populate_contacts", @args
+    end
+  
+    it "returns the titleized buckets with counts" do
+      @u.expects(:populate_google_contacts).returns({
+        :my_first_car => [1, 2],
+        :my_last_bike => [:a, :b, :c]
+      })
+      get "google_populate_contacts", @args
+      JSON.parse(response.body).should include({"My First Car" => 2, "My Last Bike" => 3})
+    end
+  
+    context do
+      before :each do
+        @u.stubs(:populate_google_contacts).raises(APIManager::Google::InvalidTokenError)
+      end
+
+      it_behaves_like "Ajax controller handling invalid Google tokens"
+    end
+    
+    context do
+      before :each do
+        @err = StandardError.new
+        @u.stubs(:populate_google_contacts).raises(@err)
+      end
+      
+      it_behaves_like "Ajax controllers handling errors"
+    end
   end
 end
