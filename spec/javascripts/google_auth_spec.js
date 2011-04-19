@@ -77,4 +77,54 @@ describe("GoogleAuth", function() {
     })
   })
   
+  describe("authentication", function() {
+    // tell mockjax how to behave
+    var ajaxBehavior;
+    
+    beforeEach(function() {
+      // all the different values that could be returned
+      var defaultBehavior = {
+        // response is returned if !(isError && isAjaxTimeout)
+        // defined for individual steps
+        response: {},
+        
+        // is our service timing out?  
+        // distinct from Google timeout below
+        isAjaxTimeout: false,
+        // error responses
+        // error is substituted for response
+        isError: false,
+        error: {
+          validation: false,
+          needsTerms: false,
+          invalidToken: false,
+          redirect: null,
+          timeout: false,
+          noToken: false,
+          otherError: false
+        }
+      }
+      
+      ajaxBehavior = {
+        google_login: $.extend({}, defaultBehavior, {
+          // normal response for step 1
+          response: {
+            needsToken: false,
+            name: "Alex K",
+            isNewUser: false
+          }
+        }),
+        
+        google_populate_callback: $.extend({}, defaultBehavior, {
+          // normal response for step 1
+          response: {
+            newWithAddress: 3, 
+            newWithoutAddress: 4,
+            updated: 5,
+            unimportable: 6
+          }
+        })      
+      }
+    })
+  })
 })
