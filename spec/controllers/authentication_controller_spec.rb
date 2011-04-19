@@ -39,8 +39,24 @@ describe AuthenticationController do
         User.expects(:find_or_create_from_google_token).with(@args[:access_token]).returns(User.make)
         get 'google_login', @args
       end
+      
+      it "clears the :retried_invalid_token flag" do
+        User.expects(:find_or_create_from_google_token).with(@args[:access_token]).returns(User.make)
+        session[:retried_invalid_token] = true
+        get 'google_login', @args
+        session[:retried_invalid_token].should_not be_true
+      end
+      
+      it "returns a hash of validation errors if the user isn't valid" do
+        u = User.make
+        u.stubs(:valid?).returns(false)
+        errors = {"remote_accounts" => ["is invalid"]}
+        u.stubs(:errors).returns(errors)
+        User.expects(:find_or_create_from_google_token).with(@args[:access_token]).returns(u)
 
-      it "returns a hash of validation errors if the user isn't valid" 
+        get 'google_login', @args
+        JSON.parse(response.body)["error"]["validation"].should == errors        
+      end
 
       context "if the user is valid" do
         it "returns a hash with the user name" do
@@ -108,6 +124,39 @@ describe AuthenticationController do
           end
         end  
       end
+
+      context "when Google says the token is invalid" do
+        before :each do
+          User.stubs(:find_or_create_from_google_token).raises APIManager::Google::InvalidTokenError          
+        end
+        
+        it "returns :invalid_token => true" do
+          get 'google_login', @args
+          JSON.parse(response.body)["error"]["invalidToken"].should be_true
+        end
+        
+        context "the first time" do
+          it "sets the session[:retried_invalid_token] to avoid an infinite loop" do
+            get 'google_login', @args
+            session[:retried_invalid_token].should be_true
+          end
+
+          it "returns a redirect to google_start" do
+            get 'google_login', @args
+            JSON.parse(response.body)["error"]["redirect"].should match("google_start")
+          end
+        end
+        
+        it "does not return a redirect on subsequent errors" do
+          session[:retried_invalid_token] = true
+          get 'google_login', @args
+          JSON.parse(response.body)["error"]["redirect"].should be_nil
+        end
+      end
     end
+  end
+
+  describe "POST 'google_populate_contacts'" do
+    it "needs tests"
   end
 end
