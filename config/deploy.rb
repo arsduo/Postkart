@@ -36,10 +36,16 @@ end
 
 # jammit
 namespace :deploy do
+  task :brew_coffee, :roles => :web do
+    send(:run, "cd #{release_path} && bundle exec rake barista:brew")
+  end
+  
   task :generate_assets, :roles => :web do
     send(:run, "cd #{release_path} && bundle exec rake jammit:package_dreamhost_assets")
   end
 end
 
-after "deploy:restart", "deploy:generate_assets"
+# generate javascript from coffeescript, then compress it
+after "deploy:restart", "deploy:brew_coffee"
+after "deploy:brew_coffee", "deploy:generate_assets"
 

@@ -12,8 +12,13 @@ unless RUBY_VERSION =~ /^1\.9/
   gem 'SystemTimer', '>= 1.2.3'
 end
 
-# Google
+# Authentication
 gem "devise", "~> 1.2"
+
+# CoffeeScript
+gem "therubyracer"
+gem "coffee-script"
+gem "barista"
 
 # mongo
 gem "mongo", ">= 1.3.0"
