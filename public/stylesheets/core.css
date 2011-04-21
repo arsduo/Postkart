@@ -21,3 +21,10 @@ body {
   /* hide the title bar and, until used, the iframe */
   display: none;
 }
+
+.clearFloat {
+  height: 1px;
+  height: 0px;
+  overflow: hidden;
+  clear: both;
+}

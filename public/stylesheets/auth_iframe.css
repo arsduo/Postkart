@@ -1,5 +1,11 @@
 #header {
   font-size: 1.6em;
+  float: left;
+}
+
+#name {
+  float: right;
+  vertical-align: middle;
 }
 
 /* loading */

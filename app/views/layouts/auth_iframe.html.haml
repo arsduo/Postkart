@@ -9,5 +9,7 @@
     
   %body
     #header Postkart
-  
+    #name= (current_user ? current_user.name : "") 
+    .clearFloat
+    
     = yield 

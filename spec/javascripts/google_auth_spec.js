@@ -1,11 +1,10 @@
-describe("GoogleAuth", function() {
-  /* page fixture */
-  var clean$ = window.jQuery;
-  
+describe("GoogleAuth", function() {  
   it("should exist", function() {
     expect(PK).toBeDefined();
     expect(PK.GoogleAuth).toBeDefined();
   })
+
+  var auth;
   
   // track the nodes we sometimes use
   var trafficlightNode, errorNode, successNode;
@@ -16,6 +15,12 @@ describe("GoogleAuth", function() {
     errorNode = $("#generalError");
     successNode = $("#signIn");
     trafficlightNode = $("#signinFlow");
+    
+    // neuter reload/refresh
+    auth = PK.GoogleAuth;
+    // stub out reload/restart so the page doesn't get refresh
+    spyOn(auth, "reloadOnComplete");
+    spyOn(auth, "restart");
   })
   
   describe("initialization", function() {
@@ -31,8 +36,7 @@ describe("GoogleAuth", function() {
         hash_string = "access_token=foobar&expires=3600";
         document.location.hash = hash_string;
 
-        PK.GoogleAuth.init();
-        
+        auth.init();
         steps = trafficlightNode.trafficlight("option", "steps");
       })
       
@@ -40,7 +44,7 @@ describe("GoogleAuth", function() {
         // since we can't spy on $() directly, we have to look for indirect effects 
         expect(trafficlightNode.data("trafficlight")).toBeDefined();
       })
-      
+
       it("sets up two steps", function() {
         expect(steps.length).toBe(2);
       })
@@ -81,7 +85,7 @@ describe("GoogleAuth", function() {
     // tell mockjax how to behave
     var ajaxBehavior;
     
-    beforeEach(function() {
+    beforeEach(function() {       
       // all the different values that could be returned
       var defaultBehavior = {
         // response is returned if !(isError && isAjaxTimeout)
@@ -102,7 +106,10 @@ describe("GoogleAuth", function() {
           timeout: false,
           noToken: false,
           otherError: false
-        }
+        },
+
+        // return a 500
+        isRealError: false
       }
       
       ajaxBehavior = {
@@ -115,7 +122,7 @@ describe("GoogleAuth", function() {
           }
         }),
         
-        google_populate_callback: $.extend({}, defaultBehavior, {
+        google_populate_contacts: $.extend({}, defaultBehavior, {
           // normal response for step 1
           response: {
             newWithAddress: 3, 
@@ -125,6 +132,39 @@ describe("GoogleAuth", function() {
           }
         })      
       }
+      
+      // now mock ajax
+      $.mockjax(function(settings) {        
+        var configuration = ajaxBehavior[settings.url];
+        var response = {status: 200, responseTime: 0, responseText: {}}
+        if (configuration.isError) {
+          $.extend(response, {error: configuration.error});
+        }
+        else if (configuration.isAjaxTimeout) {
+          response.isTimeout = true;
+        }
+        else if (configuration.isRealError) {
+          response.status = 500;
+        }
+        else {
+          $.extend(response.responseText, configuration.response);
+        }
+        
+        // for simplicity, we set all requests to async 
+        // so the Jasmine spies, etc. are still available
+        settings.async = false;
+        
+        return response;
+      })
+    })
+  
+    it("works fine if the user is already logged in", function() {
+      expect(function() { auth.init(); }).not.toThrow();        
+    })
+      
+    it("updates the user's name", function() {
+      auth.init();
+      expect($("#name")).toHaveHtml(ajaxBehavior.google_login.response.name);
     })
   })
 })

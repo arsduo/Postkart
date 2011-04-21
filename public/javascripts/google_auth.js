@@ -1,13 +1,22 @@
 var PK = PK || {};
 
 PK.GoogleAuth = (function($, undefined) {
+  // the return value
+  var auth;
+  
   // DOM elements we use
   var trafficlightNode, errorNode, successNode;
       
   var termsError = "terms", errorCount;
   
   var checkForTerms = function(data) {
-    if (data.response.needsTerms) {
+    var response = data.response;
+    if (response.name) {
+      console.log($("#name"))
+      $("#name").html(response.name);
+    }
+    
+    if (response.needsTerms) {
       // pause the app
       // kick us back a step as well, so we rerun whatever caused it
       trafficlightNode.trafficlight("error", termsError);
@@ -27,7 +36,7 @@ PK.GoogleAuth = (function($, undefined) {
 
         return false;
       })
-    }      
+    }
   }
 
   var error = function(jQevent, errorData) {
@@ -55,9 +64,7 @@ PK.GoogleAuth = (function($, undefined) {
     }
     else if (errorData.text === "loginRequired") {
       showError("Oops! You need to be logged in for this.  Starting over...");
-      setTimeout(function() {
-        window.location = "google_start";
-      }, 2000);
+      setTimeout(auth.restart, 2000);
     }
     else if (errorData.text !== "terms") {
       showError("We encountered an error!  Please try again later.");
@@ -77,7 +84,7 @@ PK.GoogleAuth = (function($, undefined) {
     }
   }
     
-  return {
+  var auth = {
     init: function() {
       errorNode = $("#generalError");
       successNode = $("#signIn");
@@ -108,12 +115,24 @@ PK.GoogleAuth = (function($, undefined) {
         
         complete: function() {
           successNode.removeClass("trafficlight-todo").addClass("trafficlight-doing");
-          setTimeout(function() {
-            successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
-            window.parent.location.reload();
-          }, 1000);
+          PK.GoogleAuth.reloadOnComplete();
         }
       })
+    },
+    
+    // these are separated out mainly to allow us to test
+    // since we can't stop browser functions
+    reloadOnComplete: function() {
+      setTimeout(function() {
+        successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
+        window.parent.location.reload();
+      }, 1000);
+    },
+    
+    restart: function() {
+      window.location = "google_start";
     }
-  }
+  };
+  
+  return auth;
 }(jQuery))
