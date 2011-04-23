@@ -21,8 +21,12 @@ describe("GoogleAuth", function() {
     // stub out reload/restart so the page doesn't get refresh
     spyOn(auth, "reloadOnComplete");
     spyOn(auth, "restart");
+    
+    // run all tests w/o huge wait
+    auth.reactionTime = 0;
+    $.fx.off = true;
   })
-  
+
   describe("initialization", function() {
     describe("setting up trafficlight", function() {
       var steps, hash;
@@ -45,6 +49,7 @@ describe("GoogleAuth", function() {
         expect(trafficlightNode.data("trafficlight")).toBeDefined();
       })
 
+      // some of this could be merged into the next set of tests, which also contain this info
       it("sets up two steps", function() {
         expect(steps.length).toBe(2);
       })
@@ -80,13 +85,15 @@ describe("GoogleAuth", function() {
       })
     })
   })
-  
+
   describe("authentication", function() {
     // tell mockjax how to behave
-    var ajaxBehavior;
+    var ajaxBehavior, stepsCalled;
     
     beforeEach(function() {       
       // all the different values that could be returned
+      stepsCalled = {};
+
       var defaultBehavior = {
         // response is returned if !(isError && isAjaxTimeout)
         // defined for individual steps
@@ -98,9 +105,9 @@ describe("GoogleAuth", function() {
         // error responses
         // error is substituted for response
         isError: false,
+        resetTimeout: false,
         error: {
           validation: false,
-          needsTerms: false,
           invalidToken: false,
           redirect: null,
           timeout: false,
@@ -115,6 +122,8 @@ describe("GoogleAuth", function() {
       ajaxBehavior = {
         google_login: $.extend({}, defaultBehavior, {
           // normal response for step 1
+          step: 1,
+          selector: "#identifyUser",
           response: {
             needsToken: false,
             name: "Alex K",
@@ -123,7 +132,9 @@ describe("GoogleAuth", function() {
         }),
         
         google_populate_contacts: $.extend({}, defaultBehavior, {
-          // normal response for step 1
+          // normal response for step 2
+          step: 2,
+          selector: "#getContacts",
           response: {
             newWithAddress: 3, 
             newWithoutAddress: 4,
@@ -134,11 +145,19 @@ describe("GoogleAuth", function() {
       }
       
       // now mock ajax
-      $.mockjax(function(settings) {        
+      $.mockjax(function(settings) {
         var configuration = ajaxBehavior[settings.url];
+        stepsCalled[configuration.step] = (stepsCalled[configuration.step] || 0) + 1;
+        
+        // allow us to simulate a timeout followed by a valid response
+        if (configuration.resetTimeout) {
+          configuration.isError = false;
+          configuration.error.timeout = false;
+        }
+        
         var response = {status: 200, responseTime: 0, responseText: {}}
         if (configuration.isError) {
-          $.extend(response, {error: configuration.error});
+          $.extend(response.responseText, {error: configuration.error});
         }
         else if (configuration.isAjaxTimeout) {
           response.isTimeout = true;
@@ -157,7 +176,7 @@ describe("GoogleAuth", function() {
         return response;
       })
     })
-  
+
     it("works fine if the user is already logged in", function() {
       expect(function() { auth.init(); }).not.toThrow();        
     })
@@ -165,6 +184,105 @@ describe("GoogleAuth", function() {
     it("updates the user's name", function() {
       auth.init();
       expect($("#name")).toHaveHtml(ajaxBehavior.google_login.response.name);
+    })
+    
+    describe("if it returns needing term on the first step", function() {
+      beforeEach(function() {
+        ajaxBehavior.google_login.response.needsTerms = true;
+      })
+      
+      it("pauses trafficlight", function() {
+        auth.init();
+        expect(trafficlightNode.trafficlight("isStopped")).toBe(true);
+      })
+      
+      it("shows the #acceptTerms box", function() {
+        auth.init();
+        expect($("#acceptTerms")).toBeVisible();          
+      })
+      
+      it("shows an alert if you try to proceed without agreeing to terms", function() {
+        auth.init();
+        $("#termsCheck").attr("checked", false);        
+        spyOn(auth, "showTermsAlert");
+
+        $("#termsSubmit").click();
+        expect(auth.showTermsAlert).toHaveBeenCalled();
+      })
+      
+      describe("when the user accepts terms", function() {
+        it("removes the terms box", function() {
+          auth.init();
+          $("#termsCheck").attr("checked", true);
+          $("#termsSubmit").click();
+          expect($("#acceptTerms")).toBeHidden();
+        })
+
+        it("reruns the first call after click", function() {
+          auth.init();
+          $("#termsCheck").attr("checked", true);        
+          $("#termsSubmit").click();
+          
+          // it should have been called twice
+          expect(stepsCalled["1"]).toBe(2);
+        })
+        
+        it("doesn't rerun the first call until without auth being clicked", function() {
+          auth.init();
+          $("#termsCheck").attr("checked", true); 
+          
+          // it should have been called twice
+          expect(stepsCalled["1"]).toBe(1);
+        })
+
+        it("includes accepted_terms = true with the next request box and proceed", function() {
+          auth.init();
+          $("#termsCheck").attr("checked", true);        
+          spyOn($, "ajax");
+          $("#termsSubmit").click();
+          // the next call will be the rerun
+          var args = $.ajax.mostRecentCall.args[0].data;
+          expect(args.accepted_terms).toBe(true);
+        })  
+      })
+    })
+
+    describe("errors", function() {
+      var itShouldBehaveLikeError = function(stepName, error) {
+        describe(issue + " occuring for " + stepName, function() {
+          beforeEach(function() {
+            ajaxBehavior[stepName].isError = true;
+            ajaxBehavior[stepName].error[error] = true;
+          })
+
+          it("inserts the error node below the step node", function() {
+            auth.init();
+            expect($(ajaxBehavior[stepName].selector).next()).toBe("#generalError");
+          })
+
+          it("adds text to the error node", function() {
+            auth.init();
+            expect($("#generalError").html().length).toBeGreaterThan(0);
+          })
+
+          it("stops trafficlight", function() {
+            auth.init();
+            expect(trafficlightNode.trafficlight("isStopped")).toBe(true);          
+          })
+        })
+      }
+      
+      var issue, issues = ["validation", "invalidToken", "timeout", "loginRequired", "noToken", "otherError"];
+      var stepName, steps = ["google_login", "google_populate_contacts"];
+      
+      for (var i = 0; stepName = steps[i]; i++) {
+        for (var j = 0; issue = issues[j]; j++) {
+          itShouldBehaveLikeError(stepName, issue);        
+        }
+      }
+      
+      it("handles special error cases", function() { throw "not implemented" })
+      it("handles needsTerms through error, not response", function() { throw "not implemented" })
     })
   })
 })

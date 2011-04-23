@@ -12,7 +12,6 @@ PK.GoogleAuth = (function($, undefined) {
   var checkForTerms = function(data) {
     var response = data.response;
     if (response.name) {
-      console.log($("#name"))
       $("#name").html(response.name);
     }
     
@@ -31,7 +30,7 @@ PK.GoogleAuth = (function($, undefined) {
           $("#acceptTerms").slideUp();
         }
         else {
-          alert("You must accept the terms to continue!");
+          auth.showTermsAlert();
         }
 
         return false;
@@ -42,7 +41,7 @@ PK.GoogleAuth = (function($, undefined) {
   var error = function(jQevent, errorData) {
     var stepElement = $(errorData.step.selector);
     var showError = function(text) {
-      errorNode.insertAfter(stepElement).html(text).slideDown();
+      errorNode.html(text).insertAfter(stepElement).slideDown();
     }
     var hideError = function() { errorNode.slideUp(); }
     
@@ -54,7 +53,7 @@ PK.GoogleAuth = (function($, undefined) {
         setTimeout(function() {
           hideError();
           trafficlightNode.trafficlight("start");
-        }, 3000)
+        }, auth.reactionTime)
       }
       else {
         showError("Google seems to be down :( please try again later.")
@@ -64,7 +63,7 @@ PK.GoogleAuth = (function($, undefined) {
     }
     else if (errorData.text === "loginRequired") {
       showError("Oops! You need to be logged in for this.  Starting over...");
-      setTimeout(auth.restart, 2000);
+      setTimeout(auth.restart, auth.reactionTime);
     }
     else if (errorData.text !== "terms") {
       showError("We encountered an error!  Please try again later.");
@@ -85,6 +84,9 @@ PK.GoogleAuth = (function($, undefined) {
   }
     
   var auth = {
+    // delay to let users react to what's happening
+    reactionTime: 2000,
+    
     init: function() {
       errorNode = $("#generalError");
       successNode = $("#signIn");
@@ -126,11 +128,15 @@ PK.GoogleAuth = (function($, undefined) {
       setTimeout(function() {
         successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
         window.parent.location.reload();
-      }, 1000);
+      }, auth.reactionTime);
     },
     
     restart: function() {
       window.location = "google_start";
+    },
+    
+    showTermsAlert: function() {
+      alert("You must accept the terms to continue!");      
     }
   };
   

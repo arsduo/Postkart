@@ -227,6 +227,10 @@
     updateArgs: function(newArgs) {
       $.extend(this.options.args, newArgs);
       return this;
-    }
+    },
+    
+    isStopped: function() {
+      return this.paused || this.errored;
+    },
   });
 }(jQuery))
