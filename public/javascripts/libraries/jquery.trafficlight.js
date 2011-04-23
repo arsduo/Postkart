@@ -231,6 +231,6 @@
     
     isStopped: function() {
       return this.paused || this.errored;
-    },
+    }
   });
 }(jQuery))

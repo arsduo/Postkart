@@ -284,5 +284,7 @@ describe("GoogleAuth", function() {
       it("handles special error cases", function() { throw "not implemented" })
       it("handles needsTerms through error, not response", function() { throw "not implemented" })
     })
+
+    it("tests completion", function() { throw "not implemented" })
   })
 })
