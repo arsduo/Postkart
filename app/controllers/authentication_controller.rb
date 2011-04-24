@@ -24,7 +24,8 @@ class AuthenticationController < ApplicationController
           # handle T&C check/update
           @user.update_attribute(:accepted_terms, true) if params[:accepted_terms]      
           sign_in(:user, @user) if @user.accepted_terms
-          @result = {:name => @user.name, :isNewUser => (Time.now - @user.created_at) < 30, :needsTerms => !@user.accepted_terms}
+          @result = {:name => @user.name, :isNewUser => (Time.now - @user.created_at) < 30}
+          @error = {:needsTerms => true} unless @user.accepted_terms
         else
           @error = {:validation => @user.errors}
         end

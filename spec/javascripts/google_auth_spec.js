@@ -176,7 +176,6 @@ describe("GoogleAuth", function() {
         return response;
       })
     })
-
     it("works fine if the user is already logged in", function() {
       expect(function() { auth.init(); }).not.toThrow();        
     })
@@ -185,10 +184,10 @@ describe("GoogleAuth", function() {
       auth.init();
       expect($("#name")).toHaveHtml(ajaxBehavior.google_login.response.name);
     })
-    
-    describe("if it returns needing term on the first step", function() {
+    describe("if it returns needing terms", function() {
       beforeEach(function() {
-        ajaxBehavior.google_login.response.needsTerms = true;
+        ajaxBehavior.google_login.isError = true;
+        ajaxBehavior.google_login.error.needsTerms = true;
       })
       
       it("pauses trafficlight", function() {
@@ -282,7 +281,6 @@ describe("GoogleAuth", function() {
       }
       
       it("handles special error cases", function() { throw "not implemented" })
-      it("handles needsTerms through error, not response", function() { throw "not implemented" })
     })
 
     it("tests completion", function() { throw "not implemented" })

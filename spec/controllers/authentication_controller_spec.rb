@@ -121,7 +121,7 @@ describe AuthenticationController do
           it "returns a hash with needsTerms = true" do
             User.stubs(:find_or_create_from_google_token).returns(User.make(:accepted_terms => false))
             get 'google_login', @args
-            JSON.parse(response.body)["needsTerms"].should be_true
+            JSON.parse(response.body)["error"]["needsTerms"].should be_true
           end
         end  
       end

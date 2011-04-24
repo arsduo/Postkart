@@ -9,32 +9,10 @@ PK.GoogleAuth = (function($, undefined) {
       
   var termsError = "terms", errorCount;
   
-  var checkForTerms = function(data) {
+  var updateName = function(data) {
     var response = data.response;
     if (response.name) {
       $("#name").html(response.name);
-    }
-    
-    if (response.needsTerms) {
-      // pause the app
-      // kick us back a step as well, so we rerun whatever caused it
-      trafficlightNode.trafficlight("error", termsError);
-      // show the terms
-      $("#acceptTerms").slideDown();
-      $("#termsSubmit").click(function() {
-        if ($("#termsCheck").attr("checked")) {
-          // mark that terms have been accepted
-          data.step.args.accepted_terms = true;
-          // resume operation
-          trafficlightNode.trafficlight("start");
-          $("#acceptTerms").slideUp();
-        }
-        else {
-          auth.showTermsAlert();
-        }
-
-        return false;
-      })
     }
   }
 
@@ -45,6 +23,7 @@ PK.GoogleAuth = (function($, undefined) {
     }
     var hideError = function() { errorNode.slideUp(); }
     
+    // special case errors first
     if (errorData.text === "timeout") {
       if (!errorCount) {
         errorCount = 1;
@@ -61,10 +40,27 @@ PK.GoogleAuth = (function($, undefined) {
         // two timeouts means it's over
       }
     }
+    else if (errorData.text === "needsTerms") {
+      // show the terms dialog
+      $("#acceptTerms").slideDown();
+      $("#termsSubmit").click(function() {
+        if ($("#termsCheck").attr("checked")) {
+          // mark that terms have been accepted
+          errorData.step.args.accepted_terms = true;
+          // resume operation
+          trafficlightNode.trafficlight("start");
+          $("#acceptTerms").slideUp();
+        }
+        else {
+          auth.showTermsAlert();
+        }
+      })
+    }
     else if (errorData.text === "loginRequired") {
       showError("Oops! You need to be logged in for this.  Starting over...");
       setTimeout(auth.restart, auth.reactionTime);
     }
+    // generic errors
     else if (errorData.text !== "terms") {
       showError("We encountered an error!  Please try again later.");
       try { console.log("Error: %o", errorData) } catch (e) {}
@@ -76,6 +72,11 @@ PK.GoogleAuth = (function($, undefined) {
     if (errorData) {
       if (errorData.loginRequired) {
         trafficlightNode.trafficlight("error", "loginRequired", errorData);
+      }
+      else if (errorData.needsTerms) {
+        // pause the app
+        // kick us back a step as well, so we rerun whatever caused it
+        trafficlightNode.trafficlight("error", "needsTerms", errorData);
       }
       else {
         trafficlightNode.trafficlight("error", "other", errorData);
@@ -106,7 +107,7 @@ PK.GoogleAuth = (function($, undefined) {
               step.args = $.extend(step.args, newArgs);
               return "google_login";
             },
-            success: checkForTerms,
+            success: updateName,
             method: "post"
           },
           { selector: "#getContacts",  url: "google_populate_contacts", method: "post"}
