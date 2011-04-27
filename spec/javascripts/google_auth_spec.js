@@ -176,15 +176,17 @@ describe("GoogleAuth", function() {
         return response;
       })
     })
+  
     it("works fine if the user is already logged in", function() {
       expect(function() { auth.init(); }).not.toThrow();        
     })
-      
+     
     it("updates the user's name", function() {
       auth.init();
       expect($("#name")).toHaveHtml(ajaxBehavior.google_login.response.name);
     })
-    describe("if it returns needing terms", function() {
+ 
+     describe("if it returns needing terms", function() {
       beforeEach(function() {
         ajaxBehavior.google_login.isError = true;
         ajaxBehavior.google_login.error.needsTerms = true;
@@ -245,7 +247,7 @@ describe("GoogleAuth", function() {
         })  
       })
     })
-
+    
     describe("errors", function() {
       var itShouldBehaveLikeError = function(stepName, error) {
         describe(issue + " occuring for " + stepName, function() {
@@ -254,17 +256,17 @@ describe("GoogleAuth", function() {
             ajaxBehavior[stepName].error[error] = true;
           })
 
-          it("inserts the error node below the step node", function() {
+          it(error + " on " + stepName + " inserts the error node below the step node", function() {
             auth.init();
-            expect($(ajaxBehavior[stepName].selector).next()).toBe("#generalError");
+            expect($(ajaxBehavior[stepName].selector).next("li")).toBe("#generalError");
           })
 
-          it("adds text to the error node", function() {
+          it(error + " on " + stepName + " adds text to the error node", function() {
             auth.init();
             expect($("#generalError").html().length).toBeGreaterThan(0);
           })
 
-          it("stops trafficlight", function() {
+          it(error + " on " + stepName + " stops trafficlight", function() {
             auth.init();
             expect(trafficlightNode.trafficlight("isStopped")).toBe(true);          
           })
@@ -274,15 +276,114 @@ describe("GoogleAuth", function() {
       var issue, issues = ["validation", "invalidToken", "timeout", "loginRequired", "noToken", "otherError"];
       var stepName, steps = ["google_login", "google_populate_contacts"];
       
-      for (var i = 0; stepName = steps[i]; i++) {
-        for (var j = 0; issue = issues[j]; j++) {
-          itShouldBehaveLikeError(stepName, issue);        
+      for (var i = 0; i < steps.length; i++) {
+        stepName = steps[i];
+        
+        // test common error functions
+        for (var j = 0; j < issues.length; j++) {
+          issue = issues[j];
+          itShouldBehaveLikeError.apply(this, [stepName, issue]);        
         }
+
+        // test special cases for each step
+        it("for " + stepName + " restarts the app for loginRequired (after a delay)", function() {       
+          ajaxBehavior[stepName].isError = true;
+          ajaxBehavior[stepName].error.loginRequired = true;
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(auth.restart).toHaveBeenCalled();            
+          })
+        })
+
+        it("for " + stepName + " restarts login for invalidToken with retry = true", function() { 
+          ajaxBehavior[stepName].isError = true;
+          ajaxBehavior[stepName].error.invalidToken = true;
+          ajaxBehavior[stepName].error.retry = true;
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(auth.restart).toHaveBeenCalled();            
+          })
+        })
+
+        it("for " + stepName + " does not restart login for invalidToken with retry = false", function() { 
+          ajaxBehavior[stepName].isError = true;
+          ajaxBehavior[stepName].error.invalidToken = true;
+          ajaxBehavior[stepName].error.retry = false;
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(auth.restart).not.toHaveBeenCalled();            
+          })
+        })
+
+        it("for " + stepName + " automatically retries once (and only once) if the requests time out", function() { 
+          ajaxBehavior[stepName].isError = true;
+          ajaxBehavior[stepName].error.timeout = true;
+          auth.init();
+          // it should have been called twice, after a delay
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(stepsCalled[i]).toBe(2);              
+          })
+        })
+          
+        it("for " + stepName + " continues normally if the call after the timeout succeeeds", function() {
+          ajaxBehavior[stepName].isError = true;
+          ajaxBehavior[stepName].resetTimeout = true;
+          ajaxBehavior[stepName].error.timeout = true;
+          
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(trafficlightNode.trafficlight("isFinished")).toBe(true);          
+          })
+        })
       }
       
-      it("handles special error cases", function() { throw "not implemented" })
+      it("doesn't fail if each step times out only once", function() {
+        ajaxBehavior.google_login.isError = true;
+        ajaxBehavior.google_login.resetTimeout = true;
+        ajaxBehavior.google_login.error.timeout = true;
+        ajaxBehavior.google_populate_contacts.isError = true;
+        ajaxBehavior.google_populate_contacts.resetTimeout = true;
+        ajaxBehavior.google_populate_contacts.error.timeout = true;
+        
+        auth.init();
+        waits(auth.reactionTime + 1);
+        runs(function() {
+          expect(trafficlightNode.trafficlight("isFinished")).toBe(true);          
+        })
+      })
     })
 
-    it("tests completion", function() { throw "not implemented" })
+    describe("completion", function() { 
+      it("sets the successNode's class to trafficlight-doing", function() {
+        auth.init();
+        expect(successNode).toHaveClass("trafficlight-doing");
+      })
+      
+      it("sets the successNode's class to trafficlight-done after a short delay", function() {
+        auth.init();
+        waits(auth.reactionTime + 1);
+        runs(function() {
+          expect(successNode).toHaveClass("trafficlight-done");          
+        })
+      })
+
+      it("does not call reloadOnComplete immediately", function() {
+        auth.init();
+        expect(auth.reloadOnComplete).not.toHaveBeenCalled()
+      })
+      
+      it("calls reloadOnComplete after a short delay", function() {
+        auth.init();
+        waits(auth.reactionTime + 1);
+        runs(function() {
+          expect(auth.reloadOnComplete).toHaveBeenCalled()
+        })
+      })
+    })
   })
 })

@@ -74,7 +74,7 @@ class AuthenticationController < ApplicationController
     # but don't send them on an infinite loop
     unless session[:retried_invalid_token]
       session[:retried_invalid_token] = true
-      @error.merge!(:redirect => url_for(:action => :google_start))
+      @error[:retry] = true
     else
       # we've tried twice and it's still not working
       # something might be fundamentally wrong

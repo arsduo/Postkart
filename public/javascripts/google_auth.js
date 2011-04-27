@@ -22,9 +22,10 @@ PK.GoogleAuth = (function($, undefined) {
       errorNode.html(text).insertAfter(stepElement).slideDown();
     }
     var hideError = function() { errorNode.slideUp(); }
-    
-    // special case errors first
-    if (errorData.text === "timeout") {
+    var errorDetails = errorData.details;
+	
+	  // special case errors first
+    if (errorData.text === "timeout" || errorDetails.timeout) {
       if (!errorCount) {
         errorCount = 1;
         showError("Google isn't responding!  Let's try again...");
@@ -40,7 +41,7 @@ PK.GoogleAuth = (function($, undefined) {
         // two timeouts means it's over
       }
     }
-    else if (errorData.text === "needsTerms") {
+    else if (errorDetails.needsTerms) {
       // show the terms dialog
       $("#acceptTerms").slideDown();
       $("#termsSubmit").click(function() {
@@ -56,31 +57,27 @@ PK.GoogleAuth = (function($, undefined) {
         }
       })
     }
-    else if (errorData.text === "loginRequired") {
+    else if (errorDetails.loginRequired || (errorDetails.invalidToken && errorDetails.retry)) {
       showError("Oops! You need to be logged in for this.  Starting over...");
-      setTimeout(auth.restart, auth.reactionTime);
+      setTimeout(function() {
+        auth.restart();
+      }, auth.reactionTime);
     }
     // generic errors
-    else if (errorData.text !== "terms") {
+    else {
       showError("We encountered an error!  Please try again later.");
-      try { console.log("Error: %o", errorData) } catch (e) {}
+      try { console.log("Uncaught error: %o", errorData) } catch (e) {}
     }
   }
   
   var checkResponse = function(jQevent, data) {
     var errorData = data.response.error;
     if (errorData) {
-      if (errorData.loginRequired) {
-        trafficlightNode.trafficlight("error", "loginRequired", errorData);
-      }
-      else if (errorData.needsTerms) {
-        // pause the app
-        // kick us back a step as well, so we rerun whatever caused it
-        trafficlightNode.trafficlight("error", "needsTerms", errorData);
-      }
-      else {
-        trafficlightNode.trafficlight("error", "other", errorData);
-      }
+    	trafficlightNode.trafficlight("error", "serverError", errorData);
+    }
+    else {
+      // reset the error count, since we had a successful call
+      errorCount = 0;
     }
   }
     
@@ -92,7 +89,8 @@ PK.GoogleAuth = (function($, undefined) {
       errorNode = $("#generalError");
       successNode = $("#signIn");
       trafficlightNode = $("#signinFlow");
-
+      errorCount = 0;
+      
       trafficlightNode.trafficlight({
         steps: [
           { selector: "#identifyUser", 
@@ -118,7 +116,10 @@ PK.GoogleAuth = (function($, undefined) {
         
         complete: function() {
           successNode.removeClass("trafficlight-todo").addClass("trafficlight-doing");
-          PK.GoogleAuth.reloadOnComplete();
+          setTimeout(function() {
+            successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
+            PK.GoogleAuth.reloadOnComplete();
+          }, auth.reactionTime);  
         }
       })
     },
@@ -126,10 +127,7 @@ PK.GoogleAuth = (function($, undefined) {
     // these are separated out mainly to allow us to test
     // since we can't stop browser functions
     reloadOnComplete: function() {
-      setTimeout(function() {
-        successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
-        window.parent.location.reload();
-      }, auth.reactionTime);
+      window.parent.location.reload();
     },
     
     restart: function() {

@@ -18,13 +18,13 @@ shared_examples_for "Ajax controller handling invalid Google tokens" do
   
   it "returns a redirect to google_start the first time" do
     get @url, @args
-    JSON.parse(response.body)["error"]["redirect"].should match("google_start")
+    JSON.parse(response.body)["error"]["retry"].should be_true
   end
   
   it "does not return a redirect on subsequent errors" do
     get @url, @args
     get @url, @args
-    JSON.parse(response.body)["error"]["redirect"].should be_nil
+    JSON.parse(response.body)["error"]["retry"].should be_nil
   end
   
   it "sends an exception if there have been five or more failed retry attempts overall" do

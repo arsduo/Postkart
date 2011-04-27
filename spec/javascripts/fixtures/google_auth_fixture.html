@@ -1,12 +1,30 @@
 <div>
-  <div id="generalError"></div>
-  <div id="signIn"></div>
-  <div id="signinFlow"></div>
-  <div id="identifyUser"></div>
-  <div id="getContacts"></div>
   <div id="name"></div>
-  <div id="acceptTerms" style="display: none;">
-    <input id="termsCheck" type="checkbox"></div>
-    <input id="termsSubmit" type="submit" />
-  </div>
+  <ul id="signinFlow">
+    <li id="identifyUser" class="trafficlight-doing">
+      Getting your info
+    </li>
+    <li id="acceptTerms" style="display: none">
+      <div id="acceptTermsBox">
+        <div>
+          Welcome to Postkart!  In a moment, we'll import your contacts from Google (just names and addresses, no emails),
+          so you can start tracking your postcards.
+        </div>
+        <div>
+          <input type="checkbox" id="termsCheck">
+          <label for="termsCheck">
+            Sounds good to me, I accept.
+          </label>
+        </div>
+        <input type="submit" value="Continue" id="termsSubmit">
+      </div>
+    </li>
+    <li id="getContacts" class="trafficlight-todo">
+      Importing your contacts
+    </li>
+    <li id="signIn" class="trafficlight-todo">
+      Signing you in...
+    </li>
+    <li id="generalError" class="error"></li>
+  </ul>
 </div>
