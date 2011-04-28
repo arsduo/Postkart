@@ -1,13 +1,13 @@
-!!!
-%html
-  %head
-    %title
-      Postkart
+doctype html
+
+html
+  head
+    title Postkart
     = csrf_meta_tag 
     = include_stylesheets :core, :auth_iframe
     = include_javascripts :core
     
-  %body
+  body
     #header Postkart
     #name= (current_user ? current_user.name : "") 
     .clearFloat

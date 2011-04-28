@@ -24,6 +24,9 @@ Postkart::Application.configure do
   config.action_dispatch.best_standards_support = :builtin
   
   config.middleware.use ::Rack::PerftoolsProfiler
+
+  # Output pretty (indented) format
+  Slim::Engine.set_default_options :pretty => true
 end
 
 

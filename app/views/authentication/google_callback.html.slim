@@ -1,0 +1,23 @@
+= include_javascripts :google_auth
+
+ul#signinFlow
+  li#identifyUser.trafficlight-todo
+    | Getting your info
+  li#acceptTerms
+    #acceptTermsBox
+      div
+        | Welcome to Postkart!  In a moment, we'll import your contacts from Google (just names and addresses, no emails),
+          so you can start tracking your postcards.
+      div
+        input#termsCheck{type="checkbox"} 
+        label{for="termsCheck"}
+          | Sounds good to me, I accept.
+      input#termsSubmit{type="submit" value="Continue"}
+  li#getContacts.trafficlight-todo
+    | Importing your contacts
+  li#signIn.trafficlight-todo
+    | Signing you in...
+  li#generalError.error
+
+script
+  | $(document).ready(PK.GoogleAuth.init);
