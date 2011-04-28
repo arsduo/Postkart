@@ -13,7 +13,7 @@
 
 <h3>Send a card!</h3>
 <ul>
-  <% @contacts.each do |c| %>
+<% if false %>
     <li>
       <%= c.name %> 
       <%= form_tag url_for(:controller => :trips, :action => :send_card, :trip_id => @trip._id, :contact_id => c._id) do %>
@@ -21,4 +21,11 @@
       <% end %>
     </li>
   <% end %>
+<% end %>
 </ul>
+
+<script>
+  var contacts = <% @contacts.collect {|c| c.to_json } %>
+  
+
+</script>
