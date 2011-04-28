@@ -3,7 +3,7 @@ javascript_compressor:  closure
 
 javascripts:
   core: # every page should have these
-    - public/javascripts/jquery/jquery-1.5.1.js
+    - public/javascripts/jquery/jquery-1.5.2.js
     - public/javascripts/rails.js
     # localstorage
     - public/javascripts/store.js
