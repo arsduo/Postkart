@@ -21,4 +21,6 @@ Contact.blueprint {
   pic { "http://#{sn}" }
   addresses { ["123#{sn} Main St., City, State, USA", "ABCstr #{sn}, Munich, Germany"]}
   remote_id { "REMOTE_ID#{sn}" }
+  created_at { Time.now }
+  updated_at { Time.now }
 }

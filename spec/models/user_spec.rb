@@ -268,6 +268,7 @@ describe User do
       before :each do
         # vary up the contacts as may be useful
         @contacts.each_with_index {|c, i| c.addresses = [] if i % 2 }
+        @user.contacts_updated_at = Time.now - 2.days
       end
       
       it "updates contacts that already exist" do
@@ -283,6 +284,24 @@ describe User do
           result[(c.addresses.blank? ? :new_with_address : :updated)].should include(c)
         end
       end
+      
+      it "updates the contacts_updated_at date if at least one of the contacts has a newer date" do
+        t = Time.now
+        Contact.any_instance.stubs(:updated_at).returns(Time.now - 3.days)
+        @contacts.first.stubs(:updated_at).returns(t)
+        @user.populate_google_contacts
+        # we use to_i since we're using a Time here and a DateTime in the model
+        @user.contacts_updated_at.to_i.should == t.to_i
+        @user.changed?.should be_false
+      end
+      
+      it "does not update the contact if there aren't changes" do
+        t = @user.contacts_updated_at
+        @contacts.each {|c| c.stubs(:updated_at).returns(Time.now - 4.days) }
+        @user.populate_google_contacts 
+        @user.contacts_updated_at.should == t
+        @user.changed?.should be_false
+      end
     end
     
     context "for new contacts" do
@@ -296,6 +315,8 @@ describe User do
             @contacts[i].addresses = [] if i % 2 == 0 
             Contact.stubs(:new_from_remote_contact).with(ch).returns(@contacts[i]) 
           end
+          
+          @user.contacts_updated_at = Time.now - 2.days
         end
 
         it "creates a new contact from the remote contact" do
@@ -324,6 +345,15 @@ describe User do
         it "adds that contact to the :updated_without_address bucket if it has no addresses" do
           results = @user.populate_google_contacts[:new_without_address]
           @contacts.each_with_index {|c, i| results.send(i % 2 == 0 ? :should : :should_not, include(c)) }
+        end
+        
+        it "updates the contacts_updated_at date, since this is a new contact" do
+          t = Time.now
+          Contact.any_instance.stubs(:updated_at).returns(Time.now - 1.days)
+          @contacts.last.stubs(:updated_at).returns(t)
+          @user.populate_google_contacts
+          @user.contacts_updated_at.to_i.should == t.to_i
+          @user.changed?.should be_false
         end
       end
 

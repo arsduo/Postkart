@@ -11,6 +11,7 @@ class User
   field :name
   field :pic
   field :accepted_terms, :type => Boolean
+  field :contacts_updated_at, :type => DateTime
   
   # EMBEDS AND RELATIONSHIPS
   embeds_many :remote_accounts
@@ -79,7 +80,7 @@ class User
     updated = []
     # if there's no id, email, or name/address, we can't work with it
     unimportable = []
-    
+        
     contact_info.delete_if {|c| c.blank?}.each do |c|
       id_for_contact = Contact.generate_remote_id(c)
       if existing_contact = contact_records[id_for_contact.to_s]
@@ -87,6 +88,12 @@ class User
         had_address = existing_contact.addresses.blank?
         existing_contact.update_from_remote_contact(c)
         (had_address ? updated : new_with_address) << existing_contact
+
+        # we want to track when the most recent update happened
+        # so clients can intelligently download changes only when they happen
+        if !contacts_updated_at || contacts_updated_at.to_i < existing_contact.updated_at.to_i
+          self.contacts_updated_at = existing_contact.updated_at
+        end
       else
         # create a new contact if it's importable
         if id_for_contact
@@ -94,12 +101,17 @@ class User
           self.contacts << contact
           contact.save
           (contact.addresses.length > 0 ? new_with_address : new_without_address) << contact
+          # it's a new image, so we definitely update the timestamp
+          self.contacts_updated_at = contact.updated_at          
         else
           unimportable << c
         end
       end
     end
         
+    # save any timestamp updates
+    save
+    
     # return the new contacts in buckets
     {
       :new_with_address => new_with_address, 
