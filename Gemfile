@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '~> 3.0'
 gem 'rack', '1.2.1'
-gem 'slim', :require => 'slim/rails'
+gem 'slim'
 gem 'typhoeus'
 gem 'json'
 gem 'jquery-rails', '>= 0.2.6'
