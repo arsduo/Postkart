@@ -169,10 +169,6 @@ describe("GoogleAuth", function() {
           $.extend(response.responseText, configuration.response);
         }
         
-        // for simplicity, we set all requests to async 
-        // so the Jasmine spies, etc. are still available
-        settings.async = false;
-        
         return response;
       })
     })
