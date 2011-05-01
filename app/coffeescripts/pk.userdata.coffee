@@ -3,10 +3,11 @@ PK ?= {}
 # define our local storage wrapper
 PK.UserData = do ($) ->
   # we want to load our data from the local storage if possible
-  userKey = "users"
+  userKey = "user"
+  contactsKey = "contacts"
   timestampKey = "mostRecentUpdate"
   loadingNewData = false
-  mostRecentUpdateTime = null
+  mostRecentUpdate = null
   
   # events
   userLoadStartEvent = "startedUserLoad.pk"
@@ -17,21 +18,28 @@ PK.UserData = do ($) ->
     # we use the stored time (= most recent update for this user) as a proxy
     # for whether data has been stored in localStorage
     # this fn is useful to have around, even though it's mostly used in testing ATM
-    !loadingNewData && !!(userdata.users || store.get(timestampKey))
+    !loadingNewData && !!(userdata.user || store.get(userKey))
 
-  resetState = () ->
-    # clear data stored in memory
-    # mainly useful for testing
-    delete userdata.users
-    delete mostRecentUpdate
+  flush = () ->
+    # clear all stored user data
+    # for instance, when a user logs out
+    store.clear()
+    delete userdata.user
+    delete userdata.contacts
+    mostRecentUpdate = null
 
-  storeUsers = (results) ->
-    if results.users
-      # store the users and update the timestamps
-      userdata.users = results.users
-      store.set(userKey, results.users)
+  storeUser = (results) ->
+    if user = results.user
+      # load the user, his/her contacts, and update the timestamps
+      userdata.user = user
+      contacts = userdata.contacts = results.contacts
       mostRecentUpdate = results.mostRecentUpdate
+
+      # store the data to local storage
+      store.set(userKey, user)
+      store.set(contactsKey, contacts)
       store.set(timestampKey, mostRecentUpdate)
+
       # loading is done!
       loadingNewData = false
       userDataIsAvailable()
@@ -40,10 +48,10 @@ PK.UserData = do ($) ->
     
   userDataIsAvailable = () ->
     # fire a custom jQuery event on the body
-    $("body").trigger(userLoadSuccessEvent);
+    $("body").trigger(userLoadSuccessEvent)
     
   error = (jQevent, errorData) ->
-    $("body").trigger(userLoadFailedEvent, errorData);
+    $("body").trigger(userLoadFailedEvent, errorData)
     # reset loading new data, so that we can make use of any cached data
     # we don't trigger the userDataIsAvailable event, though
     # it's up to the client to respond to the error by using stale data
@@ -53,35 +61,37 @@ PK.UserData = do ($) ->
     # we have to load data from the server
     # first, prevent the system from using local data
     loadingNewData = true
-    $("body").trigger(userLoadStartEvent);
+    $("body").trigger(userLoadStartEvent)
     $.ajax({
       url: "/home/user_data",
       method: "get",
-      success: storeUsers,
+      success: storeUser,
       error: error
     })
   
   loadUserData = (remoteUpdateTime) ->
-    # if loaded data is available, use that
-    # else, look in the store
-    # and if that fails, load from the server
-    mostRecentUpdate ?= store.get(timestampKey)
-
-    # always load local data if available, so we can use something
-    userdata.users ?= store.get(userKey);
+    # if loaded data is available for this user, use that
+    # else, load from the server
+    if user = store.get(userKey)
+      # we have data for this user, so load it
+      # always load local data if available
+      # so we can use something even if the call fails
+      userdata.user = user
+      userdata.contacts ?= store.get(contactsKey)
+      mostRecentUpdate ?= store.get(timestampKey)      
     
     if mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime
       # local data is fresh, so go with what's already loaded
       userDataIsAvailable()
     else
       # get updated data from the server (if possible)
-      loadDataFromServer();
-
+      loadDataFromServer()
+    
   userdata =
     loadUserData: loadUserData
     isUserDataAvailable: isUserDataAvailable
     userLoadStartEvent: userLoadStartEvent
     userLoadSuccessEvent: userLoadSuccessEvent 
     userLoadFailedEvent: userLoadFailedEvent
-    resetState: resetState
+    flush: flush
     

@@ -3,13 +3,18 @@ describe "PK.UserData", () ->
     $.mockjaxClear()
     
   it "exists", () -> expect(PK.UserData).toBeDefined()
+ 
+  describe "flush", () ->
+    it "needs tests", () ->
+      expect(true).toBe(false)
+  
   
   describe "loadUserData", () ->
     # common functions
     # remoteUpdateTime is the timestamp given on page load to see if data is stale
     
     beforeEach () ->
-      PK.UserData.resetState()
+      PK.UserData.flush()
     
     itFetchesData = (remoteUpdateTime = 123) ->
       describe "fetching data", () ->
@@ -36,32 +41,43 @@ describe "PK.UserData", () ->
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadStartEvent).toHaveBeenTriggeredOn($("body"))
     
-    itProcessesData = (options = {remoteUpdateTime: 123, resultUsers: [], resultTime: 12345}) ->
+    itProcessesData = (options = {remoteUpdateTime: 123567, resultUser: {id: "resultUser"}, resultContacts: {}, resultTime: 12345}) ->
       describe "processing data", () ->
         results = remoteUpdateTime = null
 
         beforeEach () ->
           results = 
-            users: options.resultUsers
+            user: options.resultUser
+            contacts: options.resultContacts
             mostRecentUpdate: options.resultTime
           
           remoteUpdateTime = options.remoteUpdateTime
           
-          PK.UserData.users = options.startUsers
+          PK.UserData.user = options.startUser
           $.mockjax({
             url: "/home/user_data",
             responseText: results
           })
         
-        it "stores the user results as .users", () ->
+        it "stores the user results as .user", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
-          expect(PK.UserData.users).toBe(results.users)
+          expect(PK.UserData.user).toBe(results.user)
       
         it "saves the user data to localStorage", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
           # technically, the key name is an internal implementation method
           # but Jasmine doesn't really support anything, and it's not that big a deal
-          expect(store.set).toHaveBeenCalledWith("users", results.users)
+          expect(store.set).toHaveBeenCalledWith("user", results.user)
+
+        it "stores the contacts as .contacts", () ->
+          PK.UserData.loadUserData(remoteUpdateTime)
+          expect(PK.UserData.contacts).toBe(results.contacts)
+
+        it "saves the user data to localStorage", () ->
+          PK.UserData.loadUserData(remoteUpdateTime)
+          # technically, the key name is an internal implementation method
+          # but Jasmine doesn't really support anything, and it's not that big a deal
+          expect(store.set).toHaveBeenCalledWith("contacts", results.contacts)
       
         it "stores the timestamp to localStorage", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
@@ -76,13 +92,11 @@ describe "PK.UserData", () ->
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadSuccessEvent).toHaveBeenTriggeredOn($("body"))
   
-    itHandlesErrors = (remoteUpdateTime = 123) ->
+    itHandlesErrors = (remoteUpdateTime = 123, includeStale = true) ->
       describe "when an error occurs", () ->   
         error = null
       
         beforeEach () ->
-          delete PK.UserData.users
-        
           $.mockjax({
             url: "/home/user_data"
             status: 500
@@ -92,7 +106,7 @@ describe "PK.UserData", () ->
           spyOnEvent($("body"), PK.UserData.userLoadFailedEvent)
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadFailedEvent).toHaveBeenTriggeredOn($("body"))
-
+          
         it "provides the event with the errorData from jQuery", () ->
           eventData = null
           $("body").bind(PK.UserData.userLoadFailedEvent, (jQevent, errorData) ->
@@ -105,24 +119,29 @@ describe "PK.UserData", () ->
           previousAvailability = PK.UserData.isUserDataAvailable()
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.isUserDataAvailable()).toBe(previousAvailability)
-          
-        describe "when stale data is around", () ->
-          users = []
-          beforeEach () ->
-            # set up store to return "stale" data tied to an old time
-            store.get.andCallFake (key) ->
-              if key == "mostRecentUpdate" then remoteUpdateTime - 1 else users
-          
-          it "still loads stale data if available", () ->
-            # run and error out on Ajax
-            PK.UserData.loadUserData(remoteUpdateTime);
-            # the stale data should still be loaded
-            expect(PK.UserData.users).toBe(users)
-            
-          it "does not fire the userLoadSuccessEvent", () ->
-            spyOnEvent($("body"), PK.UserData.userLoadSuccessEvent)
-            PK.UserData.loadUserData(remoteUpdateTime);
-            expect(PK.UserData.userLoadSuccessEvent).not.toHaveBeenTriggeredOn($("body"))
+        
+        if includeStale # doesn't make sense for the "if no data locally available" tests
+          describe "when stale data is around", () ->
+            user = {id: "stale data user:115"}
+            beforeEach () ->
+              # set up store to return "stale" data tied to an old time
+              store.get.andCallFake (key) ->
+                if key == "mostRecentUpdate" then remoteUpdateTime - 1 else user
+              
+            it "still loads stale data if available", () ->
+              # run and error out on Ajax
+              PK.UserData.loadUserData(remoteUpdateTime);
+              # the stale data should still be loaded
+              expect(PK.UserData.user).toBe(user)
+              # lazy to not code separate logic to load a contacts object
+              # but this shows it loads
+              # and we do check the proper storage of contacts elsewhere
+              expect(PK.UserData.contacts).toBe(user)
+              
+            it "does not fire the userLoadSuccessEvent", () ->
+              spyOnEvent($("body"), PK.UserData.userLoadSuccessEvent)
+              PK.UserData.loadUserData(remoteUpdateTime);
+              expect(PK.UserData.userLoadSuccessEvent).not.toHaveBeenTriggeredOn($("body"))
             
 
     describe "if no data is available locally", () ->
@@ -132,47 +151,47 @@ describe "PK.UserData", () ->
                 
       itFetchesData()
       itProcessesData()
-      itHandlesErrors()
+      itHandlesErrors(1234, false)
     
     describe "if data is available in localStorage", () ->
       describe "and it's outdated", () ->
         time = 123456
-        users = []
-        differentUsers = []
+        user = {id: "defined in localStorage :145"}
+        differentUser = {id: "different user"}
         
         beforeEach () ->
-          # we need to define users locally since it has to be returned by store
+          # we need to define user locally since it has to be returned by store
           spyOn(store, "set")
           spyOn(store, "get").andCallFake (key) ->
             # technically this is an internal implementation detail, but unavoidable
-            if key == "mostRecentUpdate" then time else users
+            if key == "mostRecentUpdate" then time else user
           
         # simulate newer data being available
         itFetchesData(time + 1)
         itProcessesData({
           remoteUpdateTime: time + 1 
           resultTime: time + 1
-          startUsers: users
-          resultUsers: differentUsers
+          startUser: user
+          resultUser: differentUser
         })
         itHandlesErrors(time + 1)
     
       describe "and it's up to date", () -> 
         time = 123456
-        users = [1]
+        user = {id: "and is up to date"}
         
         beforeEach () ->
-          # we need to define users locally since it has to be returned by store
+          # we need to define user locally since it has to be returned by store
           spyOn(store, "set")
           spyOn(store, "get").andCallFake (key) ->
             # technically this is an internal implementation detail, but unavoidable
-            if key == "mostRecentUpdate" then time else users
+            if key == "mostRecentUpdate" then time else user
           
           $.mockjax () -> throw "Ajax request should not have been made!"
           
         it "returns the stored copy", () ->
           PK.UserData.loadUserData(time)
-          expect(PK.UserData.users).toBe(users)
+          expect(PK.UserData.user).toBe(user)
 
         it "makes no Ajax requests", () ->
           spyOn($, "ajax");
