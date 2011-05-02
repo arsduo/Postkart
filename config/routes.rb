@@ -1,4 +1,8 @@
 Postkart::Application.routes.draw do
+
+  # home
+  get "home/user_data"
+  
   # trips
   post "trips/create"
   get "trips/view"
@@ -9,6 +13,23 @@ Postkart::Application.routes.draw do
   get "authentication/google_callback"
   post "authentication/google_login"
   post "authentication/google_populate_contacts"
+
+
+  # OFFLINE
+  offline = Rack::Offline.configure do
+    public_path = Pathname.new(Rails.public_path)
+    
+    # need to refine this to more intelligently cache stuff
+    Dir["#{public_path.to_s}/**/*"].each do |file|
+      cache Pathname.new(file).relative_path_from(public_path) if File.file?(file)
+    end
+
+    fallback "authentication/google_start" => "/offline_login.html"
+  end
+
+  # browser manifest
+  match "/application.manifest" => offline
+  # to do: create smaller browser manifest
   
   # The priority is based upon order of creation:
   # first created -> highest priority.
