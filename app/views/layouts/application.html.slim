@@ -1,0 +1,16 @@
+doctype html
+
+html manifest="/application.manifest"
+  head
+    title Postkart
+    = csrf_meta_tag 
+    = include_stylesheets :core, :common 
+    = include_javascripts :core, :common 
+
+  body
+    = yield 
+    
+    - if current_user
+      script PK.UserData.loadUserData(#{current_user.contacts_updated_at.to_i})
+
+

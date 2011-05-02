@@ -59,13 +59,8 @@ class AuthenticationController < ApplicationController
   end
   
   private 
-    
-  def ensure_signed_in    
-    render :json => {:error => {:loginRequired => true}} unless user_signed_in?
-  end
   
   # invalid tokens
-  
   @@invalid_tokens = 0
   @@invalid_token_error_sent = false  
   def handle_invalid_token_error

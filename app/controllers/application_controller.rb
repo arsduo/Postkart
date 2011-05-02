@@ -3,6 +3,10 @@ class ApplicationController < ActionController::Base
   
   private
   
+  def ensure_signed_in    
+    render :json => {:error => {:loginRequired => true}} unless user_signed_in?
+  end
+  
   def send_exception_notification(exception)
     if Rails.env.production?
       # merge in our default options
