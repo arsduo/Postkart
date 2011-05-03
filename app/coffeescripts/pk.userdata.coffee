@@ -6,6 +6,7 @@ PK.UserData = do ($) ->
   userKey = "user"
   contactsKey = "contacts"
   timestampKey = "mostRecentUpdate"
+  contactsByNameKey = "contactsByName"
   loadingNewData = false
   mostRecentUpdate = null
   
@@ -26,20 +27,37 @@ PK.UserData = do ($) ->
     store.clear()
     delete userdata.user
     delete userdata.contacts
+    delete userdata.contactsByName
     mostRecentUpdate = null
+
+  # this requires some explanation:
+  # we store only the contacts ordered by name, rather than a hash key'd by ID
+  # this is more compact, and also avoids needing to sort by name (if we'd only stored the hash)
+  # we can't store both, since then it would take 2x memory after load from localStorage
+  # (since localStorage's string storage loses the fact the objects are shared)
+  buildContactDictionary = (contactsByName) ->
+    # use the ByName array to create a dictionary of contacts
+    # which we need to identify contacts for trips, recs, etc.
+    # anywhere where we're not just listing out contacts
+    contactDictionary = {}
+    for contact in contactsByName
+      id = contact._id
+      contactDictionary[id] = contact    
+    userdata.contacts = contactDictionary
 
   storeUser = (results) ->
     if user = results.user
       # load the user, his/her contacts, and update the timestamps
       userdata.user = user
-      contacts = userdata.contacts = results.contacts
-      mostRecentUpdate = results.mostRecentUpdate
+      contactsByName = userdata.contactsByName = results.contactsByName
+      mostRecentUpdate = results.mostRecentUpdate      
+      buildContactDictionary(contactsByName)
 
       # store the data to local storage
       store.set(userKey, user)
-      store.set(contactsKey, contacts)
+      store.set(contactsByNameKey, contactsByName)
       store.set(timestampKey, mostRecentUpdate)
-
+      
       # loading is done!
       loadingNewData = false
       userDataIsAvailable()
@@ -77,8 +95,9 @@ PK.UserData = do ($) ->
       # always load local data if available
       # so we can use something even if the call fails
       userdata.user = user
-      userdata.contacts ?= store.get(contactsKey)
+      contactsByName = userdata.contactsByName ?= store.get(contactsByNameKey)
       mostRecentUpdate ?= store.get(timestampKey)      
+      buildContactDictionary(contactsByName)
     
     if mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime
       # local data is fresh, so go with what's already loaded

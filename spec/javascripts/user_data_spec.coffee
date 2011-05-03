@@ -41,14 +41,14 @@ describe "PK.UserData", () ->
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadStartEvent).toHaveBeenTriggeredOn($("body"))
     
-    itProcessesData = (options = {remoteUpdateTime: 123567, resultUser: {id: "resultUser"}, resultContacts: {}, resultTime: 12345}) ->
+    itProcessesData = (options = {remoteUpdateTime: 123567, resultUser: {_id: "resultUser"}, resultContactsByName: [{_id: "abc"}], resultTime: 12345}) ->
       describe "processing data", () ->
         results = remoteUpdateTime = null
 
         beforeEach () ->
           results = 
             user: options.resultUser
-            contacts: options.resultContacts
+            contactsByName: options.resultContactsByName
             mostRecentUpdate: options.resultTime
           
           remoteUpdateTime = options.remoteUpdateTime
@@ -68,16 +68,26 @@ describe "PK.UserData", () ->
           # technically, the key name is an internal implementation method
           # but Jasmine doesn't really support anything, and it's not that big a deal
           expect(store.set).toHaveBeenCalledWith("user", results.user)
-
-        it "stores the contacts as .contacts", () ->
+          
+        it "stores the contactsByName as .contactsByName", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
-          expect(PK.UserData.contacts).toBe(results.contacts)
+          expect(PK.UserData.contactsByName).toBe(results.contactsByName)
 
-        it "saves the user data to localStorage", () ->
+        it "saves the contactsByName to localStorage", () ->
+          # this gets stored elsewhere
           PK.UserData.loadUserData(remoteUpdateTime)
           # technically, the key name is an internal implementation method
           # but Jasmine doesn't really support anything, and it's not that big a deal
-          expect(store.set).toHaveBeenCalledWith("contacts", results.contacts)
+          expect(store.set).toHaveBeenCalledWith("contactsByName", results.contactsByName)
+          
+        itBuildsContactsHash(options.resultContactsByName, remoteUpdateTime)
+
+        it "does not save the user data to localStorage", () ->
+          # this gets stored elsewhere
+          PK.UserData.loadUserData(remoteUpdateTime)
+          # technically, the key name is an internal implementation method
+          # but Jasmine doesn't really support anything, and it's not that big a deal
+          expect(store.set).not.toHaveBeenCalledWith("contacts", results.contacts)
       
         it "stores the timestamp to localStorage", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
@@ -122,12 +132,17 @@ describe "PK.UserData", () ->
         
         if includeStale # doesn't make sense for the "if no data locally available" tests
           describe "when stale data is around", () ->
-            user = {id: "stale data user:115"}
+            user = {_id: "stale data user:115"}
+            contactsByName = [{_id: "stale data contacts:116"}]
+
             beforeEach () ->
               # set up store to return "stale" data tied to an old time
               store.get.andCallFake (key) ->
-                if key == "mostRecentUpdate" then remoteUpdateTime - 1 else user
-              
+                switch key
+                  when "mostRecentUpdate" then remoteUpdateTime - 1 
+                  when "user" then user
+                  when "contactsByName" then contactsByName
+                              
             it "still loads stale data if available", () ->
               # run and error out on Ajax
               PK.UserData.loadUserData(remoteUpdateTime);
@@ -136,13 +151,22 @@ describe "PK.UserData", () ->
               # lazy to not code separate logic to load a contacts object
               # but this shows it loads
               # and we do check the proper storage of contacts elsewhere
-              expect(PK.UserData.contacts).toBe(user)
+              expect(typeof PK.UserData.contacts).toBe("object")
               
             it "does not fire the userLoadSuccessEvent", () ->
               spyOnEvent($("body"), PK.UserData.userLoadSuccessEvent)
               PK.UserData.loadUserData(remoteUpdateTime);
               expect(PK.UserData.userLoadSuccessEvent).not.toHaveBeenTriggeredOn($("body"))
-            
+    
+    itBuildsContactsHash = (contactsByName, time) ->
+     it "creates a contacts hash as .contacts", () ->
+        PK.UserData.loadUserData(time)
+        expect(typeof PK.UserData.contacts).toBe("object")
+
+      it "indexes the contacts hash by ID based on contactsByName", () ->
+        PK.UserData.loadUserData(time)
+        contact = contactsByName[0]
+        expect(PK.UserData.contacts[contact._id]).toBe(contact)      
 
     describe "if no data is available locally", () ->
       beforeEach () ->
@@ -156,15 +180,19 @@ describe "PK.UserData", () ->
     describe "if data is available in localStorage", () ->
       describe "and it's outdated", () ->
         time = 123456
-        user = {id: "defined in localStorage :145"}
-        differentUser = {id: "different user"}
+        user = {_id: "defined in localStorage :145"}
+        differentUser = {_id: "different user"}
+        contactsByName = [{_id: "outdated contacts"}]
         
         beforeEach () ->
           # we need to define user locally since it has to be returned by store
           spyOn(store, "set")
           spyOn(store, "get").andCallFake (key) ->
             # technically this is an internal implementation detail, but unavoidable
-            if key == "mostRecentUpdate" then time else user
+            switch key
+              when "mostRecentUpdate" then time
+              when "user" then user
+              when "contactsByName" then contactsByName
           
         # simulate newer data being available
         itFetchesData(time + 1)
@@ -173,25 +201,32 @@ describe "PK.UserData", () ->
           resultTime: time + 1
           startUser: user
           resultUser: differentUser
+          resultContactsByName: contactsByName
         })
         itHandlesErrors(time + 1)
     
       describe "and it's up to date", () -> 
         time = 123456
-        user = {id: "and is up to date"}
+        user = {_id: "and is up to date"}
+        contactsByName = [{_id: "up to date contacts"}]
         
         beforeEach () ->
           # we need to define user locally since it has to be returned by store
           spyOn(store, "set")
           spyOn(store, "get").andCallFake (key) ->
             # technically this is an internal implementation detail, but unavoidable
-            if key == "mostRecentUpdate" then time else user
+            switch key
+              when "mostRecentUpdate" then time 
+              when "user" then user
+              when "contactsByName" then contactsByName
           
           $.mockjax () -> throw "Ajax request should not have been made!"
           
         it "returns the stored copy", () ->
           PK.UserData.loadUserData(time)
           expect(PK.UserData.user).toBe(user)
+        
+        itBuildsContactsHash(contactsByName, time)
 
         it "makes no Ajax requests", () ->
           spyOn($, "ajax");
