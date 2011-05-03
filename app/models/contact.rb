@@ -7,7 +7,7 @@ class Contact
   field :first_name
   field :last_name
   field :name
-  field :addresses, :type => Array, :default => []
+  field :encrypted_addresses, :type => Array, :default => []
   field :pic
   field :remote_id
 
@@ -27,11 +27,21 @@ class Contact
   # VALIDATION
   validates :remote_id, :presence => true
   
-
   def client_json
     # JSON sent down to the client for storage
     self.as_json :only => [:_id, :name, :addresses]
   end
+  
+  def addresses
+    # decrypt addresses
+    self.encrypted_addresses.map {|addr| Blowfish.decrypt(ENCRYPTION_KEY, addr)}
+  end
+  
+  def addresses=(new_addresses)
+    # decrypt addresses
+    self.encrypted_addresses = new_addresses.map {|addr| Blowfish.encrypt(ENCRYPTION_KEY, addr)}
+  end
+  
 
   def update_from_remote_contact(contact_hash)
     self.first_name = contact_hash[:first_name]
