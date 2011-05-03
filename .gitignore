@@ -5,3 +5,4 @@ tmp/
 .rvmrc
 /public/assets/
 /public/javascripts/compiled/
+/spec/javascripts/compiled/
