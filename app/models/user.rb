@@ -21,6 +21,12 @@ class User
   
   # INDICES
   index "remote_account.identifier", :unique => true
+  index [:user, :last_name]
+  
+  def client_json
+    # JSON sent down to the client for storage
+    self.as_json :only => [:_id, :name]
+  end
   
   def self.find_or_create_from_google_token(token)
     google = APIManager::Google.new(token)

@@ -31,6 +31,14 @@ describe Contact do
   # validations
   it { should validate_presence_of(:remote_id) }
 
+  describe ".client_json" do
+    it "generates a hash with only :_id, :name, and :addresses" do
+      c = Contact.make
+      c.expects(:as_json).with(:only => [:_id, :name, :addresses])
+      c.client_json
+    end
+  end
+
   describe "#new_from_remote_contact" do
     before :each do
       @hash = sample_portable_contact.first

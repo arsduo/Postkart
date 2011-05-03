@@ -5,6 +5,12 @@ class HomeController < ApplicationController
   end
   
   def user_data
-    render :json => {:user => current_user, :contacts => current_user.contacts, :mostRecentUpdate => current_user.contacts_updated_at.to_i}    
+    render :json => {
+      :user => current_user.client_json, 
+      # the Mongo Ruby driver effectively loads content in batches
+      # so unlike with AR this is okay regardless of how large the contact group grows
+      :contactsByName => current_user.contacts.asc(:last_name).map {|c| c.client_json},
+      :mostRecentUpdate => current_user.contacts_updated_at.to_i
+    }    
   end
 end

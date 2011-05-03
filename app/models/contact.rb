@@ -27,6 +27,12 @@ class Contact
   # VALIDATION
   validates :remote_id, :presence => true
   
+
+  def client_json
+    # JSON sent down to the client for storage
+    self.as_json :only => [:_id, :name, :addresses]
+  end
+
   def update_from_remote_contact(contact_hash)
     self.first_name = contact_hash[:first_name]
     self.last_name = contact_hash[:last_name]

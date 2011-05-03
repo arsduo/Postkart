@@ -23,6 +23,14 @@ describe User do
   it { should reference_many(:contacts) }
   it { should reference_many(:mailings) }
   
+  describe ".client_json" do
+    it "generates a hash with only :_id, :name, and :pic" do
+      u = User.make
+      u.expects(:as_json).with(:only => [:_id, :name])
+      u.client_json
+    end
+  end
+  
   describe "#find_or_create_from_google_token" do
     before :each do
       @token = "foo"
