@@ -17,7 +17,7 @@ describe Contact do
   it { should have_field(:last_name) }
   it { should have_field(:name) }
   it { should have_field(:pic) }
-  it { should have_field(:addresses, :type => Array, :default => []) }
+  it { should have_field(:encrypted_addresses, :type => Array, :default => []) }
   it { should have_field(:remote_id) }
 
   it { should have_field(:city) }
@@ -32,10 +32,13 @@ describe Contact do
   it { should validate_presence_of(:remote_id) }
 
   describe ".client_json" do
-    it "generates a hash with only :_id, :name, and :addresses" do
+    it "generates a hash with only :_id, :name, and (decrypted) :addresses" do
       c = Contact.make
-      c.expects(:as_json).with(:only => [:_id, :name, :addresses])
-      c.client_json
+      c.stubs(:_id).returns("foo")
+      json = c.client_json
+      json["_id"].should == c._id.to_s
+      json["name"].should == c.name
+      json[:addresses].should == c.addresses
     end
   end
 

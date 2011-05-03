@@ -19,7 +19,12 @@ Contact.blueprint {
   last_name { Faker::Name.last_name }
   name { Faker::Name.name }
   pic { "http://#{sn}" }
-  addresses { ["123#{sn} Main St., City, State, USA", "ABCstr #{sn}, Munich, Germany"]}
+  encrypted_addresses do
+    # generated encrypted addresses
+    ["123#{sn} Main St., City, State, USA", "ABCstr #{sn}, Munich, Germany"].collect do |a|
+      BSON::Binary.new(Blowfish.encrypt(ENCRYPTION_KEY, a))
+    end
+  end
   remote_id { "REMOTE_ID#{sn}" }
   created_at { Time.now }
   updated_at { Time.now }

@@ -29,17 +29,18 @@ class Contact
   
   def client_json
     # JSON sent down to the client for storage
-    self.as_json :only => [:_id, :name, :addresses]
+    self.as_json :only => [:_id, :name], :methods => :addresses
   end
   
   def addresses
     # decrypt addresses
-    self.encrypted_addresses.map {|addr| Blowfish.decrypt(ENCRYPTION_KEY, addr)}
+    self.encrypted_addresses.map {|addr| Blowfish.decrypt(ENCRYPTION_KEY, addr.to_s)}
   end
   
   def addresses=(new_addresses)
     # decrypt addresses
-    self.encrypted_addresses = new_addresses.map {|addr| Blowfish.encrypt(ENCRYPTION_KEY, addr)}
+    # since encryption generates non-UTF strings, we have to wrap it in BSON::Binary 
+    self.encrypted_addresses = new_addresses.map {|addr| BSON::Binary.new(Blowfish.encrypt(ENCRYPTION_KEY, addr))}
   end
   
 
@@ -55,14 +56,16 @@ class Contact
   
   def self.new_from_remote_contact(contact_hash)
     # not every Google contact will have a remote ID, but we just have to live with that
-    Contact.new({
+    contact = Contact.new({
       :first_name => contact_hash[:first_name],
       :last_name => contact_hash[:last_name],
       :name => contact_hash[:name],
       :pic => contact_hash[:pic],
-      :addresses => contact_hash[:addresses],
       :remote_id => generate_remote_id(contact_hash)
     })
+    # encrypt addresses
+    contact.addresses = contact_hash[:addresses]
+    contact
   end
   
   def self.generate_remote_id(contact_hash)

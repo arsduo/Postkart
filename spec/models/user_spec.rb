@@ -24,10 +24,12 @@ describe User do
   it { should reference_many(:mailings) }
   
   describe ".client_json" do
-    it "generates a hash with only :_id, :name, and :pic" do
+    it "generates a hash with only :_id, :name" do
       u = User.make
-      u.expects(:as_json).with(:only => [:_id, :name])
-      u.client_json
+      u.stubs(:_id).returns("foo")
+      json = u.client_json
+      json["_id"] = u._id
+      json["name"] = u.name
     end
   end
   
