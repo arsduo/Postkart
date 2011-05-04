@@ -39,8 +39,8 @@ class Contact
   
   def addresses=(new_addresses)
     # decrypt addresses
-    # since encryption generates non-UTF strings, we have to wrap it in BSON::Binary 
-    self.encrypted_addresses = new_addresses.map {|addr| BSON::Binary.new(Blowfish.encrypt(ENCRYPTION_KEY, addr))}
+    # since encryption generates non-UTF strings, we have to wrap it in BSON::Binary
+    self.encrypted_addresses = (new_addresses || []).map {|addr| BSON::Binary.new(Blowfish.encrypt(ENCRYPTION_KEY, addr))}
   end
   
 
