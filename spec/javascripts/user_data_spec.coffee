@@ -34,7 +34,7 @@ describe "PK.UserData", () ->
         
         it "sets user data flag to unavailable", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
-          expect(PK.UserData.isUserDataAvailable()).toBe(false)
+          expect(PK.UserData.isDataAvailable()).toBe(false)
       
         it "triggers the userLoadStartEvent event", () ->
           spyOnEvent($("body"), PK.UserData.userLoadStartEvent)
@@ -95,13 +95,17 @@ describe "PK.UserData", () ->
         
         it "sets user data flag to available", () ->
           PK.UserData.loadUserData(remoteUpdateTime)
-          expect(PK.UserData.isUserDataAvailable()).toBe(true)
+          expect(PK.UserData.isDataAvailable()).toBe(true)
 
         it "triggers the userLoadSuccessEvent event", () ->
           spyOnEvent($("body"), PK.UserData.userLoadSuccessEvent)
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadSuccessEvent).toHaveBeenTriggeredOn($("body"))
-  
+
+        it "says the data is fresh", () ->
+          PK.UserData.loadUserData(remoteUpdateTime);
+          expect(PK.UserData.isDataStale()).toBe(false)
+                
     itHandlesErrors = (remoteUpdateTime = 123, includeStale = true) ->
       describe "when an error occurs", () ->   
         error = null
@@ -126,9 +130,9 @@ describe "PK.UserData", () ->
           PK.UserData.loadUserData(remoteUpdateTime);
       
         it "clears the loading flag", () ->
-          previousAvailability = PK.UserData.isUserDataAvailable()
+          previousAvailability = PK.UserData.isDataAvailable()
           PK.UserData.loadUserData(remoteUpdateTime);
-          expect(PK.UserData.isUserDataAvailable()).toBe(previousAvailability)
+          expect(PK.UserData.isDataAvailable()).toBe(previousAvailability)
         
         if includeStale # doesn't make sense for the "if no data locally available" tests
           describe "when stale data is around", () ->
@@ -153,10 +157,14 @@ describe "PK.UserData", () ->
               # and we do check the proper storage of contacts elsewhere
               expect(typeof PK.UserData.contacts).toBe("object")
               
-            it "does not fire the userLoadSuccessEvent", () ->
+            it "does fires the userLoadSuccessEvent", () ->
               spyOnEvent($("body"), PK.UserData.userLoadSuccessEvent)
               PK.UserData.loadUserData(remoteUpdateTime);
-              expect(PK.UserData.userLoadSuccessEvent).not.toHaveBeenTriggeredOn($("body"))
+              expect(PK.UserData.userLoadSuccessEvent).toHaveBeenTriggeredOn($("body"))
+            
+            it "says the data is stale", () ->
+              PK.UserData.loadUserData(remoteUpdateTime);
+              expect(PK.UserData.isDataStale()).toBe(true)
     
     itBuildsContactsHash = (contactsByName, time) ->
      it "creates a contacts hash as .contacts", () ->
