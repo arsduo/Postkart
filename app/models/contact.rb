@@ -10,11 +10,6 @@ class Contact
   field :encrypted_addresses, :type => Array, :default => []
   field :pic
   field :remote_id
-
-  # not being used for now, but for future reference
-  field :city
-  field :state
-  field :country
   
   # EMBEDS AND RELATIONSHIPS
   referenced_in :user, :inverse_of => :contacts

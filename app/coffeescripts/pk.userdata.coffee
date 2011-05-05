@@ -9,17 +9,21 @@ PK.UserData = do ($) ->
   contactsByNameKey = "contactsByName"
   loadingNewData = false
   mostRecentUpdate = null
+  isStale = false
   
   # events
   userLoadStartEvent = "startedUserLoad.pk"
   userLoadSuccessEvent = "successfulUserLoad.pk"
   userLoadFailedEvent = "failedUserLoad.pk"
   
-  isUserDataAvailable = () ->
+  isDataAvailable = () ->
     # we use the stored time (= most recent update for this user) as a proxy
     # for whether data has been stored in localStorage
     # this fn is useful to have around, even though it's mostly used in testing ATM
     !loadingNewData && !!(userdata.user || store.get(userKey))
+
+  isDataStale = () ->
+    isStale
 
   flush = () ->
     # clear all stored user data
@@ -59,6 +63,7 @@ PK.UserData = do ($) ->
       store.set(timestampKey, mostRecentUpdate)
       
       # loading is done!
+      isStale = false
       loadingNewData = false
       userDataIsAvailable()
     else
@@ -70,10 +75,11 @@ PK.UserData = do ($) ->
     
   error = (jQevent, errorData) ->
     $("body").trigger(userLoadFailedEvent, errorData)
-    # reset loading new data, so that we can make use of any cached data
-    # we don't trigger the userDataIsAvailable event, though
-    # it's up to the client to respond to the error by using stale data
+    # if we have stale data, announce it so we can make use of any cached data
+    # it's up to the client to check the stale state and respond appropriately
     loadingNewData = false
+    userDataIsAvailable() if isDataAvailable()
+    
 
   loadDataFromServer = () ->
     # we have to load data from the server
@@ -98,17 +104,21 @@ PK.UserData = do ($) ->
       contactsByName = userdata.contactsByName ?= store.get(contactsByNameKey)
       mostRecentUpdate ?= store.get(timestampKey)      
       buildContactDictionary(contactsByName)
-    
+      # assume data is stale
+      # if not, it'll be automatically cleared in userDataIsAvailable
+      isStale = true
+      
     if mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime
       # local data is fresh, so go with what's already loaded
       userDataIsAvailable()
     else
       # get updated data from the server (if possible)
       loadDataFromServer()
-    
+  
   userdata =
     loadUserData: loadUserData
-    isUserDataAvailable: isUserDataAvailable
+    isDataAvailable: isDataAvailable
+    isDataStale: isDataStale
     userLoadStartEvent: userLoadStartEvent
     userLoadSuccessEvent: userLoadSuccessEvent 
     userLoadFailedEvent: userLoadFailedEvent
