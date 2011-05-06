@@ -1,4 +1,4 @@
-class TripsController < ApplicationController
+class TripController < ApplicationController
   def create
     if current_user && location = params[:trip][:location_name]
       @trip = Trip.new(
@@ -16,8 +16,8 @@ class TripsController < ApplicationController
 
   def view
     if current_user && @trip = Trip.where(:_id => params[:id]).first
-      @mailing_recipients = @trip.mailings.collect {|m| m.contact}
-      @contacts = current_user.contacts.asc(:last_name).to_a.delete_if {|c| @mailing_recipients.include?(c)}
+      # fetch this to a variable so we don't have to make two trips to the db
+      @mailings = @trip.mailings
     else
       redirect_to root_url
     end    

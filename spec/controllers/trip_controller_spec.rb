@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe TripsController do
+describe TripController do
 
   describe "GET 'create'" do
     it "should be successful"

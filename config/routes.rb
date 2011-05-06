@@ -3,10 +3,10 @@ Postkart::Application.routes.draw do
   # home
   get "home/user_data"
   
-  # trips
-  post "trips/create"
-  get "trips/view"
-  post "trips/send_card"
+  # trip
+  post "trip/create"
+  get "trip/view"
+  post "trip/send_card"
 
   # Authentication
   get "authentication/google_start"
