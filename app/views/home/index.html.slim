@@ -13,9 +13,9 @@ h1
   h3 Trips
 
   - current_user.trips.each do |trip|
-    = link_to trip.location_name, url_for(:controller => :trips, :action => :view, :id => trip.id)
+    = link_to trip.location_name, url_for(:controller => :trip, :action => :view, :id => trip.id)
   
-  = form_for Trip.new, :as => :trip, :url => url_for(:controller => :trips, :action => :create) do |f|
+  = form_for Trip.new, :as => :trip, :url => url_for(:controller => :trip, :action => :create) do |f|
     = f.text_field :location_name
     = f.submit
 
@@ -32,39 +32,4 @@ javascript:
       height: 385
     })
   })
-  
-p
-  a href="#" onclick="alert(store.get('user')); $('body').append(JSON.stringify(store.get('user')))" 
-    | show cache data for user
-
-javascript:
-  function getCache() {
-    var appCache = window.applicationCache;
-    switch (appCache.status) {
-      case appCache.UNCACHED: // UNCACHED == 0
-        return 'UNCACHED';
-        break;
-      case appCache.IDLE: // IDLE == 1
-        return 'IDLE';
-        break;
-      case appCache.CHECKING: // CHECKING == 2
-        return 'CHECKING';
-        break;
-      case appCache.DOWNLOADING: // DOWNLOADING == 3
-        return 'DOWNLOADING';
-        break;
-      case appCache.UPDATEREADY:  // UPDATEREADY == 5
-        return 'UPDATEREADY';
-        break;
-      case appCache.OBSOLETE: // OBSOLETE == 5
-        return 'OBSOLETE';
-        break;
-      default:
-        return 'UKNOWN CACHE STATUS';
-        break;
-    };
-  }
-p  
-  a href="#" onclick="alert(getCache())" 
-    | show app cache
  
