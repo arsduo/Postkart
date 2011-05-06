@@ -1,5 +1,6 @@
 #embed_assets: on
 javascript_compressor:  closure
+template_function: on
 
 javascripts:
   core: # every page should have these
@@ -9,19 +10,22 @@ javascripts:
     - public/javascripts/store.js
     - public/javascripts/compiled/pk.userdata.js
     
-  common: 
-    - public/javascripts/jquery/jquery-ui-1.8.11.js
+  browser_common:  # all pages for non-mobile browsers should have these 
+    - public/javascripts/jquery/jquery-ui-1.8.12.js
     
   google_auth:
-    - public/javascripts/jquery/jquery.ui.widget.js
     - public/javascripts/libraries/jquery.trafficlight.js
     - public/javascripts/pk.google_auth.js
+
+  trip:
+    - public/javascripts/compiled/pk.trip.js
+    - app/views/trip/*.jst
 
 stylesheets:
   core: # every page should have these
     - public/stylesheets/core.css
 
-  common: 
+  browser_common: 
     - public/stylesheets/jquery-ui-1.8.11.css
     
   auth_iframe:

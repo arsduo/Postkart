@@ -4,8 +4,8 @@ html
   head
     title Postkart
     = csrf_meta_tag 
-    = include_stylesheets :core, :auth_iframe
-    = include_javascripts :core
+    = include_stylesheets :core, :browser_common, :auth_iframe
+    = include_javascripts :core, :browser_common
     
   body
     #header Postkart
