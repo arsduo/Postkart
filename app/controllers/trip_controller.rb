@@ -24,20 +24,26 @@ class TripController < ApplicationController
   end
   
   def send_card 
+    @result = false
     if current_user
       # needs to ensure there aren't duplicate mailings?
+      logger.debug("Has user")
       trip = Trip.where(:_id => params[:trip_id]).first
+      logger.debug("Trip: #{trip}")
       contact = current_user.contacts.where(:_id => params[:contact_id]).first
+      logger.debug("Contact: #{contact}")
       if trip && contact
+        logger.debug("going!")
         mailing = Mailing.create(
           :contact => contact,
           :trip => trip,
           :user => current_user,
           :date => Time.now
         )
+        @result = true
       end
-    end    
-    redirect_to :action => :view, :id => params[:trip_id] and return
+    end
+    render :json => {:result => @result}
   end
 
 end

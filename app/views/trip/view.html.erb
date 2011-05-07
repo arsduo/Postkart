@@ -1,26 +1,16 @@
+<%= include_stylesheets :trip %>
 <h1 id="tripName"><%= @trip.location_name%></h1>
 
 <h3>Mailed Cards</h3>
-<ul id="recipients"></ul>
+<ul id="recipients" class="contactList"></ul>
 
 <h3>Send a card!</h3>
-<ul id="contacts">
-</ul>
-
-<% if false %>
-  <% @contacts.each do |c| %>
-    <li>
-      <%= c.name %> 
-      <%= form_tag url_for(:controller => :trips, :action => :send_card, :trip_id => @trip._id, :contact_id => c._id) do %>
-        <%= submit_tag "Send card" %>
-      <% end %>
-    </li>
-<% end %>
-<% end %>
+<ul id="contacts" class="contactList"></ul>
 
 <%= include_javascripts :trip %>
 <script>
   PK.Trip.init({
+    _id: "<%= @trip._id %>",
     location_name: "<%= @trip.location_name %>",
     recipients: <%= @mailings.collect(&:contact_id).to_json.html_safe %>
   })

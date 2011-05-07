@@ -30,3 +30,6 @@ stylesheets:
     
   auth_iframe:
     - public/stylesheets/auth_iframe.css
+
+  trip: 
+    - public/stylesheets/trip.css

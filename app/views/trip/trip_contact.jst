@@ -1,3 +1,7 @@
-<li id="contact<%= contact._id %>" class="contactUnsent">
-  <%= contact.name %>
+<li id="contact<%= contact._id %>" class="<%= sent ? 'contactSent' : 'contactUnsent' %>">
+  <span class="name"><%= contact.name %></span>
+  
+  <% if (!sent) { %>  
+    <a href="#" class="sendCard" data-contact-id="<%= contact._id %>"><%= text.send %></a>
+  <% } %>
 </li>
