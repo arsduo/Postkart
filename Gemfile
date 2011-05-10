@@ -8,12 +8,9 @@ gem 'json'
 gem 'jquery-rails', '>= 0.2.6'
 gem 'jammit'
 
-# offline
+# offline and mobile
 gem 'rack-offline'
-
-unless RUBY_VERSION =~ /^1\.9/
-  gem 'SystemTimer', '>= 1.2.3'
-end
+gem 'mobile-fu'
 
 # Authentication
 gem "devise", "~> 1.2"
@@ -32,9 +29,15 @@ gem "bson_ext", ">= 1.2.0"
 # error notification
 gem 'exception_notification', :require => 'exception_notifier'
 
-# performance!
-gem 'rack-perftools_profiler', :require => 'rack/perftools_profiler'
-gem 'ruby-prof'
+unless RUBY_VERSION =~ /^1\.9/
+  gem 'SystemTimer', '>= 1.2.3'
+end
+
+group :development do
+  # performance!
+  gem 'rack-perftools_profiler', :require => 'rack/perftools_profiler'
+  gem 'ruby-prof'
+end
 
 group :test do
   # test content
