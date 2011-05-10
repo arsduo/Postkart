@@ -1,7 +1,7 @@
-.contactList li {
+.contactList > li {
   list-style: none;
   padding: 4px;
-  width: 400px;
+  width: 500px;
   margin: 2px;
   position: relative;
   border: 1px solid gray;
@@ -18,11 +18,11 @@
 }
 
 .contactUnsent {
-  height: 30px;
+  min-height: 30px;
 }
 
 .contactSent {
-  height: 20px;
+  min-height: 20px;
 }
 
 .contactSent .name {
@@ -31,4 +31,15 @@
 
 .contactUnsent .ui-button {
   width: 94px;
+}
+
+.addresses {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+  width: 390px;
+}
+
+.contactSent .addresses {
+  display: none;
 }
