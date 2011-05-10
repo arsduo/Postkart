@@ -19,10 +19,6 @@ describe Contact do
   it { should have_field(:pic) }
   it { should have_field(:encrypted_addresses, :type => Array, :default => []) }
   it { should have_field(:remote_id) }
-
-  it { should have_field(:city) }
-  it { should have_field(:state) }
-  it { should have_field(:country) }
   
   # associations
   it { should be_referenced_in(:user) }
@@ -42,6 +38,66 @@ describe Contact do
     end
   end
 
+  describe ".addresses=" do
+    before :each do
+      @contact = Contact.make
+    end
+    
+    it "sets the encrypted address" do
+      @contact = Contact.make
+      @contact.encrypted_addresses = nil
+      @contact.addresses = ["abc"]
+      @contact.encrypted_addresses.should_not be_nil
+      @contact.encrypted_addresses.length.should == 1
+    end
+    
+    it "wraps the encrypted addresses in BSON::Binaries" do
+      @contact.addresses = ["123 Main St., Anytown, USA"]
+      @contact.encrypted_addresses.first.should be_a(BSON::Binary)
+    end
+    
+    it "encrypts the addresses using Blowfish and the encryption key" do
+      addr = "456 Main St., Anytown, USA"
+      @contact.addresses = [addr]
+      encrypted_addr = @contact.encrypted_addresses.first
+      # we test that it's encrypted by decrypting it, and making sure it works
+      Blowfish.decrypt(ENCRYPTION_KEY, encrypted_addr.to_s).should == addr
+    end
+    
+    it "stores nothing on :addresses on the record" do
+      @contact.addresses = ["789 Main St., Anytown, USA"]
+      @contact[:addresses].should be_nil
+      @contact["addresses"].should be_nil
+    end
+    
+    describe "abbreviations" do
+      it "shortens United States of America to USA, case insensitively" do
+        address = "185 Main St, Anytown, United States of America"
+        address2 = "485 Main St, Anytown, united states of america"
+        @contact.addresses = [address, address2]
+        @contact.addresses.first.should == "185 Main St, Anytown, USA"
+        @contact.addresses.last.should == "485 Main St, Anytown, USA"
+      end
+      
+      it "shortens United States to USA,  case insensitively" do
+        address = "385 Main St, Anytown, United States"
+        address2 = "585 Main St, Anytown, united states"
+        @contact.addresses = [address, address2]
+        @contact.addresses.first.should == "385 Main St, Anytown, USA"
+        @contact.addresses.last.should == "585 Main St, Anytown, USA"
+      end
+    end
+  end
+  
+  describe ".addresses" do
+    it "decrypts information stored using addresses=" do
+      @contact = Contact.make
+      addresses = ["145 Main St., Anytown, USA"]
+      @contact.addresses = addresses
+      @contact.addresses.should == addresses
+    end
+  end
+  
   describe "#new_from_remote_contact" do
     before :each do
       @hash = sample_portable_contact.first
