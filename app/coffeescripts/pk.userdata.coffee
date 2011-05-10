@@ -107,8 +107,9 @@ PK.UserData = do ($) ->
       # assume data is stale
       # if not, it'll be automatically cleared in userDataIsAvailable
       isStale = true
-      
-    if mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime
+    
+    # -1, triggered by params[:reloadContacts]=[anything] forces a reload of contact data
+    if remoteUpdateTime != -1 && (mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime)
       # local data is fresh, so go with what's already loaded
       userDataIsAvailable()
     else

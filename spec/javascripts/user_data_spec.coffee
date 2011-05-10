@@ -213,6 +213,33 @@ describe "PK.UserData", () ->
         })
         itHandlesErrors(time + 1)
     
+      describe "and we force an update with params[:reloadContacts]", () ->
+        time = 12315
+        user = {_id: "defined in localStorage :145"}
+        differentUser = {_id: "different user"}
+        contactsByName = [{_id: "outdated contacts"}]
+
+        beforeEach () ->
+          # we need to define user locally since it has to be returned by store
+          spyOn(store, "set")
+          spyOn(store, "get").andCallFake (key) ->
+            # technically this is an internal implementation detail, but unavoidable
+            switch key
+              when "mostRecentUpdate" then time
+              when "user" then user
+              when "contactsByName" then contactsByName
+
+        # simulate newer data being available
+        itFetchesData(-1)
+        itProcessesData({
+          remoteUpdateTime: -1
+          resultTime: time
+          startUser: user
+          resultUser: differentUser
+          resultContactsByName: contactsByName
+        })
+        itHandlesErrors(-1)
+    
       describe "and it's up to date", () -> 
         time = 123456
         user = {_id: "and is up to date"}
