@@ -1,0 +1,33 @@
+h1
+  - if current_user
+      Hi, #{current_user.name}!
+  - else
+    | Welcome to Postkart!
+
+= link_to "Google auth!", "authentication/google_start", :"data-rel" => "dialog", :"data-role" => "button"
+
+- if false
+  - if current_user 
+    // display trips
+    h3 Trips
+
+    - current_user.trips.each do |trip|
+      = link_to trip.location_name, url_for(:controller => :trip, :action => :view, :id => trip.id)
+  
+    = form_for Trip.new, :as => :trip, :url => url_for(:controller => :trip, :action => :create) do |f|
+      = f.text_field :location_name
+      = f.submit
+
+  div id="authIframeHolder"
+    iframe id="authIframe" frameborder="0" src="about:blank"
+
+  javascript:
+    $("#authLink").click(function() {
+      // open up a dialog box for the authentication flow
+      $("#authIframe").attr("src", "/authentication/google_start");
+      $("#authIframeHolder").dialog({
+        dialogClass: "authDialog",
+        width: 516,
+        height: 385
+      })
+    })

@@ -1,0 +1,16 @@
+doctype html
+
+html
+  head
+    title Postkart
+    = csrf_meta_tag 
+    = include_stylesheets :core, :mobile_common, :auth_iframe
+    = include_javascripts :core, :mobile_common
+    
+  body
+    div data-role="page"
+      #header Postkart
+      #name= (current_user ? current_user.name : "") 
+      .clearFloat
+    
+      = yield 

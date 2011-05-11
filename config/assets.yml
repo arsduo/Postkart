@@ -12,6 +12,9 @@ javascripts:
     
   browser_common:  # all pages for non-mobile browsers should have these 
     - public/javascripts/jquery/jquery-ui-1.8.12.js
+  
+  mobile_common:
+    - public/javascripts/jquery/jquery.mobile-1.0a4.1.js
     
   google_auth:
     - public/javascripts/libraries/jquery.trafficlight.js
@@ -27,7 +30,10 @@ stylesheets:
 
   browser_common: 
     - public/stylesheets/jquery-ui-1.8.11.css
-    
+
+  mobile_common:   
+  - public/stylesheets/jquery.mobile-1.0a4.1.css
+
   auth_iframe:
     - public/stylesheets/auth_iframe.css
 
