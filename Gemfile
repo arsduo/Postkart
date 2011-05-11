@@ -10,7 +10,7 @@ gem 'jammit'
 
 # offline and mobile
 gem 'rack-offline'
-gem 'mobile-fu', :git => "git@github.com:arsduo/mobile-fu.git"
+gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 
 # Authentication
 gem "devise", "~> 1.2"

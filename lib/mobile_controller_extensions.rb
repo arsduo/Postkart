@@ -1,0 +1,41 @@
+module MobileControllerExtensions
+  
+  def self.included(base)
+    base.class_eval do
+      before_filter :setup_mobile
+      helper_method :is_mobile_device?
+      helper_method :mobile_mode?
+    end
+  end
+  
+  def setup_mobile
+    # we allow two parameters:
+    # :desktop, to force mobile devices to render in desktop mode
+    # :mobile,  to force mobile mode on desktop browsers
+
+    # we manually set the session value to persist the setting
+    # (leaving it nil by default, see mobile_mode?)
+    session[:mobile_view] = false if params[:desktop]
+    session[:mobile_view] = true if params[:mobile]
+
+    # now activate mobile views if appropriate
+    prepend_view_path_if_mobile
+  end
+
+  def prepend_view_path_if_mobile
+    prepend_view_path File.join(Rails.root, 'app', 'mobile_views') if mobile_mode?
+  end
+ 
+  def mobile_mode?
+    # flag in the session overrides mobile device, if present
+    session[:mobile_view].nil? ? is_mobile_device? : session[:mobile_view]
+  end
+  
+  def is_mobile_device?
+    !!mobile_device
+  end
+
+  def mobile_device
+    request.headers['X_MOBILE_DEVICE']
+  end  
+end

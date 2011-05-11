@@ -44,5 +44,7 @@ module Postkart
     
     # disable asset tags since we support offline mode
     ENV["RAILS_ASSET_ID"] = ""
+    
+    config.middleware.use Rack::MobileDetect
   end
 end
