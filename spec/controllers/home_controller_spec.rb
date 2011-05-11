@@ -4,32 +4,6 @@ describe HomeController do
 
   render_views
 
-  describe "filters and such" do
-    describe "mobile/desktop" do
-      before :each do
-        @url = "index"
-      end
-
-      context "mobile" do
-        it "sets session[:mobile_view] = true if params[:mobile]" do
-          get @url, :mobile => 1
-          session[:mobile_view].should be_true
-        end
-
-        it "renders with the mobile template"
-      end
-
-      context "desktop" do
-        it "sets session[:mobile_view] = false if params[:desktop]" do
-          get @url, :desktop => 1
-          session[:mobile_view].should be_false
-        end
-
-        it "renders with the desktop template"
-      end
-    end
-  end
-
   describe ".user_data" do
     before :each do
       @url = "user_data"
