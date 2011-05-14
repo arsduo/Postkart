@@ -1,6 +1,7 @@
 #embed_assets: on
 javascript_compressor:  closure
 template_function: on
+embed_assets: on
 
 javascripts:
   core: # every page should have these
@@ -9,11 +10,14 @@ javascripts:
     # localstorage
     - public/javascripts/store.js
     - public/javascripts/compiled/pk.userdata.js
+    # login
+    - public/javascripts/compiled/pk.login.js
+    - app/views/authentication/*.jst
     
   browser_common:  # all pages for non-mobile browsers should have these 
     - public/javascripts/jquery/jquery-ui-1.8.12.js
     
-  google_auth:
+  google_auth: # note: this is also included in google_start.jst
     - public/javascripts/libraries/jquery.trafficlight.js
     - public/javascripts/pk.google_auth.js
 
