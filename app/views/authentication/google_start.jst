@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <style>
+      body {
+      	font-family: Verdana, Arial, sans-serif;
+      	font-size: 12px;
+      }
+      
+      #loadingMessage {
+        text-align: center; 
+        font-weight: bold;
+        font-size: 1.3em;
+        margin-top: 28%;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <p id="loadingMessage">
+      Initializing login...
+    </p>
+
+    <script>
+      document.location = "<%= loginURL %>";
+    </script>
+  </body>
+</html>

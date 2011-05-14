@@ -5,9 +5,35 @@ describe "PK.UserData", () ->
   it "exists", () -> expect(PK.UserData).toBeDefined()
  
   describe "flush", () ->
-    it "needs tests", () ->
-      expect(true).toBe(false)
+    it "clears the store", () ->
+      spyOn(store, "clear")
+      PK.UserData.flush()
+      expect(store.clear).toHaveBeenCalled()
+    
+    it "delete user data", () ->
+      PK.UserData.user = 2
+      PK.UserData.flush()
+      expect(PK.UserData.user).not.toBeDefined()
+      
+    it "delete user's contacts", () ->
+      PK.UserData.contacts = 2
+      PK.UserData.contactsByName = 3
+      PK.UserData.flush()
+      expect(PK.UserData.contacts).not.toBeDefined()
+      expect(PK.UserData.contactsByName).not.toBeDefined()
   
+    it "delete user data", () ->
+      PK.UserData.user = 2
+      PK.UserData.flush()
+      expect(PK.UserData.user).not.toBeDefined()
+      
+    it "clears the storage time", () ->
+      # we can test this by seeing if a time of 0 triggers an ajax request
+      # meaning we have no stored data
+      spyOn($, "ajax")
+      PK.UserData.flush()
+      PK.UserData.loadUserData(0)
+      expect($.ajax).toHaveBeenCalled()
   
   describe "loadUserData", () ->
     # common functions

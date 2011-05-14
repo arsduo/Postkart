@@ -8,14 +8,6 @@
   vertical-align: middle;
 }
 
-/* loading */
-#loadingMessage {
-  text-align: center; 
-  font-weight: bold;
-  font-size: 1.3em;
-  margin-top: 28%;
-}
-
 /* sign-in with trafficlight */
 
 #signinFlow {
