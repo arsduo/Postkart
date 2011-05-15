@@ -48,7 +48,7 @@ Postkart::Application.configure do
   config.active_support.deprecation = :notify
   
   # exception notification
-  email_conf = YAML::load(File.open("#{RAILS_ROOT}/config/email.yml"))["production"]
+  email_conf = YAML::load(File.open("#{Rails.root}/config/email.yml"))["production"]
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = email_conf
   
