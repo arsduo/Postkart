@@ -58,6 +58,4 @@ Postkart::Application.configure do
     :exception_recipients => "alex+postkart@alexkoppel.com"
   }  
   config.middleware.use ExceptionNotifier, ExceptionNotifierOptions    
-    
-  config.middleware.use ::Rack::PerftoolsProfiler
 end
