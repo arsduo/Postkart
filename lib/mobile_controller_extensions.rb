@@ -37,6 +37,9 @@ module MobileControllerExtensions
   end
 
   def prepend_view_path_if_mobile
-    prepend_view_path File.join(Rails.root, 'app', MOBILE_VIEW_FOLDER) if mobile_mode?
+    if mobile_mode?
+     logger.debug("View: MOBILE")
+     prepend_view_path File.join(Rails.root, 'app', MOBILE_VIEW_FOLDER)
+    end
   end
 end
