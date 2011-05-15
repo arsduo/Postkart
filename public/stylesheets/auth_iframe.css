@@ -20,24 +20,28 @@
   padding-left: 23px;
   margin-bottom: 3px;
   list-style: none;
+  height: 21px;
+}
+
+.trafficlight {
+  background: url('/images/lights.png') no-repeat 0 -2px;
 }
 
 .trafficlight-todo {
-  background: url('/images/lights.png') no-repeat 0 0;
   color: gray;
 }
 
 .trafficlight-doing {
-  background: url('/images/lights.png') no-repeat 0 -52px;
+  background-position: 0 -54px;
   font-weight: bold;
 }
 
 .trafficlight-done {
-  background: url('/images/lights.png') no-repeat 0 -26px;
+  background-position: 0 -29px;
 }
 
 .trafficlight-failed {
-  background: url('/images/lights.png') no-repeat 0 -78px;
+  background-position: 0 -80px;
 }
 
 .warning {
