@@ -198,9 +198,27 @@ jasmine.JQuery.matchersClass = {};
       return this.actual.find(selector).size() > 0;
     },
 
-		toBeDisabled: function(selector){
-			return this.actual.attr("disabled") == true;
-		}
+    toBeDisabled: function(selector){
+      return this.actual.is(':disabled');
+    },
+
+    // tests the existence of a specific event binding
+    toHandle: function(eventName) {
+      var events = this.actual.data("events");
+      return events && events[eventName].length > 0;
+    },
+    
+    // tests the existence of a specific event binding + handler
+    toHandleWith: function(eventName, eventHandler) {
+      var stack = this.actual.data("events")[eventName];
+      var i;
+      for (i = 0; i < stack.length; i++) {
+        if (stack[i].handler == eventHandler) {
+          return true;
+        }
+      }
+      return false;
+    }
   };
 
   var hasProperty = function(actualValue, expectedValue) {
