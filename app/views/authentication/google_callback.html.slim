@@ -1,7 +1,8 @@
 = include_javascripts :google_auth
+= include_stylesheets :auth_iframe
 
 ul#signinFlow
-  li#identifyUser.trafficlight-todo
+  li#identifyUser.trafficlight.trafficlight-todo
     | Getting your info
   li#acceptTerms
     #acceptTermsBox
@@ -13,11 +14,21 @@ ul#signinFlow
         label{for="termsCheck"}
           | Sounds good to me, I accept.
       input#termsSubmit{type="submit" value="Continue"}
-  li#getContacts.trafficlight-todo
+  li#getContacts.trafficlight.trafficlight-todo
     | Importing your contacts
-  li#signIn.trafficlight-todo
+  li#signIn.trafficlight.trafficlight-todo
     | Signing you in...
   li#generalError.error
 
 script
-  | $(document).ready(PK.GoogleAuth.init);
+  | PK.GoogleAuth.init();
+  
+- if mobile_mode?
+  - content_for :header_scripts do
+    script 
+      // tell jQuery mobile not to listen to hash changes for now
+      // so we can process the hash without it freaking out
+      // and trying to load the auth token as a URL
+      | $(document).bind("mobileinit", function(){
+          $.mobile.hashListeningEnabled = false;
+        })

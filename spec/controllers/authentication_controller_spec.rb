@@ -5,22 +5,22 @@ describe AuthenticationController do
   
   include ApplicationHelper
   
-  describe "GET 'google_start'" do
-    it "is successful" do
-      get 'google_start'
-      response.should be_success
-    end
-    
-    it "includes the Google Auth URL" do
-      get 'google_start'
-      response.body.should include(google_auth_url)
-    end
-  end
-  
   describe "GET 'google_callback'" do
     it "is successful" do
       get 'google_callback'
       response.should be_success
+    end
+    
+    it "turns off mobile hash listening if in mobile mode" do
+      controller.stubs(:mobile_mode?).returns(true)
+      get "google_callback"
+      response.body.should include("$.mobile.hashListeningEnabled = false")
+    end
+    
+    it "does not turn off mobile hash listening if not in mobile mode" do
+      controller.stubs(:mobile_mode?).returns(false)
+      get "google_callback"
+      response.body.should_not include("$.mobile.hashListeningEnabled = false")
     end
   end
   
