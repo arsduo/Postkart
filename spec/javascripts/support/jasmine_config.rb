@@ -2,7 +2,13 @@ module Jasmine
   class Config
 
     # Add your overrides or custom config code here
-
+    # get rid of jQuery mobile
+    def js_files_without_jquery_mobile(*args)
+      js_files_original(*args).delete_if {|f| f =~ /jquery\.mobile/}
+    end
+    
+    alias_method :js_files_original, :js_files
+    alias_method :js_files, :js_files_without_jquery_mobile
   end
 end
 
