@@ -16,9 +16,10 @@ PK.Login = do ($) ->
   
   setupIframe = () ->
     # write the start splash-page into the iframe, which gets it going 
-    $("#authIframe").attr("src", "about:blank;")[0].contentDocument.write JST.google_start(
-      loginURL: loginURL
-    )
+    $("#authIframe")
+      .attr("src", "about:blank;")[0]
+      .contentDocument.write JST.google_start(loginURL: loginURL)
+    
     
   init = (url) ->
     loginURL = url
