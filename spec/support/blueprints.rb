@@ -29,3 +29,10 @@ Contact.blueprint {
   created_at { Time.now }
   updated_at { Time.now }
 }
+
+Trip.blueprint {
+  location_name { Faker::Address.city }
+  description { "My trip to #{self.location_name}" }
+  start_date { Time.now }
+  status { :active }
+}
