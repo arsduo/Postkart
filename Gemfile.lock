@@ -20,7 +20,6 @@ GEM
       Platform (>= 0.4.0)
       open4
     Platform (0.4.0)
-    SystemTimer (1.2.3)
     ZenTest (4.5.0)
     abstract (1.0.0)
     actionmailer (3.0.7)
@@ -188,7 +187,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  SystemTimer (>= 1.2.3)
   ZenTest
   autotest
   autotest-rails

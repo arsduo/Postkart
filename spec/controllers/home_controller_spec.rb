@@ -70,7 +70,7 @@ describe HomeController do
         get 'user_data'        
       end
       
-      it "sends the the contacts' client_json down as contactsByName" do
+      it "sends the the trips' client_json down as tripsByDate" do
         trips = [Trip.make, Trip.make]
         @user.stubs(:trips).returns(trips)
         trips.stubs(:asc).returns(trips)
@@ -78,7 +78,7 @@ describe HomeController do
 
         get 'user_data'
         # we have to parse like this to eliminate objects like BSON IDs
-        JSON.parse(response.body)["trips"].should == JSON.parse(trips.map {|t| t.client_json}.to_json)
+        JSON.parse(response.body)["tripsByDate"].should == JSON.parse(trips.map {|t| t.client_json}.to_json)
       end
     end
   end
