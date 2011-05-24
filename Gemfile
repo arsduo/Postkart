@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '~> 3.0'
 gem 'rack', '1.2.1'
+gem 'rake', '~> 0.8.7'
 gem 'slim'
 gem 'typhoeus'
 gem 'json'
