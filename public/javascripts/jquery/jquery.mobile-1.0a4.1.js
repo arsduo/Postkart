@@ -1614,6 +1614,10 @@ $.widget( "mobile.page", $.mobile.widget, {
 	},
 
 	_create: function() {
+	  this.enhance();
+  },
+  
+  enhance: function() {
 		var $elem = this.element,
 			o = this.options;
 
@@ -4573,6 +4577,7 @@ $.widget( "mobile.listview", $.mobile.widget, {
 			.addClass( "ui-listview" );
 		
 		if ( o.inset ) {
+      console.log("adding classes")
 			$list.addClass( "ui-listview-inset ui-corner-all ui-shadow" );
 		}
 
@@ -5104,6 +5109,14 @@ $.fn.grid = function(options){
 			else {
 				$window.trigger( "hashchange", [ true ] );
 			}
+		},
+		
+		// reenhance the current page, if it's changed
+		reenhance: function() {
+		  var page = $.mobile.urlHistory.getActive();
+		  if (page) {
+		    page.page.page("enhance");  // ha!
+		  }
 		}
 	});
 
