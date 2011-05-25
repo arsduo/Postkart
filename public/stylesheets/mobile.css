@@ -12,6 +12,11 @@ shouldn't be many, since we have jQuery UI doing much of the work
   margin-bottom: 15px;
 }
 
-.sendCardHolder .ui-icon {
-  display: none;
+span.ui-icon-ajax-load {
+  background: none;
 }
+
+.loading .ui-icon-ajax-load {
+  background: url('/images/ajax-load.gif') no-repeat;
+}
+

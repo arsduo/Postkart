@@ -4577,7 +4577,6 @@ $.widget( "mobile.listview", $.mobile.widget, {
 			.addClass( "ui-listview" );
 		
 		if ( o.inset ) {
-      console.log("adding classes")
 			$list.addClass( "ui-listview-inset ui-corner-all ui-shadow" );
 		}
 

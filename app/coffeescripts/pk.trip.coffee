@@ -22,7 +22,7 @@ PK.Trip = do ($) ->
     contactDictionary = contacts
     recipients = trip.recipients
     listHTML = for contact in (PK.UserData.contactsByName || [])
-      PK.render("trip_contact", {contact: contact, sent: false, text: text}) unless contact._id in recipients
+      PK.render("trip_contact", {contact: contact, sent: false, text: text})
     
     if listHTML.length > 0
       $("#tripContacts").append(listHTML.join(""))
@@ -41,9 +41,13 @@ PK.Trip = do ($) ->
       $("#tripRecipients").append(PK.render("trip_no_contacts"))
   
   sendCard = () ->
-    console.log("Sending!")
-    unless PK.mobile
-      link = $(this).button({label: "sending...", disabled: true}).addClass("sending").removeClass("sent").removeClass("errored")
+    link = $(this).addClass("sending").removeClass("sent").removeClass("errored")
+    # disable the link and update its text
+    if PK.mobile 
+      # also update the button class to show the ajax spinner
+      link.html(text.sending).unbind("click").closest(".ui-btn").addClass("loading")
+    else 
+      link.button({label: text.sending, disabled: true})
     
     $.ajax({
       url: "/trip/send_card"
@@ -60,20 +64,33 @@ PK.Trip = do ($) ->
 
   cardSent = (results, link) ->
     if results.result
-      link.button("option", "label", text.sent).removeClass("sending").addClass("sent")
-      # get the parent list item
+      # need to update flags to download new data
       contactID = link.data("contact-id")
       contact = contacts[contactID]
+      trip.recipients.push(contactID)
 
-      contactNode = link.closest("li")
-      contactNode.append(PK.render("trip_card_sent", {text: text, contact: contact}))
-      
-      setTimeout(() -> 
-        contactNode.slideUp()
-        # need to update trip in localStorage
-        trip.recipients.push(contactID)
-        $(PK.render("trip_contact", {contact: contacts[contactID], sent: true, text: text})).hide().appendTo("#recipients").slideDown()
-      , trip.animationInterval)
+      link.removeClass("sending").addClass("sent")
+      message = $("<li>#{PK.render("trip_card_sent", {text: text, contact: contact})}</li>");
+      newHTML = $(PK.render("trip_contact", {contact: contact, sent: true, text: text}))
+      if PK.mobile 
+        # add the new sent contact to the sent list, and refresh that
+        $("#tripRecipients").append(newHTML).listview('refresh')
+
+        # add the sent notice to the list, and refresh it
+        link.closest("li").after(message).click(sendCard);
+        link.html(text.sent).closest("ul").listview("refresh")
+        link.closest(".ui-btn").removeClass("loading")
+        page = link.closest(".ui-page").bind "pagehide.removeMessage", () -> 
+          message.remove()
+          page.unbind(".removeMessage")
+        
+      else
+        link.button("option", "label", text.sent)
+        contactNode = link.closest("li")
+        contactNode.append(PK.render("trip_card_sent", {text: text, contact: contact}))
+        setTimeout(() -> 
+          newHTML.hide().appendTo("#tripRecipients").slideDown()
+        , trip.animationInterval)
       
   cardError = () ->
     alert "Error!"
