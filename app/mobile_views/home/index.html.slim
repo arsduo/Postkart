@@ -1,8 +1,0 @@
-h1
-  - if current_user
-      Hi, #{current_user.name}!
-  - else
-    | Welcome to Postkart!
-
-= link_to "Login with Google", google_auth_url, :"data-role" => "button"
-
