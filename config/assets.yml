@@ -7,6 +7,7 @@ javascripts:
   core: # every page should have these
     - public/javascripts/jquery/jquery-1.6.js
     - public/javascripts/rails.js
+    - public/javascripts/compiled/pk.js
     # localstorage
     - public/javascripts/store.js
     - public/javascripts/compiled/pk.userdata.js
@@ -20,7 +21,11 @@ javascripts:
   mobile_common:
     - public/javascripts/jquery/jquery.mobile-1.0a4.1.js
     
-  google_auth: # note: this is also included in google_start.jst
+  home: 
+    - public/javascripts/compiled/pk.triplist.js
+    - app/views/home/trip_list.jst
+    
+  google_auth:
     - public/javascripts/libraries/jquery.trafficlight.js
     - public/javascripts/pk.google_auth.js
 
@@ -35,7 +40,8 @@ stylesheets:
   browser_common: 
     - public/stylesheets/jquery-ui-1.8.11.css
 
-  mobile_common:   
+  mobile_common:
+  - public/stylesheets/mobile.css
   - public/stylesheets/jquery.mobile-1.0a4.1.css
 
   auth_iframe:

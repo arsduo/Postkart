@@ -1,11 +1,12 @@
+<% var len = contact.addresses.length; %>
 <li id="contact<%= contact._id %>" class="<%= sent ? 'contactSent' : 'contactUnsent' %>">
   <span class="name"><%= contact.name %></span>
-  <% if (!sent) { %>  
+  <% if (!sent) { %>
     <a href="#" class="sendCard" data-contact-id="<%= contact._id %>"><%= text.send %></a>
   <% } %>
-  <ul class="addresses">
-    <% for (var j = 0, len = contact.addresses.length; j < len; j++) { %>
+  <ul class="addresses" data-role="listview">
+    <% for (var j = 0; j < len; j++) { %>
       <li><%= contact.addresses[j].replace(/[\\n,]+/g, ", ") %></li>
     <% } %>
-  </ul>
+  </ul>  
 </li>
