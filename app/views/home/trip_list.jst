@@ -1,0 +1,12 @@
+<ul class="tripList" data-role="listview" data-theme="g" data-inset="true">
+  <li data-role="list-divider">Trips</li>
+  <% for (var i = 0, trip; trip = trips[i]; i++) { %>
+    <li>
+      <a href="/trip/view?id=<%= trip._id %>">
+        <div class="name"><%= trip.description %></div>
+        <div class="info"><%= len = trip.recipients.length %> card<%= len != 1 ? "s" : "" %> sent</div>
+      </a>
+      <%/*%><a href="#" class="delete ui-li-aside" data-trip-id="<%= trip._id %>">delete</a><%*/%>
+    </li>
+  <% } %>
+</ul>
