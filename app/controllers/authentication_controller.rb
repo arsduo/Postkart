@@ -1,11 +1,8 @@
 class AuthenticationController < ApplicationController
-  layout "auth_iframe"
+  
+  layout :set_layout
   
   before_filter :ensure_signed_in, :only => :google_populate_contacts
-  
-  def google_start
-    # kick off the process so there's some content while Google is loading
-  end
   
   def google_callback
   end
@@ -59,6 +56,11 @@ class AuthenticationController < ApplicationController
   end
   
   private 
+  
+  def set_layout 
+    # browser uses dialogs, but mobile is all inline
+    mobile_mode? ? "application" : "auth_iframe"
+  end
   
   # invalid tokens
   @@invalid_tokens = 0

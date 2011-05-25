@@ -16,6 +16,7 @@ describe Trip do
   it { should have_field(:start_date) }
   it { should have_field(:end_date) }
   it { should have_field(:status, :type => Symbol) }
+  it { should have_field(:recipients, :type => Array) }
   
   # associations
   it { should be_referenced_in(:user) }
@@ -28,4 +29,16 @@ describe Trip do
   it { should validate_inclusion_of(:status, :in => Trip::STATUSES) }
 
   
+  describe ".client_json" do
+    it "generates a hash with only :_id, :description, :status, :recipients, :created_at.to_i" do
+      t = Trip.make(:recipients => ["bar", :baz])
+      t.stubs(:_id).returns("foo")
+      json = t.client_json
+      json["_id"].should == t._id.to_s
+      json["description"].should == t.description
+      json["status"].should == t.status
+      json["recipients"].should == t.recipients
+      json["created_at"].should == t.created_at.to_i
+    end
+  end
 end

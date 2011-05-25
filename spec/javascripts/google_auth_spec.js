@@ -35,6 +35,9 @@ describe("GoogleAuth", function() {
         // neuter Ajax requests
         spyOn($, "ajax");
 
+        // keep $.mobile from freaking out
+        $.mobile.hashListeningEnabled = false;
+
         // mock up the look of the google_auth page
         hash = {access_token: "foobar", expires: '3600'};
         hash_string = "access_token=foobar&expires=3600";
@@ -42,6 +45,10 @@ describe("GoogleAuth", function() {
 
         auth.init();
         steps = trafficlightNode.trafficlight("option", "steps");
+      })
+      
+      afterEach(function() {
+        $.mobile.hashListeningEnabled = true;
       })
       
       it("sets up trafficlight on the appropriate note", function() {
@@ -368,16 +375,47 @@ describe("GoogleAuth", function() {
         })
       })
 
-      it("does not call reloadOnComplete immediately", function() {
-        auth.init();
-        expect(auth.reloadOnComplete).not.toHaveBeenCalled()
+      describe("on desktops", function() {
+        it("does not call reloadOnComplete immediately", function() {
+          auth.init();
+          expect(auth.reloadOnComplete).not.toHaveBeenCalled()
+        })
+
+        it("calls reloadOnComplete after a short delay", function() {
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect(auth.reloadOnComplete).toHaveBeenCalled()
+          })
+        })        
       })
       
-      it("calls reloadOnComplete after a short delay", function() {
-        auth.init();
-        waits(auth.reactionTime + 1);
-        runs(function() {
-          expect(auth.reloadOnComplete).toHaveBeenCalled()
+      describe("on mobile", function() {
+        beforeEach(function() {
+          PK.mobile = true;
+          spyOn($.mobile, "changePage");
+        })
+        
+        afterEach(function() {
+          PK.mobile = false;
+          // keep this off
+          $.mobile.hashListeningEnabled = false;
+        })
+        
+        it("enables hashListeningEnabled", function() {
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect($.mobile.hashListeningEnabled).toBe(true);            
+          })
+        })
+
+        it("loads the root page through jQuery mobile", function() {
+          auth.init();
+          waits(auth.reactionTime + 1);
+          runs(function() {
+            expect($.mobile.changePage).toHaveBeenCalledWith("/");
+          })
         })
       })
     })

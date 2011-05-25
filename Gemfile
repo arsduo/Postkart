@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'rails', '~> 3.0'
 gem 'rack', '1.2.1'
+gem 'rake', '~> 0.8.7'
 gem 'slim'
 gem 'typhoeus'
 gem 'json'
@@ -10,7 +11,7 @@ gem 'jammit'
 
 # offline and mobile
 gem 'rack-offline'
-gem 'mobile-fu'
+gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 
 # Authentication
 gem "devise", "~> 1.2"
@@ -32,6 +33,8 @@ gem 'exception_notification', :require => 'exception_notifier'
 unless RUBY_VERSION =~ /^1\.9/
   gem 'SystemTimer', '>= 1.2.3'
 end
+
+gem 'wirble'
 
 group :development do
   # performance!

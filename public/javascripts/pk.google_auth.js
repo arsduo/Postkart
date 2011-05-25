@@ -1,3 +1,8 @@
+// note: to work in the mobile space
+// this requires $.mobile.hashListeningEnabled to be set to false
+// on the target page (using the mobileinit event)
+// onload here is too late, since this depends on $.widget in $.mobile
+
 var PK = PK || {};
 
 PK.GoogleAuth = (function($, undefined) {
@@ -22,8 +27,8 @@ PK.GoogleAuth = (function($, undefined) {
       errorNode.html(text).insertAfter(stepElement).slideDown();
     }
     var hideError = function() { errorNode.slideUp(); }
-    var errorDetails = errorData.details;
-	
+    var errorDetails = errorData.details || {};
+
 	  // special case errors first
     if (errorData.text === "timeout" || errorDetails.timeout) {
       if (!errorCount) {
@@ -118,7 +123,14 @@ PK.GoogleAuth = (function($, undefined) {
           successNode.removeClass("trafficlight-todo").addClass("trafficlight-doing");
           setTimeout(function() {
             successNode.removeClass("trafficlight-doing").addClass("trafficlight-done");
-            PK.GoogleAuth.reloadOnComplete();
+            if (PK.mobile) {
+              // renable hash listening
+              $.mobile.hashListeningEnabled = true;
+              $.mobile.changePage("/");
+            }
+            else {
+              PK.GoogleAuth.reloadOnComplete();
+            }
           }, auth.reactionTime);  
         }
       })

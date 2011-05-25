@@ -7,6 +7,7 @@ PK.UserData = do ($) ->
   contactsKey = "contacts"
   timestampKey = "mostRecentUpdate"
   contactsByNameKey = "contactsByName"
+  tripsByDateKey = "tripsByDate"
   loadingNewData = false
   mostRecentUpdate = null
   isStale = false
@@ -32,6 +33,8 @@ PK.UserData = do ($) ->
     delete userdata.user
     delete userdata.contacts
     delete userdata.contactsByName
+    delete userdata.trips
+    delete userdata.tripsByDate
     mostRecentUpdate = null
 
   # this requires some explanation:
@@ -39,29 +42,60 @@ PK.UserData = do ($) ->
   # this is more compact, and also avoids needing to sort by name (if we'd only stored the hash)
   # we can't store both, since then it would take 2x memory after load from localStorage
   # (since localStorage's string storage loses the fact the objects are shared)
-  buildContactDictionary = (contactsByName) ->
+  buildDictionary = (items = []) ->
     # use the ByName array to create a dictionary of contacts
     # which we need to identify contacts for trips, recs, etc.
     # anywhere where we're not just listing out contacts
-    contactDictionary = {}
-    for contact in contactsByName
-      id = contact._id
-      contactDictionary[id] = contact    
-    userdata.contacts = contactDictionary
-
+    # TODO consider whether we can run this just for updates, and how to fit that in
+    dictionary = {}
+    for item in items
+      id = item._id
+      dictionary[id] = item    
+    dictionary
+  
+  updateAndSort = (originalList = [], itemDictionary = {}, updates = [], key) ->
+    newItems = []
+    if itemDictionary
+      # if we have existing items loaded, then 
+      # we need to separate out the new items from the updated ones
+      # since items come down as an array of both new records and updates
+      newItems = []
+      for item in updates
+        if entry = itemDictionary[item._id]
+          # we have a match!
+          $.extend(entry, item)
+        else
+          newItems.push(item)
+  
+      # now, we know which records are new, and have updated any old ones
+      # so add the new ones to the contact list, sorted by last name
+      originalList.concat(newItems).sort((i1, i2) -> if i1[key] < i2[key] then -1 else 1)                  
+    else
+      # we didn't have any previously loaded, so just import the new stuff whole
+      updates
+  
   storeUser = (results) ->
     if user = results.user
       # load the user, his/her contacts, and update the timestamps
       userdata.user = user
-      contactsByName = userdata.contactsByName = results.contactsByName
-      mostRecentUpdate = results.mostRecentUpdate      
-      buildContactDictionary(contactsByName)
+
+      # we incrementally update users and trips, since we only send down changed records
+      # trips are sorted by date
+      tripsByDate = userdata.tripsByDate = updateAndSort(userdata.tripsByDate, userdata.trips, results.tripsByDate, "created_at")
+      userdata.trips = buildDictionary(tripsByDate)
+
+      contactsByName = userdata.contactsByName = updateAndSort(userdata.contactsByName, userdata.contacts, results.contactsByName, "last_name")
+      # now, finally, assemble/update the contact dictionary
+      userdata.contacts = buildDictionary(contactsByName)  
+
+      mostRecentUpdate = results.mostRecentUpdate
 
       # store the data to local storage
       store.set(userKey, user)
       store.set(contactsByNameKey, contactsByName)
+      store.set(tripsByDateKey, tripsByDate)
       store.set(timestampKey, mostRecentUpdate)
-      
+    
       # loading is done!
       isStale = false
       loadingNewData = false
@@ -88,6 +122,8 @@ PK.UserData = do ($) ->
     $("body").trigger(userLoadStartEvent)
     $.ajax({
       url: "/home/user_data",
+      params:
+        since: mostRecentUpdate
       method: "get",
       success: storeUser,
       error: error
@@ -101,9 +137,15 @@ PK.UserData = do ($) ->
       # always load local data if available
       # so we can use something even if the call fails
       userdata.user = user
+      
+      tripsByDate = userdata.tripsByDate ?= store.get(tripsByDateKey)
+      userdata.trips = buildDictionary(tripsByDate)
+      
       contactsByName = userdata.contactsByName ?= store.get(contactsByNameKey)
+      userdata.contacts = buildDictionary(contactsByName)
+      
       mostRecentUpdate ?= store.get(timestampKey)      
-      buildContactDictionary(contactsByName)
+      
       # assume data is stale
       # if not, it'll be automatically cleared in userDataIsAvailable
       isStale = true

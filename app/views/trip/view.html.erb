@@ -1,17 +1,28 @@
-<%= include_stylesheets :trip %>
+<%= include_stylesheets :trip unless mobile_mode? %>
 <h1 id="tripName"><%= @trip.location_name%></h1>
 
-<h3>Mailed Cards</h3>
-<ul id="recipients" class="contactList"></ul>
+<% unless mobile_mode? %>
+  <h3>Mailed Cards</h3>
+<% end %>
+<ul id="tripRecipients" class="contactList" data-role="listview">
+  <% if mobile_mode? %>
+    <li data-role="list-divider">Mailed Cards</li>
+  <% end %>
+</ul>
 
-<h3>Send a card!</h3>
-<ul id="contacts" class="contactList"></ul>
+<% unless mobile_mode? %>
+  <h3>Send a Card</h3>
+<% else %>
+  <%# we create a separate list so we can place the header above the search bar%>
+  <ul id="tripContactsHeader" data-role="listview">
+    <li data-role="list-divider">Send a Card</li>
+  </ul>
+<% end %>
+
+<ul id="tripContacts" class="contactList" data-role="listview" data-filter="true" data-filter-placeholder="Search contacts...">  
+</ul>
 
 <%= include_javascripts :trip %>
 <script>
-  PK.Trip.init({
-    _id: "<%= @trip._id %>",
-    location_name: "<%= @trip.location_name %>",
-    recipients: <%= @mailings.collect(&:contact_id).to_json.html_safe %>
-  })
+  PK.Trip.init({_id: "<%= @trip._id %>"})
 </script>

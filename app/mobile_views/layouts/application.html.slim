@@ -1,0 +1,20 @@
+doctype html
+
+html
+  head
+    title Postkart
+    = csrf_meta_tag 
+    = include_stylesheets :core, :mobile_common 
+    // scripts
+    script var PK = PK || {}; PK.mobile = true;
+    = include_javascripts :core
+    = yield :header_scripts
+    = include_javascripts :mobile_common
+    
+  body
+    div data-role="page"
+      div data-role="content"
+        = yield 
+    
+      - if current_user
+        script PK.UserData.loadUserData(#{params[:reloadContacts] ? -1 : current_user.contacts_updated_at.to_i})

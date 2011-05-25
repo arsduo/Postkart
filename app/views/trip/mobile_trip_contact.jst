@@ -1,0 +1,19 @@
+<li id="contact<%= contact._id %>" class="<%= sent ? 'contactSent' : 'contactUnsent' %>">
+  <span class="name"><%= contact.name %></span>
+  <ul data-role="listview">
+    <li data-role="fieldcontain" class="sendCardHolder">
+      <a class="sendCard" data-contact-id="<%= contact._id %>"  data-iconpos="right" data-icon="ajax-load">
+        <%= text["send" + (sent ? 'Again' : '')] %>
+      </a>
+    </li>
+    <% var len = contact.addresses.length; %>
+    <li data-role="list-divider">Address<%= len > 1 ? "es" : "" %></li>
+    <% if (len === 0) { %>
+      <li>No addresses on file!</li>
+    <% } else { %>    
+      <% for (var j = 0; j < len; j++) { %>
+        <li><%= contact.addresses[j].replace(/[\\n,]+/g, ", ") %></li>
+      <% } %>
+    <% } %>
+  </ul>  
+</li>

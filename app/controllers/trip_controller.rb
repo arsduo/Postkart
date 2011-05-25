@@ -40,6 +40,13 @@ class TripController < ApplicationController
           :user => current_user,
           :date => Time.now
         )
+        
+        # also store the contact's ID on the trip model
+        # so that we have easy reference to it
+        # when we send down cached data to the user in HomeController
+        trip.recipients << contact._id
+        trip.save
+        
         @result = true
       end
     end
