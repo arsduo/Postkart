@@ -1,6 +1,8 @@
 // mock JST
 JST = {
-  google_start: function() {}
+  google_start: function() {},
+  trip_contact: function() {},
+  mobile_trip_contact: function() {}
 }
 
 // mock jQuery mobile
