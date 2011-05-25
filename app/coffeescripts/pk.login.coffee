@@ -10,7 +10,8 @@ PK.Login = do ($) ->
     $("#authIframeHolder").dialog({
       dialogClass: "authDialog",
       width: 516,
-      height: 385
+      height: 390
+      minHeight: 390
     })
     setupIframe()
   
@@ -18,7 +19,7 @@ PK.Login = do ($) ->
     # write the start splash-page into the iframe, which gets it going 
     $("#authIframe")
       .attr("src", "about:blank;")[0]
-      .contentDocument.write JST.google_start(loginURL: loginURL)
+      .contentDocument.write PK.render("google_start", {loginURL: loginURL})
     
     
   init = (url) ->

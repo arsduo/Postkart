@@ -1,4 +1,4 @@
-describe "PK.UserData", () ->
+describe "PK.Login", () ->
   it "exists", () ->
     expect(PK.Login).toBeDefined()
   
@@ -24,9 +24,10 @@ describe "PK.UserData", () ->
       expect(dialog.dialog("isOpen")).toBe(true)
       
     it "renders the JST google_start template", () ->
-      spyOn(JST, "google_start")
+      spyOn(PK, "render")
       PK.Login.init()
       link.click()
       # getting the value of the inserted content seems to be unreliable
       # so we'll proxy that (not well) by just making sure the content was rendered
-      expect(JST.google_start).toHaveBeenCalled()
+      expect(PK.render).toHaveBeenCalled()
+      expect(PK.render.mostRecentCall.args[0]).toBe("google_start")

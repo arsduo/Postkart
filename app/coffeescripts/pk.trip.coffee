@@ -2,10 +2,11 @@ PK ?= {}
 
 # define a handler for Trip management
 PK.Trip = do ($) ->
-  tripData = contacts = null
+  tripData = trip = contacts = null
   
   text = 
     send: "send card"
+    sendAgain: "send another card"
     sending: "sending"
     sent: "sent!"
     error: "error!"
@@ -15,38 +16,41 @@ PK.Trip = do ($) ->
     contacts = PK.UserData.contacts
     renderUnsentContacts()
     renderSentContacts()
+    $(".sendCard").button().click(sendCard)
     
   renderUnsentContacts = () ->
     contactDictionary = contacts
-    recipients = tripData.recipients
+    recipients = trip.recipients
     listHTML = for contact in (PK.UserData.contactsByName || [])
-      JST.trip_contact({contact: contact, sent: false, text: text}) unless contact._id in recipients
+      PK.render("trip_contact", {contact: contact, sent: false, text: text}) unless contact._id in recipients
     
     if listHTML.length > 0
-      $("#contacts").html(listHTML.join(""))
+      $("#tripContacts").append(listHTML.join(""))
     else
-      $("#contacts").html(JST.trip_no_contacts())
+      $("#tripContacts").append(PK.render("trip_no_contacts"))
     
   renderSentContacts = () ->
     contactDictionary = contacts
-    recipients = tripData.recipients
+    recipients = trip.recipients
     recipientHTML = for recipient in recipients
-      JST.trip_contact({contact: r, sent: true, text: text}) if r = contactDictionary[recipient]      
+      PK.render("trip_contact", {contact: r, sent: true, text: text}) if r = contactDictionary[recipient]      
     
     if recipientHTML.length > 0
-      $("#recipients").html(recipientHTML.join(""))
-      $(".sendCard").button().click(sendCard)
+      $("#tripRecipients").append(recipientHTML.join(""))
     else
-      $("#recipients").html(JST.trip_no_contacts())
+      $("#tripRecipients").append(PK.render("trip_no_contacts"))
   
   sendCard = () ->
-    link = $(this).button({label: "sending...", disabled: true}).addClass("sending").removeClass("sent").removeClass("errored")
+    console.log("Sending!")
+    unless PK.mobile
+      link = $(this).button({label: "sending...", disabled: true}).addClass("sending").removeClass("sent").removeClass("errored")
+    
     $.ajax({
       url: "/trip/send_card"
       type: "post"
       data:
         contact_id: link.data("contact-id")
-        trip_id: tripData._id
+        trip_id: trip._id
       success: (results) -> cardSent(results, link)
       error: (results) -> cardError(results, link)
     })
@@ -62,23 +66,27 @@ PK.Trip = do ($) ->
       contact = contacts[contactID]
 
       contactNode = link.closest("li")
-      contactNode.append(JST.trip_card_sent({text: text, contact: contact}))
+      contactNode.append(PK.render("trip_card_sent", {text: text, contact: contact}))
       
       setTimeout(() -> 
         contactNode.slideUp()
-        tripData.recipients.push(contactID)
-        $(JST.trip_contact({contact: contacts[contactID], sent: true, text: text})).hide().appendTo("#recipients").slideDown()
+        # need to update trip in localStorage
+        trip.recipients.push(contactID)
+        $(PK.render("trip_contact", {contact: contacts[contactID], sent: true, text: text})).hide().appendTo("#recipients").slideDown()
       , trip.animationInterval)
       
   cardError = () ->
     alert "Error!"
     
   init = (tripInfo) ->
-    # immediately render the trip name, etc.
+    # render everything as soon as we can
     tripData = tripInfo
-    $("#tripName").html(tripData.location_name)
-    $("body").bind(PK.UserData.userLoadSuccessEvent, renderList)
+    $("body").bind PK.UserData.userLoadSuccessEvent, () -> 
+      trip = PK.UserData.trips[tripData._id]
+      $("#tripName").html(trip.description)
+      renderList()
 
-  trip =
+  {
     init: init
     animationInterval: 2500
+  } 
