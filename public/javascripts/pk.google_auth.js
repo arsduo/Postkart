@@ -139,7 +139,8 @@ PK.GoogleAuth = (function($, undefined) {
     // these are separated out mainly to allow us to test
     // since we can't stop browser functions
     reloadOnComplete: function() {
-      window.location.reload()
+      window.parent.location.reload()
+      window.close()
     },
     
     restart: function() {
