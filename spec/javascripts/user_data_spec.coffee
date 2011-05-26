@@ -191,9 +191,9 @@ describe "PK.UserData", () ->
           PK.UserData.loadUserData(remoteUpdateTime);
       
         it "clears the loading flag", () ->
-          previousAvailability = PK.UserData.isDataAvailable()
           PK.UserData.loadUserData(remoteUpdateTime);
-          expect(PK.UserData.isDataAvailable()).toBe(previousAvailability)
+          # data will be available based on whether there's data, regardless of loading status
+          expect(PK.UserData.isDataAvailable()).toBe(!!(store.get("user") || PK.UserData.user))
         
         if includeStale # doesn't make sense for the "if no data locally available" tests
           describe "when stale data is around", () ->

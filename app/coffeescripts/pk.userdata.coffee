@@ -21,7 +21,7 @@ PK.UserData = do ($) ->
     # we use the stored time (= most recent update for this user) as a proxy
     # for whether data has been stored in localStorage
     # this fn is useful to have around, even though it's mostly used in testing ATM
-    !loadingNewData && !!(userdata.user || store.get(userKey))
+    !loadingNewData && !!userdata.user
 
   whenAvailable = (fn) ->
     if isDataAvailable() then fn() else $("body").bind(userLoadSuccessEvent, fn)
