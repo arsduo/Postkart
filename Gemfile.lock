@@ -218,6 +218,6 @@ DEPENDENCIES
   rspec-rails
   ruby-prof
   slim
-  therubyracer (= 0.8.1)
+  therubyracer
   typhoeus
   wirble

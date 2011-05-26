@@ -17,7 +17,7 @@ gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 gem "devise", "~> 1.2"
 
 # CoffeeScript
-gem "therubyracer", "0.8.1"
+gem "therubyracer"
 gem "coffee-script"
 gem "barista"
 
