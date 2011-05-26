@@ -42,6 +42,15 @@ describe "PK.UserData", () ->
       PK.UserData.loadUserData(0)
       expect($.ajax).toHaveBeenCalled()
   
+  describe "cardSent", () ->
+    it "adds the recipient to the trip's list", () ->
+      trip = {_id: "abc", recipients: []}
+      contact = {_id: "def"}
+      PK.UserData.tripsByDate = [trip]
+      PK.UserData.cardSent(trip, contact)
+      PK.UserData.tripsByDate[0].recipients[0].should == contact._id
+  
+
   describe "loadUserData", () ->
     # common functions
     # remoteUpdateTime is the timestamp given on page load to see if data is stale

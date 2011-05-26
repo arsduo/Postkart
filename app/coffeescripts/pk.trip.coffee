@@ -67,7 +67,7 @@ PK.Trip = do ($) ->
       # need to update flags to download new data
       contactID = link.data("contact-id")
       contact = contacts[contactID]
-      trip.recipients.push(contactID)
+      PK.UserData.cardSent(trip, contact)
 
       link.removeClass("sending").addClass("sent")
       message = $("<li>#{PK.render("trip_card_sent", {text: text, contact: contact})}</li>");

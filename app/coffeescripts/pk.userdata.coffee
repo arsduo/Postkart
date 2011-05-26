@@ -102,7 +102,12 @@ PK.UserData = do ($) ->
       userDataIsAvailable()
     else
       error(null, results.error)
-    
+  
+  cardSent = (trip, contact) -> 
+    # add the recipient to the trip and store it
+    trip.recipients.push(contact._id)
+    store.set(tripsByDateKey, userdata.tripsByDate)
+  
   userDataIsAvailable = () ->
     # fire a custom jQuery event on the body
     $("body").trigger(userLoadSuccessEvent)
@@ -166,4 +171,5 @@ PK.UserData = do ($) ->
     userLoadSuccessEvent: userLoadSuccessEvent 
     userLoadFailedEvent: userLoadFailedEvent
     flush: flush
+    cardSent: cardSent
     
