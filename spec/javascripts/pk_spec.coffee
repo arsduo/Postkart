@@ -44,6 +44,19 @@ describe "PK functions", () ->
         PK.render("google_start")
         expect(JST.google_start).toHaveBeenCalled();
     
+      it "throws an exception if the template doesn't exist", () ->
+        templateName = "foobar"
+        expect(() -> PK.render(templateName)).toThrow()
+
+      it "includes the template name in the exception if template doesn't exist", () ->
+        templateName = "foobar"
+        message = ""
+        try 
+          PK.render(templateName)
+        catch e
+          message = e
+        expect(message).toMatch(new RegExp(templateName))
+        
     it "wraps the arguments in an array if they're not", () ->
       args = {x: 2}
       spyOn(JST, "google_start")
