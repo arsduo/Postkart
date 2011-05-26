@@ -3,24 +3,11 @@ PK ?= {}
 # define our login method
 PK.Login = do ($) ->
   login = {}
-  loginURL = null
+  loginURL = loginWindow = null
 
-  openLoginDialog = (loginURL) ->
-    # open up a dialog box for the authentication flow
-    $("#authIframeHolder").dialog({
-      dialogClass: "authDialog",
-      width: 516,
-      height: 390
-      minHeight: 390
-    })
-    setupIframe()
-  
-  setupIframe = () ->
-    # write the start splash-page into the iframe, which gets it going 
-    $("#authIframe")
-      .attr("src", "about:blank;")[0]
-      .contentDocument.write PK.render("google_start", {loginURL: loginURL})
-    
+  openLoginDialog = () ->
+    loginWindow = window.open("about:blank", 'pk.login', 'width=516,height=390,toolbar=no,location=yes,directories=no,menubar=no')
+    loginWindow.document.write PK.render("google_start", {loginURL: loginURL})
     
   init = (url) ->
     loginURL = url
@@ -28,5 +15,4 @@ PK.Login = do ($) ->
   
   login = 
     openLoginDialog: openLoginDialog
-    setupIframe: setupIframe
     init: init
