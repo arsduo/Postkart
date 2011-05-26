@@ -10,17 +10,15 @@ class TripController < ApplicationController
       )
       
       @trip.save
+      
+      # update the user so they get updates
+      current_user.update_attribute(:trips_updated_at, trip.updated_at)
     end
     redirect_to root_url
   end
 
   def view
-    if current_user && @trip = Trip.where(:_id => params[:id]).first
-      # fetch this to a variable so we don't have to make two trips to the db
-      @mailings = @trip.mailings
-    else
-      redirect_to root_url
-    end    
+    redirect_to root_url unless current_user && @trip = Trip.where(:_id => params[:id]).first
   end
   
   def send_card 
@@ -46,6 +44,10 @@ class TripController < ApplicationController
         # when we send down cached data to the user in HomeController
         trip.recipients << contact._id
         trip.save
+        
+        # update the user so they get updates
+        current_user.update_attribute(:trips_updated_at, trip.updated_at)
+        
         
         @result = true
       end

@@ -16,6 +16,8 @@ describe User do
   it { should have_field(:name) }
   it { should have_field(:pic) }
   it { should have_field(:accepted_terms, :type => Boolean) }
+  it { should have_field(:contacts_updated_at, :type => DateTime) }
+  it { should have_field(:trips_updated_at, :type => DateTime) }
   
   # associations
   it { should embed_many(:remote_accounts) }
@@ -30,6 +32,23 @@ describe User do
       json = u.client_json
       json["_id"] = u._id
       json["name"] = u.name
+    end
+  end
+  
+  describe ".last_update" do
+    it "returns contacts_updated_at.to_i if that's newer than trips_updated_at" do
+      u = User.make(:contacts_updated_at => Time.now, :trips_updated_at => Time.now - 10)
+      u.last_update.should == u.contacts_updated_at.to_i
+    end
+
+    it "returns contacts_updated_at.to_i if that's newer than trips_updated_at" do
+      u = User.make(:contacts_updated_at => Time.now - 10, :trips_updated_at => Time.now)
+      u.last_update.should == u.trips_updated_at.to_i
+    end
+
+    it "returns 0 if both are nil" do
+      u = User.make(:contacts_updated_at => nil, :trips_updated_at => nil)
+      u.last_update.should == 0
     end
   end
   

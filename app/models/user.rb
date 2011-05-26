@@ -12,6 +12,7 @@ class User
   field :pic
   field :accepted_terms, :type => Boolean
   field :contacts_updated_at, :type => DateTime
+  field :trips_updated_at, :type => DateTime
   
   # EMBEDS AND RELATIONSHIPS
   embeds_many :remote_accounts
@@ -26,6 +27,10 @@ class User
   def client_json
     # JSON sent down to the client for storage
     self.as_json :only => [:_id, :name]
+  end
+  
+  def last_update
+    [contacts_updated_at.to_i, trips_updated_at.to_i].max
   end
   
   def self.find_or_create_from_google_token(token)
