@@ -5,11 +5,11 @@ shouldn't be many, since we have jQuery UI doing much of the work
 
 /* TRIP */
 #tripRecipients {
-  margin-bottom: 35px;
+  margin-bottom: 16px;
 }
 
 #tripContactsHeader {
-  margin-bottom: 15px;
+  margin-bottom: 13px;
 }
 
 span.ui-icon-ajax-load {

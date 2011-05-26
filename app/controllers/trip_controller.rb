@@ -18,7 +18,8 @@ class TripController < ApplicationController
   end
 
   def view
-    redirect_to root_url unless current_user && @trip = Trip.where(:_id => params[:id]).first
+    redirect_to root_url and return unless current_user && @trip = Trip.where(:_id => params[:id]).first
+    @header_text = @trip.description
   end
   
   def send_card 
