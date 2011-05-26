@@ -2,7 +2,9 @@
 JST = {
   google_start: function() {},
   trip_contact: function() {},
-  mobile_trip_contact: function() {}
+  mobile_trip_contact: function() {},
+  trip_card_sent: function() {},
+  trip_no_contacts: function() {}
 }
 
 // mock jQuery mobile

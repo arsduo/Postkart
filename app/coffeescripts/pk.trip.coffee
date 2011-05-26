@@ -20,7 +20,6 @@ PK.Trip = do ($) ->
     
   renderUnsentContacts = () ->
     contactDictionary = contacts
-    recipients = trip.recipients
     listHTML = for contact in (PK.UserData.contactsByName || [])
       PK.render("trip_contact", {contact: contact, sent: false, text: text})
     
@@ -31,8 +30,7 @@ PK.Trip = do ($) ->
     
   renderSentContacts = () ->
     contactDictionary = contacts
-    recipients = trip.recipients
-    recipientHTML = for recipient in recipients
+    recipientHTML = for recipient in trip.recipients
       PK.render("trip_contact", {contact: r, sent: true, text: text}) if r = contactDictionary[recipient]      
     
     if recipientHTML.length > 0
@@ -98,11 +96,11 @@ PK.Trip = do ($) ->
   init = (tripInfo) ->
     # render everything as soon as we can
     tripData = tripInfo
-    $("body").bind PK.UserData.userLoadSuccessEvent, () -> 
+    PK.UserData.whenAvailable () -> 
       trip = PK.UserData.trips[tripData._id]
       $("#tripName").html(trip.description)
       renderList()
-
+    
   {
     init: init
     animationInterval: 2500
