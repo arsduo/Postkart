@@ -1,4 +1,8 @@
 describe "PK.Login", () ->
+  xit "is temporarily deactivated", () -> 
+  
+  return
+  
   it "exists", () ->
     expect(PK.Login).toBeDefined()
   

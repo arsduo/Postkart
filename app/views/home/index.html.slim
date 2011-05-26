@@ -24,9 +24,3 @@ h1
       = f.submit :"data-inline" => true
   
   script $(document).ready(function() { PK.TripList.init("#trips") })
-
-div id="authIframeHolder"
-  iframe id="authIframe" frameborder="0" src="about:blank"
-
-javascript:
-  PK.Login.init("#{google_auth_url}")
