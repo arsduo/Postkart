@@ -23,6 +23,9 @@ PK.UserData = do ($) ->
     # this fn is useful to have around, even though it's mostly used in testing ATM
     !loadingNewData && !!(userdata.user || store.get(userKey))
 
+  whenAvailable = (fn) ->
+    if isDataAvailable() then fn() else $("body").bind(userLoadSuccessEvent, fn)
+
   isDataStale = () ->
     isStale
 
@@ -36,6 +39,7 @@ PK.UserData = do ($) ->
     delete userdata.trips
     delete userdata.tripsByDate
     mostRecentUpdate = null
+    loadingNewData = false
 
   # this requires some explanation:
   # we store only the contacts ordered by name, rather than a hash key'd by ID
@@ -111,7 +115,7 @@ PK.UserData = do ($) ->
   userDataIsAvailable = () ->
     # fire a custom jQuery event on the body
     $("body").trigger(userLoadSuccessEvent)
-    
+        
   error = (jQevent, errorData) ->
     $("body").trigger(userLoadFailedEvent, errorData)
     # if we have stale data, announce it so we can make use of any cached data
@@ -167,6 +171,7 @@ PK.UserData = do ($) ->
     loadUserData: loadUserData
     isDataAvailable: isDataAvailable
     isDataStale: isDataStale
+    whenAvailable: whenAvailable
     userLoadStartEvent: userLoadStartEvent
     userLoadSuccessEvent: userLoadSuccessEvent 
     userLoadFailedEvent: userLoadFailedEvent

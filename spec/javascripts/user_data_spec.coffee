@@ -50,6 +50,32 @@ describe "PK.UserData", () ->
       PK.UserData.cardSent(trip, contact)
       PK.UserData.tripsByDate[0].recipients[0].should == contact._id
   
+  describe "whenAvailable", () ->
+    beforeEach () ->
+      PK.UserData.flush()
+      
+    it "fires the fn immediately if user data is available", () ->
+      # simulate user data
+      PK.UserData.user = {}
+      fired = false
+      PK.UserData.whenAvailable () ->
+        fired = true
+      expect(fired).toBe(true)
+
+    it "does not fire the fn immediately if user data is not available", () ->
+      # simulate user data
+      fired = false
+      PK.UserData.whenAvailable () ->
+        fired = true
+      expect(fired).toBe(false)
+
+    it "fires the fn on user data load if not available", () ->
+      # simulate user data
+      fired = false
+      PK.UserData.whenAvailable () ->
+        fired = true
+      $("body").trigger(PK.UserData.userLoadSuccessEvent)
+      expect(fired).toBe(true)
 
   describe "loadUserData", () ->
     # common functions
