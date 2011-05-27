@@ -21,4 +21,4 @@ html
         = yield 
     
       - if current_user
-        script PK.UserData.loadUserData(#{params[:reloadContacts] ? -1 : current_user.contacts_updated_at.to_i})
+        script PK.UserData.loadUserData(#{params[:reloadContacts] ? -1 : current_user.last_update})

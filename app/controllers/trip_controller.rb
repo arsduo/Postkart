@@ -12,7 +12,7 @@ class TripController < ApplicationController
       @trip.save
       
       # update the user so they get updates
-      current_user.update_attribute(:trips_updated_at, trip.updated_at)
+      current_user.update_attribute(:trips_updated_at, @trip.updated_at)
     end
     redirect_to root_url
   end

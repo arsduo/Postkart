@@ -18,7 +18,7 @@ h1
   div#trips
     | Loading...
     
-  = form_for Trip.new, :as => :trip, :url => url_for(:controller => :trip, :action => :create) do |f|
+  = form_for Trip.new, :as => :trip, :url => url_for(:controller => :trip, :action => :create), :html => {:"data-ajax" => "false"} do |f|
     div
       = f.text_field :location_name, :placeholder => "Add a new trip"
       = f.submit :"data-inline" => true

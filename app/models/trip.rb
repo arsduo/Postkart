@@ -20,7 +20,7 @@ class Trip
   # unlike with users and contacts, we often need to query for all trips + contacts
   # and this saves us some time in the join
   # see http://www.mongodb.org/display/DOCS/MongoDB+Data+Modeling+and+Rails
-  field :recipients,  :type => Array
+  field :recipients,  :type => Array, :default => []
 
   # associations
   referenced_in   :user, :inverse_of => :trips
