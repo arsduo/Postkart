@@ -17,6 +17,16 @@ PK.Trip = do ($) ->
     renderUnsentContacts()
     renderSentContacts()
     $(".sendCard").button().click(sendCard)
+    $(".showContact").click(revealContact) if PK.mobile
+  
+  revealContact = () ->
+    contact = PK.UserData.contacts[$(this).data("contact-id")]
+    id = "contactDetails#{contact._id}"
+    if (details = $("##{id}}")).length == 0
+      details = $(PK.render("trip_contact_details", {contact: contact, sent: trip.recipients.indexOf(contact._id) != -1, id: id, text: text})).appendTo($("body"))
+      details.find(".sendCard").button().click(sendCard)
+    $.mobile.changePage(details)
+    false # stop regular jQuery mobile actions
     
   renderUnsentContacts = () ->
     contactDictionary = contacts
