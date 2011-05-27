@@ -10,6 +10,7 @@ PK.Login = do ($) ->
   
   openLoginDialog = () ->
     login.createWindow().document.write PK.render("google_start", {loginURL: loginURL})
+    false
     
   init = (url) ->
     loginURL = url

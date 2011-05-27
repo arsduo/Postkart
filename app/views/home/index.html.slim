@@ -23,6 +23,8 @@ h1
       = f.text_field :location_name, :placeholder => "Add a new trip"
       = f.submit :"data-inline" => true
 
-javascript:
-  PK.Login.init("#{google_auth_url}");
-  PK.TripList.init("#trips");
+script
+  | PK.TripList.init("#trips");
+  - unless mobile_mode? # mobile goes directly to auth
+    | PK.Login.init("#{google_auth_url}");    
+  
