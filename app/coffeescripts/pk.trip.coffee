@@ -46,7 +46,7 @@ PK.Trip = do ($) ->
     if recipientHTML.length > 0
       $("#tripRecipients").append(recipientHTML.join(""))
     else
-      $("#tripRecipients").append(PK.render("trip_no_contacts"))
+      $("#tripRecipients").append(PK.render("trip_no_recipients"))
   
   sendCard = () ->
     link = $(this).addClass("sending").removeClass("sent").removeClass("errored")
