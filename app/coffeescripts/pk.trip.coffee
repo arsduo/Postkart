@@ -17,15 +17,18 @@ PK.Trip = do ($) ->
     renderUnsentContacts()
     renderSentContacts()
     $(".sendCard").button().click(sendCard)
-    $(".showContact").click(revealContact) if PK.mobile
+    $(".showContact").click(() -> revealContact.apply(this)) if PK.mobile
   
-  revealContact = () ->
-    contact = PK.UserData.contacts[$(this).data("contact-id")]
-    id = "contactDetails#{contact._id}"
-    if (details = $("##{id}}")).length == 0
-      details = $(PK.render("trip_contact_details", {contact: contact, sent: trip.recipients.indexOf(contact._id) != -1, id: id, text: text})).appendTo($("body"))
-      details.find(".sendCard").button().click(sendCard)
-    $.mobile.changePage(details)
+  revealContact = (contactID = $(this).data("contact-id")) ->
+    contact = PK.UserData.contacts[contactID]
+    dialog = $(PK.render("trip_contact_details", {
+      contact: contact
+      sent: trip.recipients.indexOf(contact._id) != -1
+      text: text
+    })).appendTo("body").show().page().dialog().page("enhance")
+    dialog.find(".sendCard").button().click(sendCard)
+    # manually handle the close button, because jqm doesn't like our homebrew dialog
+    dialog.find(":jqmData(rel='back')").unbind('click').click(() -> dialog.remove(); false )
     false # stop regular jQuery mobile actions
     
   renderUnsentContacts = () ->
@@ -110,6 +113,7 @@ PK.Trip = do ($) ->
       trip = PK.UserData.trips[tripData._id]
       $("#tripName").html(trip.description)
       renderList()
+      revealContact(tripInfo.contactID) if tripInfo.contactID
     
   {
     init: init

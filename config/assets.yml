@@ -19,7 +19,7 @@ javascripts:
     - public/javascripts/jquery/jquery-ui-1.8.12.js
   
   mobile_common:
-    - public/javascripts/jquery/jquery.mobile-1.0a4.1.js
+    - public/javascripts/jquery/jquery.mobile.js
     
   home: 
     - public/javascripts/compiled/pk.triplist.js
@@ -42,7 +42,7 @@ stylesheets:
 
   mobile_common:
   - public/stylesheets/mobile.css
-  - public/stylesheets/jquery.mobile-1.0a4.1.css
+  - public/stylesheets/jquery.mobile.css
 
   auth_iframe:
     - public/stylesheets/auth_iframe.css
