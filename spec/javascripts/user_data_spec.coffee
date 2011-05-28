@@ -343,6 +343,11 @@ describe "PK.UserData", () ->
               when "mostRecentUpdate" then time
               when "user" then user
               when "contactsByName" then contactsByName
+        
+        it "flushes existing data", () ->
+          spyOn(PK.UserData, "flush")
+          PK.UserData.loadUserData(-1)
+          expect(PK.UserData.flush).toHaveBeenCalled()
 
         # simulate newer data being available
         itFetchesData(-1, time)

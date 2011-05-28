@@ -165,6 +165,8 @@ PK.UserData = do ($) ->
       userDataIsAvailable()
     else
       # get updated data from the server (if possible)
+      # flushing the existing data if told to reload
+      userdata.flush() if remoteUpdateTime == -1
       loadDataFromServer()
   
   userdata =
