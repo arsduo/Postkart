@@ -43,8 +43,9 @@ PK.Trip = do ($) ->
     
   renderSentContacts = () ->
     contactDictionary = contacts
-    recipientHTML = for recipient in trip.recipients
-      PK.render("trip_contact", {contact: r, sent: true, text: text}) if r = contactDictionary[recipient]      
+    recipients = (contactDictionary[recipient] for recipient in trip.recipients).sort((c1, c2) -> if c1.last_name < c2.last_name then -1 else 1)
+    recipientHTML = for r in recipients
+      PK.render("trip_contact", {contact: r, sent: true, text: text})      
     
     if recipientHTML.length > 0
       $("#tripRecipients").append(recipientHTML.join(""))

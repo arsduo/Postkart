@@ -28,12 +28,13 @@ describe Contact do
   it { should validate_presence_of(:remote_id) }
 
   describe ".client_json" do
-    it "generates a hash with only :_id, :name, and (decrypted) :addresses" do
+    it "generates a hash with only :_id, :first_name, :last_name, and (decrypted) :addresses" do
       c = Contact.make
       c.stubs(:_id).returns("foo")
       json = c.client_json
       json["_id"].should == c._id.to_s
-      json["name"].should == c.name
+      json["first_name"].should == c.first_name
+      json["last_name"].should == c.last_name
       json[:addresses].should == c.addresses
     end
   end

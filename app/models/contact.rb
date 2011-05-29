@@ -24,7 +24,7 @@ class Contact
   
   def client_json
     # JSON sent down to the client for storage
-    self.as_json :only => [:_id, :name], :methods => :addresses
+    self.as_json :only => [:_id, :first_name, :last_name], :methods => :addresses
   end
   
   def addresses

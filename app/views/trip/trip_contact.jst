@@ -1,6 +1,6 @@
 <% var len = contact.addresses.length; %>
 <li id="contact<%= contact._id %>" class="<%= sent ? 'contactSent' : 'contactUnsent' %>">
-  <span class="name"><%= contact.name %></span>
+  <span class="name"><%= contact.first_name %> <%= contact.last_name %></span>
   <% if (!sent) { %>
     <a href="#" class="sendCard" data-contact-id="<%= contact._id %>"><%= text.send %></a>
   <% } %>

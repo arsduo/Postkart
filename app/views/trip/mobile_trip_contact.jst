@@ -1,5 +1,5 @@
 <li id="contact<%= contact._id %>" class="<%= sent ? 'contactSent' : 'contactUnsent' %>">
   <a href="#contactDetails<%= contact._id %>" class="name showContact" data-contact-id="<%= contact._id %>">
-    <%= contact.name %>
+    <%= contact.first_name %> <%= contact.last_name %>
   </a>
 </li>
