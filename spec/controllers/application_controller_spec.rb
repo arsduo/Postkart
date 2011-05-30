@@ -30,6 +30,10 @@ describe VanillaController do
     end
   
     describe ".detect_contact_reload" do
+      it "works" do
+        raise Exception, "it doesn't"
+      end
+      
       it "sets flash[:reloadData] = true if params[:reloadData]" do
         get @action_name, :reloadData => 1
         flash[:reloadData].should be_true
