@@ -17,9 +17,9 @@ PK.Trip = do ($) ->
     renderUnsentContacts()
     renderSentContacts()
     $(".sendCard").button().click(sendCard)
-    $(".showContact").click(() -> revealContact.apply(this)) if PK.mobile
+    $(".showContact").click(() -> revealContact($(this).data("contact-id"))) if PK.mobile
   
-  revealContact = (contactID = $(this).data("contact-id")) ->
+  revealContact = (contactID) ->
     contact = PK.UserData.contacts[contactID]
     dialog = $(PK.render("trip_contact_details", {
       contact: contact
@@ -37,7 +37,7 @@ PK.Trip = do ($) ->
       PK.render("trip_contact", {contact: contact, sent: false, text: text})
     
     if listHTML.length > 0
-      $("#tripContacts").append(listHTML.join(""))
+      list = $("#tripContacts").append(listHTML.join(""))
     else
       $("#tripContacts").append(PK.render("trip_no_contacts"))
     
@@ -48,7 +48,7 @@ PK.Trip = do ($) ->
       PK.render("trip_contact", {contact: r, sent: true, text: text})      
     
     if recipientHTML.length > 0
-      $("#tripRecipients").append(recipientHTML.join(""))
+      list = $("#tripRecipients").append(recipientHTML.join(""))
     else
       $("#tripRecipients").append(PK.render("trip_no_recipients"))
   
@@ -114,9 +114,9 @@ PK.Trip = do ($) ->
       trip = PK.UserData.trips[tripData._id]
       $("#tripName").html(trip.description)
       renderList()
-      revealContact(tripInfo.contactID) if tripInfo.contactID
     
   {
     init: init
+    revealContact: revealContact
     animationInterval: 2500
   } 

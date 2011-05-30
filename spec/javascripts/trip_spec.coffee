@@ -29,4 +29,15 @@ describe "PK.Trip", () ->
       PK.Trip.init(trip)
       expect($("#tripName")).toHaveHtml(trip.description)
     
- 
+    describe "rendering lists", () ->
+      it "turns all send buttons into buttons", () ->
+      it "binds all send buttons to send the card", () ->
+
+      describe "if mobile", () ->
+        it "binds all show buttons to show the dialog"
+
+      describe "rendering unsent contacts", () ->
+        it "renders unsent contacts in name order", () ->
+        it "appends the contents to the tripContacts list", () ->
+        describe "if mobile", () ->
+          it "enhances the list", () ->
