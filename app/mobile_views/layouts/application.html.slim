@@ -20,8 +20,8 @@ html
       div data-role="content"
         = yield 
       div data-role="footer"
-        = link_to "Reload Data", "/?reloadContacts=1", :rel => :external
-        = link_to "Resync Contacts", google_auth_url, :rel => :external
+        = link_to "Reload Data", "/?reloadData=1", :rel => :external, :"data-inline" => "true" 
+        = link_to "Resync Contacts", google_auth_url, :rel => :external, :"data-inline" => "true"
       
       - if current_user
         script PK.UserData.loadUserData(#{params[:reloadContacts] ? -1 : current_user.last_update})
