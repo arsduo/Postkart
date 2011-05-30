@@ -10,8 +10,10 @@ end
 describe TestingController do 
   include RSpec::Rails::ControllerExampleGroup
   before :all do
+    @controller_name = "testing"
+    @action_name = "act"
     Postkart::Application.routes.draw do
-      get "testing/act", :controller => :testing, :action => :act 
+      get "#{@controller_name}/#{@action_name}", :controller => :testing, :action => :act 
     end    
   end
   
@@ -37,8 +39,15 @@ describe TestingController do
       @mock_controller_class.send(:include, MobileControllerExtensions)
     end
 
-    it "sets up a before_filter for setup_mobile" do
-      @mock_controller_class.expects(:before_filter).with(:setup_mobile)
+    it "sets up a before_filter for detect_mobile_flags" do
+      @mock_controller_class.stubs(:before_filter)
+      @mock_controller_class.expects(:before_filter).with(:detect_mobile_flags)
+      @mock_controller_class.send(:include, MobileControllerExtensions)
+    end
+    
+    it "sets up a before_filter for prepend_view_path_if_mobile" do
+      @mock_controller_class.stubs(:before_filter)
+      @mock_controller_class.expects(:before_filter).with(:prepend_view_path_if_mobile)
       @mock_controller_class.send(:include, MobileControllerExtensions)
     end
   end
@@ -46,19 +55,20 @@ describe TestingController do
   # here's where we test the actual module functions
   describe "methods" do
     before :each do
-      @url = "act"
+      @url = @action_name
     end
     
-    describe ".setup_mobile" do
+    describe ".detect_mobile_flags" do
       context "mobile" do
         it "sets session[:mobile_view] = true if params[:mobile]" do
           get @url, :mobile => 1
           session[:mobile_view].should be_true
         end
-
-        it "adds the MOBILE_VIEW_PATH to the view paths" do
-          get @url, :mobile => 1
-          controller.view_paths.map(&:to_s).should include(File.join(Rails.root, 'app', MobileControllerExtensions::MOBILE_VIEW_FOLDER))
+        
+        it "redirects to the page w/o the mobile flag if it's present" do
+          params = HashWithIndifferentAccess.new(:mobile => 1, :foo => "bar", :controller => @controller_name, :action => @action_name)
+          controller.expects(:redirect_to).with(params.dup.delete_if {|k, v| k.to_sym == :mobile})
+          get @url, params
         end
       end
 
@@ -68,11 +78,30 @@ describe TestingController do
           session[:mobile_view].should be_false
         end
 
+        it "redirects to the page w/o the desktop flag if it's present" do
+          params = HashWithIndifferentAccess.new(:desktop => 1, "foo" => "bar", :controller => @controller_name, :action => @action_name)
+          controller.expects(:redirect_to).with(params.dup.delete_if {|k, v| k.to_sym == :desktop})
+          get @url, params
+        end
+      end
+    end
+
+    describe ".prepend_view_path_if_mobile before_filter" do
+      context "in desktop mode" do 
         it "does not add the MOBILE_VIEW_PATH to the view paths" do
-          get @url, :desktop => 1
+          session[:mobile_view] = false
+          get @url
           controller.view_paths.map(&:to_s).should_not include(File.join(Rails.root, 'app', MobileControllerExtensions::MOBILE_VIEW_FOLDER))
         end
       end
+      
+      context "in mobile mode" do 
+        it "adds the MOBILE_VIEW_PATH to the view paths" do
+          session[:mobile_view] = true
+          get @url
+          controller.view_paths.map(&:to_s).should include(File.join(Rails.root, 'app', MobileControllerExtensions::MOBILE_VIEW_FOLDER))
+        end
+      end      
     end
 
     describe ".mobile_mode?" do

@@ -4,7 +4,8 @@ module MobileControllerExtensions
   
   def self.included(base)
     base.class_eval do
-      before_filter :setup_mobile
+      before_filter :detect_mobile_flags
+      before_filter :prepend_view_path_if_mobile
       helper_method :is_mobile_device?
       helper_method :mobile_mode?
     end
@@ -22,7 +23,7 @@ module MobileControllerExtensions
   
   private 
  
-  def setup_mobile
+  def detect_mobile_flags
     # we allow two parameters:
     # :desktop, to force mobile devices to render in desktop mode
     # :mobile,  to force mobile mode on desktop browsers
@@ -32,8 +33,9 @@ module MobileControllerExtensions
     session[:mobile_view] = false if params[:desktop]
     session[:mobile_view] = true if params[:mobile]
 
-    # now activate mobile views if appropriate
-    prepend_view_path_if_mobile
+    # if we've set a flag, redirect to get rid of it so it doesn't mess up jqm
+    # this would do two redirects if someone accessed ?mobile=1&desktop=1 (which they'd deserve)
+    redirect_to params if params.delete(:mobile) || params.delete(:desktop)
   end
 
   def prepend_view_path_if_mobile
