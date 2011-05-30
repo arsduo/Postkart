@@ -5,7 +5,7 @@ describe HomeController do
   render_views
 
   describe ".user_data" do
-    before :each do
+    before :each do 
       @url = "user_data"
       @user = User.make
       controller.stubs(:current_user).returns(@user)
@@ -16,6 +16,14 @@ describe HomeController do
     it "sends the user client_json as :user" do
       get 'user_data'
       JSON.parse(response.body)["user"].should == JSON.parse(@user.client_json.to_json)
+    end
+    
+    it "sends the new updated time down" do
+      @user.stubs(:contacts_updated_at).returns(1)
+      @user.stubs(:trips_updated_at).returns(2)
+      @user.stubs(:last_update).returns(3)      
+      get 'user_data'
+      JSON.parse(response.body)["mostRecentUpdate"].should == @user.last_update.to_i
     end
 
     describe "for contacts" do
