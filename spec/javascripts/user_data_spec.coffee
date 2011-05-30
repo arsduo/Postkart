@@ -115,6 +115,11 @@ describe "PK.UserData", () ->
           spyOnEvent($("body"), PK.UserData.userLoadStartEvent)
           PK.UserData.loadUserData(remoteUpdateTime);
           expect(PK.UserData.userLoadStartEvent).toHaveBeenTriggeredOn($("body"))
+
+        it "does not make a second request if one is in process", () ->
+          PK.UserData.loadUserData(remoteUpdateTime)
+          PK.UserData.loadUserData(remoteUpdateTime)
+          expect($.ajax.calls.length).toBe(1)
     
     itProcessesData = (options = {remoteUpdateTime: 123567, resultUser: {_id: "resultUser"}, resultTrips: [{_id: "foo", created_at: 123}], resultContactsByName: [{_id: "abc", last_name: "Zed"}], resultTime: 12345}) ->
       describe "processing data", () ->

@@ -163,7 +163,7 @@ PK.UserData = do ($) ->
     if remoteUpdateTime != -1 && (mostRecentUpdate && mostRecentUpdate >= remoteUpdateTime)
       # local data is fresh, so go with what's already loaded
       userDataIsAvailable()
-    else
+    else if !loadingNewData # don't make second requests
       # get updated data from the server (if possible)
       # flushing the existing data if told to reload
       userdata.flush() if remoteUpdateTime == -1
