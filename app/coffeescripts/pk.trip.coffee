@@ -57,7 +57,7 @@ PK.Trip = do ($) ->
     # disable the link and update its text
     if PK.mobile 
       # also update the button class to show the ajax spinner
-      link.html(text.sending).unbind("click").closest(".ui-btn").addClass("loading")
+      link.unbind("click").closest(".ui-btn").addClass("loading")
     else 
       link.button({label: text.sending, disabled: true})
     
@@ -89,8 +89,7 @@ PK.Trip = do ($) ->
         $("#tripRecipients").append(newHTML).listview('refresh')
 
         # add the sent notice to the list, and refresh it
-        link.closest("li").after(message).click(sendCard);
-        link.html(text.sent).closest("ul").listview("refresh")
+        link.click(sendCard).closest("li").after(message).closest("ul").listview("refresh")
         link.closest(".ui-btn").removeClass("loading")
         page = link.closest(".ui-page").bind "pagehide.removeMessage", () -> 
           message.remove()
