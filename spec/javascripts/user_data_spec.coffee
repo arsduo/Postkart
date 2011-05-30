@@ -336,9 +336,12 @@ describe "PK.UserData", () ->
 
         beforeEach () ->
           # we need to define user locally since it has to be returned by store
+          flushed = false
           spyOn(store, "set")
+          spyOn(store, "clear").andCallFake () -> flushed = true
           spyOn(store, "get").andCallFake (key) ->
             # technically this is an internal implementation detail, but unavoidable
+            return undefined if flushed
             switch key
               when "mostRecentUpdate" then time
               when "user" then user
@@ -350,15 +353,15 @@ describe "PK.UserData", () ->
           expect(PK.UserData.flush).toHaveBeenCalled()
 
         # simulate newer data being available
-        itFetchesData(-1, time)
+        itFetchesData(-1, undefined)
         itProcessesData({
           remoteUpdateTime: -1
           resultTime: time
-          startUser: user
+          startUser: {}
           resultUser: differentUser
           resultContactsByName: contactsByName
         })
-        itHandlesErrors(-1)
+        itHandlesErrors(-1, false)
     
       describe "and it's up to date", () -> 
         time = 123456
