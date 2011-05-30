@@ -8,3 +8,5 @@ PK.render = (template, args) ->
     templateFn.apply(window, args) 
   else
     throw "Unable to find template #{template}!"
+
+$(window.document).bind("mobileinit", () -> PK.mobileReady = true)

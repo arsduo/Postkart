@@ -72,3 +72,8 @@ describe "PK functions", () ->
       # since this is called using apply, we want to make sure the arguments actually make it over
       expect(JST.google_start.mostRecentCall.args[0]).toEqual(args[0])
       
+describe "mobileReady", () ->
+  it "binds a listener to window.document that sets PK.mobileReady = true on mobileInit", () -> 
+    PK.mobileReady = false
+    $(window.document).trigger("mobileinit")
+    expect(PK.mobileReady).toBe(true)
