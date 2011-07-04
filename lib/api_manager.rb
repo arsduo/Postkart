@@ -13,7 +13,7 @@ class APIManager
     begin
       Timeout.timeout(5) do
         response = Typhoeus::Request.get(url, {:params => params}.merge(typhoeus_args))
-        response.code == 200 ? JSON.parse(response.body) : raise(APIError, response.body)
+        response.code == 200 ? MultiJson.decode(response.body) : raise(APIError, response.body)
       end
     rescue Timeout::Error
       unless @retried

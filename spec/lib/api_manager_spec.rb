@@ -57,11 +57,11 @@ describe APIManager do
       expect {@mgr.make_request("foo")}.to raise_exception(Timeout::Error)
     end
     
-    it "JSON.parses the body of the response if the result is successful" do
+    it "MultiJson.decodes the body of the response if the result is successful" do
       body = "[]"
       response = Typhoeus::Response.new(:body => body, :code => 200)
       Typhoeus::Request.expects(:get).with(anything, anything).returns(response)
-      JSON.expects(:parse).with(body)
+      MultiJson.expects(:decode).with(body)
       @mgr.make_request("foo")
     end
     
