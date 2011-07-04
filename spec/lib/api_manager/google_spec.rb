@@ -139,7 +139,7 @@ describe APIManager::Google do
       parsing_responses = sequence(:parsing_responses)
       return_value = []
       @responses["entry"].each_with_index do |e, i| 
-        @google.stubs(:parse_portable_contact).with(e).returns(i).in_sequence(parsing_responses)
+        @google.stubs(:parse_portable_contact).with(e).returns(i)
         return_value << i
       end
 
