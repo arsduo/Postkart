@@ -30,9 +30,9 @@ gem "bson_ext", ">= 1.2.0"
 # error notification
 gem 'exception_notification', :require => 'exception_notifier'
 
-unless RUBY_VERSION =~ /^1\.9/
-  gem 'SystemTimer', '>= 1.2.3'
-end
+#unless RUBY_VERSION =~ /^1\.9/
+#  gem 'SystemTimer', '>= 1.2.3'
+#end
 
 gem 'wirble'
 
