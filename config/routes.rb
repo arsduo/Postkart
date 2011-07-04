@@ -16,7 +16,10 @@ Postkart::Application.routes.draw do
 
 
   # OFFLINE
-  offline = Rack::Offline.configure do
+=begin
+  Rails.application.config.cache_classes = true
+  offline = Rails::Offline.configure do
+    cache "foo"
     public_path = Pathname.new(Rails.public_path)
     
     # need to refine this to more intelligently cache stuff
@@ -29,6 +32,10 @@ Postkart::Application.routes.draw do
 
   # browser manifest
   match "/application.manifest" => offline
+=end
+
+
+
   # to do: create smaller browser manifest
   
   # The priority is based upon order of creation:
