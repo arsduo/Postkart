@@ -5,12 +5,12 @@ gem 'rack', '1.2.1'
 gem 'rake', '~> 0.8.7'
 gem 'slim'
 gem 'typhoeus'
-gem 'json'
+gem 'multi_json'
 gem 'jquery-rails', '>= 0.2.6'
 gem 'jammit'
 
 # offline and mobile
-gem 'rack-offline'
+gem 'rack-offline', :git => "git://github.com/arsduo/rack-offline.git"
 gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 
 # Authentication
@@ -51,6 +51,8 @@ group :test do
   gem "mocha"
   gem "autotest"
   gem "autotest-rails"
+  gem "autotest-fsevent"
+  gem "autotest-growl"
   gem "ZenTest"
   gem "faker"
   gem "remarkable", '>=4.0.0.alpha2' 
