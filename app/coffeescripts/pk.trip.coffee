@@ -25,7 +25,7 @@ PK.Trip = do ($) ->
       contact: contact
       sent: trip.recipients.indexOf(contact._id) != -1
       text: text
-    })).appendTo("body").show().page().dialog().page("enhance")
+    })).appendTo("body").show().page().dialog().trigger("enhance")
     dialog.find(".sendCard").button().click(sendCard)
     # manually handle the close button, because jqm doesn't like our homebrew dialog
     dialog.find(":jqmData(rel='back')").unbind('click').click(() -> dialog.remove(); false )

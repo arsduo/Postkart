@@ -6,7 +6,7 @@ PK.TripList = do ($) ->
     if PK.UserData.isDataAvailable() 
       elem = $(id)
       elem.html(PK.render("trip_list", {trips: PK.UserData.tripsByDate}))
-      elem.closest(":jqmData(role='page')").page().page("enhance") if PK.mobile
+      elem.closest(":jqmData(role='page')").page().trigger("enhance") if PK.mobile
     else
       $("body").bind(PK.UserData.userLoadSuccessEvent, () -> init(id))
   
