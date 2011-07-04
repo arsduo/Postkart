@@ -5,7 +5,7 @@ embed_assets: on
 
 javascripts:
   core: # every page should have these
-    - public/javascripts/jquery/jquery-1.6.js
+    - public/javascripts/jquery/jquery-1.6.2.js
     - public/javascripts/rails.js
     - public/javascripts/compiled/pk.js
     # localstorage
@@ -19,7 +19,7 @@ javascripts:
     - public/javascripts/jquery/jquery-ui-1.8.12.js
   
   mobile_common:
-    - public/javascripts/jquery/jquery.mobile.js
+    - public/javascripts/jquery/jquery.mobile-1.0b1.js
     
   home: 
     - public/javascripts/compiled/pk.triplist.js
@@ -42,7 +42,7 @@ stylesheets:
 
   mobile_common:
   - public/stylesheets/mobile.css
-  - public/stylesheets/jquery.mobile.css
+  - public/stylesheets/jquery.mobile-1.0b1.css
 
   auth_iframe:
     - public/stylesheets/auth_iframe.css
