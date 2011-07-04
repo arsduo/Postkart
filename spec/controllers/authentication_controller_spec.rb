@@ -27,7 +27,7 @@ describe AuthenticationController do
   describe "POST 'google_login'" do
     it "returns :noToken => true if no token provided" do
       get 'google_login'
-      JSON.parse(response.body)["error"]["noToken"].should be_true
+      MultiJson.decode(response.body)["error"]["noToken"].should be_true
     end
     
     context "with a token" do
@@ -56,7 +56,7 @@ describe AuthenticationController do
         User.expects(:find_or_create_from_google_token).with(@args[:access_token]).returns(u)
 
         get 'google_login', @args
-        JSON.parse(response.body)["error"]["validation"].should == errors        
+        MultiJson.decode(response.body)["error"]["validation"].should == errors        
       end
 
       context "if the user is valid" do
@@ -64,20 +64,20 @@ describe AuthenticationController do
           name = "foo"
           User.stubs(:find_or_create_from_google_token).returns(User.make(:name => name))
           get 'google_login', @args
-          JSON.parse(response.body)["name"].should == name
+          MultiJson.decode(response.body)["name"].should == name
         end
 
         describe "using created_at as a proxy for new user status" do
           it "returns a hash with isNewUser = false if the user is not new" do
             User.stubs(:find_or_create_from_google_token).returns(User.make(:created_at => Time.now - 600))
             get 'google_login', @args
-            JSON.parse(response.body)["isNewUser"].should be_false
+            MultiJson.decode(response.body)["isNewUser"].should be_false
           end          
 
           it "returns a hash with isNewUser = true if the user is new" do
             User.stubs(:find_or_create_from_google_token).returns(User.make(:created_at => Time.now - 1))
             get 'google_login', @args
-            JSON.parse(response.body)["isNewUser"].should be_true
+            MultiJson.decode(response.body)["isNewUser"].should be_true
           end
         end
 
@@ -121,7 +121,7 @@ describe AuthenticationController do
           it "returns a hash with needsTerms = true" do
             User.stubs(:find_or_create_from_google_token).returns(User.make(:accepted_terms => false))
             get 'google_login', @args
-            JSON.parse(response.body)["error"]["needsTerms"].should be_true
+            MultiJson.decode(response.body)["error"]["needsTerms"].should be_true
           end
         end  
       end
@@ -167,7 +167,7 @@ describe AuthenticationController do
         :my_last_bike => [:a, :b, :c]
       })
       get "google_populate_contacts", @args
-      JSON.parse(response.body).should include({"My First Car" => 2, "My Last Bike" => 3})
+      MultiJson.decode(response.body).should include({"My First Car" => 2, "My Last Bike" => 3})
     end
   
     context do

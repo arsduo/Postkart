@@ -15,7 +15,7 @@ describe HomeController do
 
     it "sends the user client_json as :user" do
       get 'user_data'
-      JSON.parse(response.body)["user"].should == JSON.parse(@user.client_json.to_json)
+      MultiJson.decode(response.body)["user"].should == MultiJson.decode(@user.client_json.to_json)
     end
     
     it "sends the new updated time down" do
@@ -23,7 +23,7 @@ describe HomeController do
       @user.stubs(:trips_updated_at).returns(2)
       @user.stubs(:last_update).returns(3)      
       get 'user_data'
-      JSON.parse(response.body)["mostRecentUpdate"].should == @user.last_update.to_i
+      MultiJson.decode(response.body)["mostRecentUpdate"].should == @user.last_update.to_i
     end
 
     describe "for contacts" do
@@ -55,7 +55,7 @@ describe HomeController do
 
         get 'user_data'
         # we have to parse like this to eliminate objects like BSON IDs
-        JSON.parse(response.body)["contactsByName"].should == JSON.parse(contacts.map {|c| c.client_json}.to_json)
+        MultiJson.decode(response.body)["contactsByName"].should == MultiJson.decode(contacts.map {|c| c.client_json}.to_json)
       end
     end
     
@@ -86,7 +86,7 @@ describe HomeController do
 
         get 'user_data'
         # we have to parse like this to eliminate objects like BSON IDs
-        JSON.parse(response.body)["tripsByDate"].should == JSON.parse(trips.map {|t| t.client_json}.to_json)
+        MultiJson.decode(response.body)["tripsByDate"].should == MultiJson.decode(trips.map {|t| t.client_json}.to_json)
       end
     end
   end
