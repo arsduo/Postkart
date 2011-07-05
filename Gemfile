@@ -17,9 +17,15 @@ gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 gem "devise", "~> 1.2"
 
 # CoffeeScript
-gem "therubyracer"
 gem "coffee-script"
 gem "barista"
+# work around Heroku's problems with therubyracer
+group :development, :test do
+  gem 'therubyracer'
+end
+group :production do
+  gem 'therubyracer-heroku'
+end
 
 # mongo
 gem "mongo", ">= 1.3.0"
