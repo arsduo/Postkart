@@ -20,3 +20,7 @@ span.ui-icon-ajax-load {
   background: url('/images/ajax-load.gif') no-repeat;
 }
 
+.contactList {
+  /* jquery UI bug to hide scrollbar */
+  overflow: hidden;
+}

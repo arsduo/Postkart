@@ -26,9 +26,12 @@ PK.Trip = do ($) ->
       sent: trip.recipients.indexOf(contact._id) != -1
       text: text
     })).appendTo("body").show().page().dialog().trigger("enhance")
+    # manually style and reprogram the close button, because jqm doesn't like our homebrew dialog
+    dialog.find(":jqmData(rel=back)").addClass("ui-btn-left").unbind('click').click(() -> dialog.remove(); false )
+    # jQm doesn't scroll up for dialogs on long pages
+    window.scrollTo(0, 0)
+    
     dialog.find(".sendCard").button().click(sendCard)
-    # manually handle the close button, because jqm doesn't like our homebrew dialog
-    dialog.find(":jqmData(rel='back')").unbind('click').click(() -> dialog.remove(); false )
     false # stop regular jQuery mobile actions
     
   renderUnsentContacts = () ->
