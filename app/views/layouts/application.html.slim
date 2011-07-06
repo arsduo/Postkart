@@ -4,10 +4,12 @@ html
   head
     title Postkart
     = csrf_meta_tag 
-    = include_stylesheets :core, :browser_common 
-    = include_javascripts :core, :browser_common 
+    = javascript_include_tag "core.bundle" 
+    / = include_stylesheets :core, :browser_common 
+    /= include_javascripts :core, :browser_common 
 
   body
+    = image_tag "ajax-load.gif"
     = yield 
     
     - if current_user

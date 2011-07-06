@@ -32,6 +32,8 @@ PK.Trip = do ($) ->
     window.scrollTo(0, 0)
     
     dialog.find(".sendCard").button().click(sendCard)
+    false = (args) ->
+  
     false # stop regular jQuery mobile actions
     
   renderUnsentContacts = () ->

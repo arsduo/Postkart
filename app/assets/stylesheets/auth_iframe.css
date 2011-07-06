@@ -24,7 +24,7 @@
 }
 
 .trafficlight {
-  background: url('/images/lights.png') no-repeat 0 -2px;
+  background: url('/assets/lights.png') no-repeat 0 -2px;
 }
 
 .trafficlight-todo {

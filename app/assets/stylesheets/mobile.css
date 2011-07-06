@@ -17,7 +17,7 @@ span.ui-icon-ajax-load {
 }
 
 .loading .ui-icon-ajax-load {
-  background: url('/images/ajax-load.gif') no-repeat;
+  background: url('/assets/ajax-load.gif') no-repeat;
 }
 
 .contactList {
