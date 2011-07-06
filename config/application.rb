@@ -46,5 +46,8 @@ module Postkart
     ENV["RAILS_ASSET_ID"] = ""
     
     config.middleware.use Rack::MobileDetect
+    
+    # Enable the asset pipeline
+    config.assets.enabled = true
   end
 end
