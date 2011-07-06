@@ -1,12 +1,11 @@
 source 'http://rubygems.org'
 
-gem 'rails', '~> 3.0'
-gem 'rack', '1.2.1'
+gem "rails", "~> 3.1.0.rc"
 gem 'rake', '~> 0.8.7'
 gem 'slim'
 gem 'typhoeus'
+gem 'multi_json'
 gem 'json'
-gem 'jquery-rails', '>= 0.2.6'
 gem 'jammit'
 
 # offline and mobile
@@ -16,9 +15,12 @@ gem 'rack-mobile-detect', :require => 'rack/mobile-detect'
 # Authentication
 gem "devise", "~> 1.2"
 
-# CoffeeScript
+# Rails 3.1 - Asset Pipeline
+gem 'sass'
+gem 'uglifier'
+gem 'jquery-rails', '>= 0.2.6'
+# Coffeescript
 gem "coffee-script"
-gem "barista"
 # work around Heroku's problems with therubyracer
 group :development, :test do
   gem 'therubyracer'
