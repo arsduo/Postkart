@@ -4,7 +4,7 @@ html
   head
     title Postkart
     = csrf_meta_tag 
-    = javascript_include_tag "core.bundle" 
+    = javascript_include_tag "core.bundle", "browser_common.bundle" 
     / = include_stylesheets :core, :browser_common 
     /= include_javascripts :core, :browser_common 
 

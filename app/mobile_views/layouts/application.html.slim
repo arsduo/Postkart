@@ -8,9 +8,10 @@ html
     = include_stylesheets :core, :mobile_common 
     // scripts
     script var PK = PK || {}; PK.mobile = true;
-    = include_javascripts :core
+    = javascript_include_tag "core.bundle" 
+    /= include_javascripts :core
     = yield :header_scripts
-    = include_javascripts :mobile_common
+    = javascript_include_tag "mobile_common.bundle" 
     
   body
     div data-role="page"

@@ -3,24 +3,7 @@ javascript_compressor:  closure
 template_function: on
 embed_assets: on
 
-javascripts:
-  core: # every page should have these
-    - public/javascripts/jquery/jquery-1.6.2.js
-    - public/javascripts/rails.js
-    - public/javascripts/compiled/pk.js
-    # localstorage
-    - public/javascripts/store.js
-    - public/javascripts/compiled/pk.userdata.js
-    # login
-    - public/javascripts/compiled/pk.login.js
-    - app/views/authentication/*.jst
-    
-  browser_common:  # all pages for non-mobile browsers should have these 
-    - public/javascripts/jquery/jquery-ui-1.8.12.js
-  
-  mobile_common:
-    - public/javascripts/jquery/jquery.mobile-1.0b1.js
-    
+javascripts:      
   home: 
     - public/javascripts/compiled/pk.triplist.js
     - app/views/home/trip_list.jst
