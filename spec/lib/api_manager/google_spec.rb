@@ -10,29 +10,37 @@ describe APIManager::Google do
   describe ".new" do 
     context "with an access token" do
       before :each do
-        @token = "foobar"
+        @args = {:token => "foobar"}
       end
       
       it "creates a new Google APIManager" do
-        APIManager::Google.new(@token).should be_a(APIManager::Google)
+        APIManager::Google.new(@args).should be_a(APIManager::Google)
       end
       
       it "stores the token in the oauth_token instance variable" do
-        APIManager::Google.new(@token).oauth_token.should == @token
+        APIManager::Google.new(@args).oauth_token.should == @args[:token]
       end
 
       it "does not allow writing to the oauth_token variable" do
-        APIManager::Google.new(@token).oauth_token.should_not respond_to(:oauth_token=)
-      end      
+        APIManager::Google.new(@args).oauth_token.should_not respond_to(:oauth_token=)
+      end
     end
     
-    context "without an access token" do
-      it "raises an error with a '' token" do
-        expect {APIManager::Google.new('')}.to raise_exception(ArgumentError)
+    context "with a code" do
+      before :each do
+        @args = {:code => "foobar"}
       end
       
-      it "raises an error with a nil token" do
-        expect {APIManager::Google.new(nil)}.to raise_exception(ArgumentError)
+      it "creates a new Google APIManager" do
+        APIManager::Google.new(@args).should be_a(APIManager::Google)
+      end
+      
+      it "fetches the token"
+    end
+    
+    context "without an access token or a code" do
+      it "raises an error" do
+        expect {APIManager::Google.new()}.to raise_exception(ArgumentError)
       end
     end
   end
@@ -63,33 +71,33 @@ describe APIManager::Google do
   
   describe 'service_name' do
     it "should return a string describing the service" do
-      APIManager::Google.new("foo").service_name.should =~ /Google/i
+      APIManager::Google.new(:token => "foo").service_name.should =~ /Google/i
     end
   end
   
   describe ".user_info" do
     before :each do
       @token = "foobar"
-      @google = APIManager::Google.new(@token)
-      @google.stubs(:make_request).returns({"entry" => "bar"})
+      @google = APIManager::Google.new(:token => @token)
+      @google.stubs(:make_authorized_request).returns({"entry" => "bar"})
 
       # don't do parsing
       @google.stubs(:parse_portable_contact)
     end
     
     it "makes a request for the user" do
-      @google.expects(:make_request).with("@self", anything)
+      @google.expects(:make_authorized_request).with("@self", anything)
       @google.user_info
     end
     
     it "makes a request for the right fields" do
-      @google.expects(:make_request).with(anything, :fields => APIManager::Google::FIELDS)
+      @google.expects(:make_authorized_request).with(anything, :fields => APIManager::Google::FIELDS)
       @google.user_info
     end
     
     it "uses parse_portable_contact to parse the results" do
       result = {"entry" => "bar"}
-      @google.stubs(:make_request).returns(result)
+      @google.stubs(:make_authorized_request).returns(result)
       @google.expects(:parse_portable_contact).with(result["entry"])
       @google.user_info
     end
@@ -98,8 +106,8 @@ describe APIManager::Google do
   describe ".user_contacts" do
     before :each do
       @token = "foobar"
-      @google = APIManager::Google.new(@token)
-      @google.stubs(:make_request).returns({"entry" => "bar"})
+      @google = APIManager::Google.new(:token => @token)
+      @google.stubs(:make_authorized_request).returns({"entry" => "bar"})
 
       # the results we should get
       @results = []
@@ -113,17 +121,17 @@ describe APIManager::Google do
     end
     
     it "makes a request for the user's mycontacts group" do
-      @google.expects(:make_request).with("mycontacts", anything).returns(@responses)
+      @google.expects(:make_authorized_request).with("mycontacts", anything).returns(@responses)
       @google.user_contacts
     end
     
     it "makes a request for the right fields" do
-      @google.expects(:make_request).with(anything, has_entries(:fields => APIManager::Google::FIELDS)).returns(@responses)
+      @google.expects(:make_authorized_request).with(anything, has_entries(:fields => APIManager::Google::FIELDS)).returns(@responses)
       @google.user_contacts
     end
     
     it "makes a request for a lot of contacts" do
-      @google.expects(:make_request).with(anything, has_entries(:count => APIManager::Google::CONTACT_COUNT)).returns(@responses)
+      @google.expects(:make_authorized_request).with(anything, has_entries(:count => APIManager::Google::CONTACT_COUNT)).returns(@responses)
       @google.user_contacts
     end
     
@@ -131,7 +139,7 @@ describe APIManager::Google do
     it "parses all the contacts returned" do
       parsing_responses = sequence(:parsing_responses)
       @responses["entry"].each {|e| @google.expects(:parse_portable_contact).with(e).in_sequence(parsing_responses)}
-      @google.stubs(:make_request).returns(@responses)      
+      @google.stubs(:make_authorized_request).returns(@responses)      
       @google.user_contacts
     end
     
@@ -143,45 +151,52 @@ describe APIManager::Google do
         return_value << i
       end
 
-      @google.stubs(:make_request).returns(@responses)      
+      @google.stubs(:make_authorized_request).returns(@responses)      
       @google.user_contacts.should == return_value
     end
     
     it "returns the proper values for parsing" do
       # this is a bit unnecessary, since we test parse_contacts below
       # but it probably doesn't hurt
-      @google.stubs(:make_request).returns(@responses)      
+      @google.stubs(:make_authorized_request).returns(@responses)      
       @google.user_contacts.should == @results
     end
   end
   
-  describe ".make_request" do
+  describe ".make_authorized_request" do
+    before :each do
+      @token = "bar"
+      @google = APIManager::Google.new(:token => @token)
+    end
+    
     it "is private" do
-      # make_request is defined generically in APIManager
-      APIManager::Google.public_instance_methods.map(&:to_s).should_not include("make_request")
+      # make_authorized_request is defined generically in APIManager
+      APIManager::Google.public_instance_methods.map(&:to_s).should_not include("make_authorized_request")
     end
     
     # this tests the internals, but it's important
+    it "always makes a GET request" do
+      Typhoeus::Request.expects(:get).with(anything, anything).returns(Typhoeus::Response.new(:body => "[]", :code => 200))
+      @google.send(:make_authorized_request, "foo")
+    end
+    
     it "always sends along the OAuth token as a header" do
-      token = "bar"
-      g = APIManager::Google.new(token)
-      Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{token}"))).returns(Typhoeus::Response.new(:body => "[]", :code => 200))
-      g.send(:make_request, "foo")
+      Typhoeus::Request.expects(:get).with(anything, has_entry(:headers => has_entry(:Authorization => "OAuth #{@token}"))).returns(Typhoeus::Response.new(:body => "[]", :code => 200))
+      @google.send(:make_authorized_request, "foo")
     end
     
     it "raises an InvalidTokenError if it gets an APIError whose message =~ /Invalid AuthSub token/" do
-      g = APIManager::Google.new("foo")
       Typhoeus::Request.expects(:get).returns(Typhoeus::Response.new(
         :body => "<HTML>\n  <HEAD>\n  <TITLE>Failed to verify 3 legged OAuth request. Request was invalid.Invalid AuthSub token.</TITLE>\n  </HEAD>\n  <BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n  <H1>Failed to verify 3 legged OAuth request. Request was invalid.Invalid AuthSub token.</H1>\n  <H2>Error 401</H2>\n  </BODY>\n  </HTML>",
         :code => 401
       ))
-      expect { g.send(:make_request, "foo") }.to raise_exception(APIManager::Google::InvalidTokenError)
+      expect { @google.send(:make_authorized_request, "foo") }.to raise_exception(APIManager::Google::InvalidTokenError)
     end
   end
   
   describe ".parse_portable_contact" do
     it "is private" do
-      # make_request is defined generically in APIManager
+      # make_authorized_request is defined generically in APIManager
       APIManager::Google.public_instance_methods.map(&:to_s).should_not include("parse_portable_contact")
     end
     
@@ -192,8 +207,8 @@ describe APIManager::Google do
       @result, @response = sample_portable_contact
       
       @token = "foobar"
-      @google = APIManager::Google.new(@token)
-      @google.stubs(:make_request).returns(@response)
+      @google = APIManager::Google.new(:token => @token)
+      @google.stubs(:make_authorized_request).returns(@response)
     end
     
     it "raises a MalformedPortableContactError if the result is not a hash" do

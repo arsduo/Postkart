@@ -9,8 +9,13 @@ class APIManager
     class MalformedPortableContactError < APIError; end
     class InvalidTokenError < APIError; end
     
-    def initialize(token)
-      @oauth_token = token
+    def initialize(options = {})
+      unless @oauth_token = options[:token]
+        code = options[:code]
+        raise ArgumentError, "APIManager::Google.new requires a code or a token!" unless code
+        @oauth_token = "foo"
+      end
+      
       raise ArgumentError, "OAuth token must not be nil!" if @oauth_token.blank?
     end
     
@@ -19,13 +24,13 @@ class APIManager
     end
     
     def user_info
-      user = (make_request("@self", :fields => FIELDS) || {})["entry"]
+      user = (make_authorized_request("@self", :fields => FIELDS) || {})["entry"]
       parse_portable_contact(user)
     end
     
     def user_contacts
       # get as many contacts as we can
-      contacts = make_request("mycontacts", :fields => FIELDS, :count => CONTACT_COUNT)["entry"]
+      contacts = make_authorized_request("mycontacts", :fields => FIELDS, :count => CONTACT_COUNT)["entry"]
       contacts.map {|c| parse_portable_contact(c) rescue nil}
     end
     
@@ -60,9 +65,9 @@ class APIManager
       end
     end
     
-    def make_request(url_suffix, params = {}, typhoeus_args = {})
+    def make_authorized_request(url_suffix, params = {}, typhoeus_args = {})
       begin
-        super("#{API_ENDPOINT}@me/#{url_suffix}", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))
+        make_request("#{API_ENDPOINT}@me/#{url_suffix}", "get", params, typhoeus_args.merge(:headers => {:Authorization => "OAuth #{@oauth_token}"}))
       rescue APIError => e
         raise InvalidTokenError if e.message =~ /Invalid AuthSub token/
         raise

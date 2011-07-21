@@ -34,7 +34,7 @@ class User
   end
   
   def self.find_or_create_from_google_token(token)
-    google = APIManager::Google.new(token)
+    google = APIManager::Google.new(:token => token)
     info = google.user_info
     # if we don't have an existing user, make one
     if user = User.limit(1).where("remote_accounts.identifier" => info[:id]).first
@@ -135,7 +135,7 @@ class User
   def google_api
     unless @google_api
       if google_account = self.remote_accounts.where(:account_type => :google).first
-        @google_api = APIManager::Google.new(google_account.token)
+        @google_api = APIManager::Google.new(:token => google_account.token)
       end
     end
     @google_api

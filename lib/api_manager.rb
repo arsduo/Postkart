@@ -9,10 +9,10 @@ class APIManager
     raise StandardError, "APIManager#service_name should never be called directly! (Called from #{self.class.to_s})"
   end
 
-  def make_request(url, params = {}, typhoeus_args = {})
+  def make_request(url, method ="get", params = {}, typhoeus_args = {})
     begin
       Timeout.timeout(5) do
-        response = Typhoeus::Request.get(url, {:params => params}.merge(typhoeus_args))
+        response = Typhoeus::Request.send(method, url, {:params => params}.merge(typhoeus_args))
         response.code == 200 ? MultiJson.decode(response.body) : raise(APIError, response.body)
       end
     rescue Timeout::Error

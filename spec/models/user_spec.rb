@@ -58,7 +58,7 @@ describe User do
       @sample_data = sample_portable_contact.first
 
       # stub out the APIManager
-      @mgr = APIManager::Google.new(@token)
+      @mgr = APIManager::Google.new(:token => @token)
       APIManager::Google.stubs(:new).returns(@mgr)
       @mgr.stubs(:user_info).returns(@sample_data)
 
@@ -68,7 +68,7 @@ describe User do
     end
     
     it "instantiates a Google API manager" do
-      APIManager::Google.expects(:new).with(@token).returns(@mgr)
+      APIManager::Google.expects(:new).with(:token => @token).returns(@mgr)
       User.find_or_create_from_google_token(@token)
     end
     
@@ -219,8 +219,8 @@ describe User do
       it "initializes a Google API with the token in the google remote account" do
         # figure out what the token is
         token = @user.remote_accounts.where(:account_type => :google).first.token
-        g = APIManager::Google.new("foo")
-        APIManager::Google.expects(:new).with(token).returns(g)
+        g = APIManager::Google.new(:token => "foo")
+        APIManager::Google.expects(:new).with(:token => token).returns(g)
         @user.google_api
       end
 
